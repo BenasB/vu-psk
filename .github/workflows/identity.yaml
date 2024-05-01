@@ -1,0 +1,20 @@
+name: Identity .NET
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - Identity/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - Identity/**
+
+jobs:
+  ci:
+    uses: ./.github/workflows/dotnet-ci.yaml
+    with:
+      solution-directory: Identity

@@ -1,0 +1,24 @@
+name: FrontEnd .NET
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - FrontEnd/**
+      - Recipes/Recipes.Public/**
+      - Identity/Identity.Public/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - FrontEnd/**
+      - Recipes/Recipes.Public/**
+      - Identity/Identity.Public/**
+
+jobs:
+  ci:
+    uses: ./.github/workflows/dotnet-ci.yaml
+    with:
+      solution-directory: FrontEnd
