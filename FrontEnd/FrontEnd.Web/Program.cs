@@ -8,11 +8,11 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddHttpClient("Recipes.API", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:RecipesApiBaseUrl"]!);
+    client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ApiSettings:RecipesApiBaseUrl")!);
 });
 builder.Services.AddHttpClient("Identity.API", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:IdentityApiBaseUrl"]!);
+    client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ApiSettings:IdentityApiBaseUrl")!);
 });
 
 builder.Services.AddScoped<IRecipeService, RecipeService>();
