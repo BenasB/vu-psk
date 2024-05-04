@@ -6,16 +6,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddHttpClient<IRecipeService, RecipeService>(client =>
+builder.Services.AddHttpClient("Recipes.API", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:8080/");
+    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:RecipesApiBaseUrl"]!);
 });
-builder.Services.AddScoped<IRecipeService, RecipeService>();
+builder.Services.AddHttpClient("Identity.API", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:IdentityApiBaseUrl"]!);
+});
 
-builder.Services.AddHttpClient<IUserService, UserService>(client =>
-{
-    client.BaseAddress = new Uri("http://localhost:8081/");
-});
+builder.Services.AddScoped<IRecipeService, RecipeService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();

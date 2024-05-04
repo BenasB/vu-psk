@@ -11,7 +11,10 @@ public class UserService(IHttpClientFactory httpClientFactory) : IUserService
 {
     public async Task<IEnumerable<User>> GetAllAsync()
     {
-        using var httpClient = httpClientFactory.CreateClient();
+        using var httpClient = CreateIdentityClient();
         return await httpClient.GetFromJsonAsync<IEnumerable<User>>("users") ?? throw new InvalidOperationException();
     }
+    
+    private HttpClient CreateIdentityClient() => httpClientFactory.CreateClient("Identity.API");
+
 }

@@ -11,7 +11,9 @@ public class RecipeService(IHttpClientFactory httpClientFactory) : IRecipeServic
 {
     public async Task<IEnumerable<Recipe>> GetAllAsync()
     {
-        using var httpClient = httpClientFactory.CreateClient();
+        using var httpClient = CreateRecipesClient();
         return await httpClient.GetFromJsonAsync<IEnumerable<Recipe>>("recipes") ?? throw new InvalidOperationException();
     }
+    
+    private HttpClient CreateRecipesClient() => httpClientFactory.CreateClient("Recipes.API");
 }
