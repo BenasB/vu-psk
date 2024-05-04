@@ -2,7 +2,7 @@
 @using FrontEnd.Web.Services
 @using Identity.Public
 @attribute [StreamRendering]
-@inject IUserService UserService
+@inject IIdentityService IdentityService
 
 <PageTitle>Users</PageTitle>
 
@@ -40,6 +40,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        _users = await UserService.GetAllAsync();
+        _users = await IdentityService.GetAllAsync();
     }
 }

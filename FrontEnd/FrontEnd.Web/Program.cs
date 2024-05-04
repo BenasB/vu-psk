@@ -16,7 +16,7 @@ builder.Services.AddHttpClient("Identity.API", client =>
 });
 
 builder.Services.AddScoped<IRecipeService, RecipeService>();
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IIdentityService, IdentityService>();
 
 var app = builder.Build();
 
