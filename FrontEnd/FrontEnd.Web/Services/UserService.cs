@@ -1,28 +1,17 @@
-using System;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
 using Identity.Public;
 
 namespace FrontEnd.Web.Services;
 
 public interface IUserService
 {
-    Task<User[]> GetAllAsync();
+    Task<IEnumerable<User>> GetAllAsync();
 }
 
-public class UserService : IUserService
+public class UserService(IHttpClientFactory httpClientFactory) : IUserService
 {
-    private readonly IHttpClientFactory _httpClientFactory;
-
-    public UserService(IHttpClientFactory httpClientFactory)
+    public async Task<IEnumerable<User>> GetAllAsync()
     {
-        _httpClientFactory = httpClientFactory;
-    }
-
-    public async Task<User[]> GetAllAsync()
-    {
-        using var httpClient = _httpClientFactory.CreateClient();
-        return await httpClient.GetFromJsonAsync<User[]>("users");
+        using var httpClient = httpClientFactory.CreateClient();
+        return await httpClient.GetFromJsonAsync<IEnumerable<User>>("users") ?? throw new InvalidOperationException();
     }
 }

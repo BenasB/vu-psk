@@ -1,5 +1,6 @@
 @page "/recipes"
-@using Recipes.Public
+@using FrontEnd.Web.Services
+@using global::Recipes.Public
 @attribute [StreamRendering]
 @inject IRecipeService RecipeService
 
@@ -35,7 +36,7 @@ else
 }
 
 @code {
-    private Recipe[]? _recipes;
+    private IEnumerable<Recipe>? _recipes;
 
     protected override async Task OnInitializedAsync()
     {

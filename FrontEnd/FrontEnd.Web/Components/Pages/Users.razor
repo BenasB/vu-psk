@@ -1,4 +1,5 @@
 ﻿@page "/users"
+@using FrontEnd.Web.Services
 @using Identity.Public
 @attribute [StreamRendering]
 @inject IUserService UserService
@@ -35,7 +36,7 @@ else
 }
 
 @code {
-    private User[]? _users;
+    private IEnumerable<User>? _users;
 
     protected override async Task OnInitializedAsync()
     {
