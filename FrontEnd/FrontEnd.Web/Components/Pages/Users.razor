@@ -1,7 +1,7 @@
 ﻿@page "/users"
 @using Identity.Public
 @attribute [StreamRendering]
-@inject HttpClient HttpClient
+@inject IUserService UserService
 
 <PageTitle>Users</PageTitle>
 
@@ -39,7 +39,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // TODO: Replace this with a Users service
-        _users = await HttpClient.GetFromJsonAsync<User[]>("http://localhost:8081/users");
+        _users = await UserService.GetAllAsync();
     }
 }
