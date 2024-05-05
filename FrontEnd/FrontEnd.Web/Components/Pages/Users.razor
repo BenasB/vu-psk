@@ -1,7 +1,8 @@
 ﻿@page "/users"
+@using FrontEnd.Web.Services
 @using Identity.Public
 @attribute [StreamRendering]
-@inject HttpClient HttpClient
+@inject IIdentityService IdentityService
 
 <PageTitle>Users</PageTitle>
 
@@ -35,11 +36,10 @@ else
 }
 
 @code {
-    private User[]? _users;
+    private IEnumerable<User>? _users;
 
     protected override async Task OnInitializedAsync()
     {
-        // TODO: Replace this with a Users service
-        _users = await HttpClient.GetFromJsonAsync<User[]>("http://localhost:8081/users");
+        _users = await IdentityService.GetAllAsync();
     }
 }

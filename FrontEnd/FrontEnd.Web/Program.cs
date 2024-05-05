@@ -1,11 +1,13 @@
 using FrontEnd.Web.Components;
+using FrontEnd.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<IRecipeService, RecipeService>();
+builder.Services.AddHttpClient<IIdentityService, IdentityService>();
 
 var app = builder.Build();
 
