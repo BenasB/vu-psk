@@ -1,7 +1,8 @@
 ﻿@page "/recipes"
+@using FrontEnd.Web.Services
 @using global::Recipes.Public
 @attribute [StreamRendering]
-@inject HttpClient HttpClient
+@inject IRecipeService RecipeService
 
 <PageTitle>Recipes</PageTitle>
 
@@ -25,8 +26,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // TODO: Replace this with a Recipes service
-        var recipes = await HttpClient.GetFromJsonAsync<Recipe[]>("http://localhost:8080/recipes");
-        _recipes = recipes?.AsQueryable();
+        var recipes = await RecipeService.GetAllAsync();
+        _recipes = recipes.AsQueryable();
     }
 }

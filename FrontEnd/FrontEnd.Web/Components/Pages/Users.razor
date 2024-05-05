@@ -27,6 +27,6 @@ else
     protected override async Task OnInitializedAsync()
     {
         var users = await IdentityService.GetAllAsync();
-        _users = users?.AsQueryable();
+        _users = users.AsQueryable();
     }
 }
