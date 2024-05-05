@@ -7,13 +7,18 @@ public interface IRecipeService
     Task<IEnumerable<Recipe>> GetAllAsync();
 }
 
-public class RecipeService(IHttpClientFactory httpClientFactory) : IRecipeService
+public class RecipeService : IRecipeService
 {
-    public async Task<IEnumerable<Recipe>> GetAllAsync()
+    private readonly HttpClient _httpClient;
+    
+    public RecipeService(HttpClient httpClient, IConfiguration configuration)
     {
-        using var httpClient = CreateRecipesClient();
-        return await httpClient.GetFromJsonAsync<IEnumerable<Recipe>>("recipes") ?? throw new InvalidOperationException();
+        _httpClient = httpClient;
+        _httpClient.BaseAddress = new Uri(configuration.GetValue<string>("ApiSettings:RecipesApiBaseUrl")!);
     }
     
-    private HttpClient CreateRecipesClient() => httpClientFactory.CreateClient("Recipes.API");
+    public async Task<IEnumerable<Recipe>> GetAllAsync()
+    {
+        return await _httpClient.GetFromJsonAsync<IEnumerable<Recipe>>("recipes") ?? throw new InvalidOperationException();
+    }
 }

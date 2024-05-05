@@ -7,14 +7,18 @@ public interface IIdentityService
     Task<IEnumerable<User>> GetAllAsync();
 }
 
-public class IdentityService(IHttpClientFactory httpClientFactory) : IIdentityService
+public class IdentityService : IIdentityService
 {
-    public async Task<IEnumerable<User>> GetAllAsync()
+    private readonly HttpClient _httpClient;
+    
+    public IdentityService(HttpClient httpClient, IConfiguration configuration)
     {
-        using var httpClient = CreateIdentityClient();
-        return await httpClient.GetFromJsonAsync<IEnumerable<User>>("users") ?? throw new InvalidOperationException();
+        _httpClient = httpClient;
+        _httpClient.BaseAddress = new Uri(configuration.GetValue<string>("ApiSettings:IdentityApiBaseUrl")!);
     }
     
-    private HttpClient CreateIdentityClient() => httpClientFactory.CreateClient("Identity.API");
-
+    public async Task<IEnumerable<User>> GetAllAsync()
+    {
+        return await _httpClient.GetFromJsonAsync<IEnumerable<User>>("users") ?? throw new InvalidOperationException();
+    }
 }
