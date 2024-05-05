@@ -20,6 +20,7 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.7.2" />
+      <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.7.2" />
     </ItemGroup>
 
 </Project>
