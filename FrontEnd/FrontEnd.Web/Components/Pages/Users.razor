@@ -6,40 +6,27 @@
 
 <PageTitle>Users</PageTitle>
 
-<h1>Users</h1>
+<FluentLabel Typo="Typography.H1" MarginBlock="10px">Users</FluentLabel>
 
-<p>This component demonstrates showing data from Users API.</p>
+<FluentLabel Typo="Typography.Body">This component demonstrates showing data from Users API.</FluentLabel>
 
 @if (_users == null)
 {
-    <p>
-        <em>Loading...</em>
-    </p>
+    <FluentProgressRing />
 }
 else
 {
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Username</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var user in _users)
-        {
-            <tr>
-                <td>@user.Username</td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    <FluentDataGrid Items="_users">
+        <PropertyColumn Property="@(u => u.Username)" />
+    </FluentDataGrid>
 }
 
 @code {
-    private IEnumerable<User>? _users;
+    private IQueryable<User>? _users;
 
     protected override async Task OnInitializedAsync()
     {
-        _users = await IdentityService.GetAllAsync();
+        var users = await IdentityService.GetAllAsync();
+        _users = users.AsQueryable();
     }
 }

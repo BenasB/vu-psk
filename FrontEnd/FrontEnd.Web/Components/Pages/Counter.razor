@@ -3,11 +3,11 @@
 
 <PageTitle>Counter</PageTitle>
 
-<h1>Counter</h1>
+<FluentLabel Typo="Typography.H1" MarginBlock="10px">Counter</FluentLabel>
 
-<p role="status">Current count: @_currentCount</p>
+<FluentLabel Typo="Typography.Body">Current count: @_currentCount</FluentLabel>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<FluentButton OnClick="IncrementCount">Click me</FluentButton>
 
 @code {
     private int _currentCount = 0;

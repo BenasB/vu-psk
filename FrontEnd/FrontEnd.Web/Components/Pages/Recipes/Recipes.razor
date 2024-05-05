@@ -1,0 +1,32 @@
+﻿@page "/recipes"
+@using FrontEnd.Web.Services
+@using global::Recipes.Public
+@attribute [StreamRendering]
+@inject IRecipeService RecipeService
+
+<PageTitle>Recipes</PageTitle>
+
+<FluentLabel Typo="Typography.H1" MarginBlock="10px">Recipes</FluentLabel>
+
+<FluentLabel Typo="Typography.Body">This component demonstrates showing data from Recipes API.</FluentLabel>
+
+@if (_recipes == null)
+{
+    <FluentProgressRing />
+}
+else
+{
+    <FluentDataGrid Items="_recipes">
+        <PropertyColumn Property="@(r => r.Title)" />
+    </FluentDataGrid>
+}
+
+@code {
+    private IQueryable<Recipe>? _recipes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var recipes = await RecipeService.GetAllAsync();
+        _recipes = recipes.AsQueryable();
+    }
+}
