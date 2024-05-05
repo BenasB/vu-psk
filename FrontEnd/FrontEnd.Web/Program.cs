@@ -6,7 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<IRecipeService, RecipeService>();
+builder.Services.AddHttpClient<IIdentityService, IdentityService>();
 
 builder.Services.AddScoped<IRecipeService, RecipeService>();
 builder.Services.AddScoped<IIdentityService, IdentityService>();
