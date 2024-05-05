@@ -9,9 +9,6 @@ builder.Services.AddRazorComponents()
 builder.Services.AddHttpClient<IRecipeService, RecipeService>();
 builder.Services.AddHttpClient<IIdentityService, IdentityService>();
 
-builder.Services.AddScoped<IRecipeService, RecipeService>();
-builder.Services.AddScoped<IIdentityService, IdentityService>();
-
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
