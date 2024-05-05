@@ -5,41 +5,28 @@
 
 <PageTitle>Recipes</PageTitle>
 
-<h1>Recipes</h1>
+<FluentLabel Typo="Typography.H1" MarginBlock="10px">Recipes</FluentLabel>
 
-<p>This component demonstrates showing data from Recipes API.</p>
+<FluentLabel Typo="Typography.Body">This component demonstrates showing data from Recipes API.</FluentLabel>
 
 @if (_recipes == null)
 {
-    <p>
-        <em>Loading...</em>
-    </p>
+    <FluentProgressRing />
 }
 else
 {
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Title</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var recipe in _recipes)
-        {
-            <tr>
-                <td>@recipe.Title</td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    <FluentDataGrid Items="_recipes">
+        <PropertyColumn Property="@(r => r.Title)" />
+    </FluentDataGrid>
 }
 
 @code {
-    private Recipe[]? _recipes;
+    private IQueryable<Recipe>? _recipes;
 
     protected override async Task OnInitializedAsync()
     {
         // TODO: Replace this with a Recipes service
-        _recipes = await HttpClient.GetFromJsonAsync<Recipe[]>("http://localhost:8080/recipes");
+        var recipes = await HttpClient.GetFromJsonAsync<Recipe[]>("http://localhost:8080/recipes");
+        _recipes = recipes?.AsQueryable();
     }
 }
