@@ -8,9 +8,7 @@ public class IngredientEntity
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    [Required]
     public string Name { get; set; }
 
-    [Required]
     public IList<RecipeIngredient> Recipes { get; set; }
 }
