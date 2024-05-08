@@ -1,9 +1,14 @@
-using Recipes.Public;
+using Microsoft.EntityFrameworkCore;
+using Recipes.API.Models;
+using Recipes.API.Models.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<RecipesDatabaseContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 var app = builder.Build();
 
@@ -13,36 +18,63 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapGet("/recipes", () =>
+app.MapGet("/recipes", async (RecipesDatabaseContext dbContext) =>
+{
+    // Ingredients
+    var spaghetti = new IngredientEntity() { Name = "Spaghetti noodles" };
+    var beef = new IngredientEntity() { Name = "Ground beef" };
+
+    dbContext.Ingredients.Add(spaghetti);
+    await dbContext.SaveChangesAsync();
+
+    dbContext.Ingredients.Add(beef);
+    await dbContext.SaveChangesAsync();
+
+    // Recipe
+    var recipe = new RecipeEntity()
     {
-        var recipes = new Recipe[]
+        Title = "Mom's Spaghetti",
+        Description = "BlaBla",
+        AuthorId = 1,
+        CookingTime = new TimeSpan(0, 2, 0, 0),
+        UpdatedAt = DateTime.UtcNow,
+        Servings = 3,
+        Instructions = new List<string>
         {
-            new()
+            "Cook spaghetti noodles according to package instructions.",
+            "In a large skillet, brown ground beef with chopped onion and minced garlic.",
+            "Add tomato sauce, Italian seasoning, salt, and pepper to the skillet. Simmer for 10 minutes.",
+            "Serve the spaghetti topped with the meat sauce and sprinkle with Parmesan cheese."
+        }
+    };
+    spaghetti = dbContext.Ingredients.Find(1);
+    beef = dbContext.Ingredients.Find(2);
+    recipe.Ingredients.Add(new RecipeIngredient { Ingredient = spaghetti, Quantity = "8 ounces" });
+    recipe.Ingredients.Add(new RecipeIngredient { Ingredient = beef, Quantity = "1 pound" });
+
+    dbContext.Recipes.Add(recipe);
+    await dbContext.SaveChangesAsync();
+
+    return dbContext.Recipes
+        .Include(r => r.Ingredients)
+        .ThenInclude(ri => ri.Ingredient)
+        .Select(r => new
+        {
+            r.Id,
+            r.Title,
+            r.Description,
+            r.CookingTime,
+            r.Servings,
+            r.AuthorId,
+            r.UpdatedAt,
+            Ingredients = r.Ingredients.Select(ri => new
             {
-                Title = "Mom's Spaghetti",
-                Ingredients = new List<Ingredient>
-                {
-                    new() { Name = "Spaghetti noodles", Quantity = "8 ounces" },
-                    new() { Name = "Ground beef", Quantity = "1 pound" },
-                    new() { Name = "Tomato sauce", Quantity = "24 ounces" },
-                    new() { Name = "Onion", Quantity = "1, chopped" },
-                    new() { Name = "Garlic cloves", Quantity = "2, minced" },
-                    new() { Name = "Italian seasoning", Quantity = "1 teaspoon" },
-                    new() { Name = "Salt", Quantity = "to taste" },
-                    new() { Name = "Pepper", Quantity = "to taste" },
-                    new() { Name = "Parmesan cheese", Quantity = "for topping" }
-                },
-                Instructions = new List<string>
-                {
-                    "Cook spaghetti noodles according to package instructions.",
-                    "In a large skillet, brown ground beef with chopped onion and minced garlic.",
-                    "Add tomato sauce, Italian seasoning, salt, and pepper to the skillet. Simmer for 10 minutes.",
-                    "Serve the spaghetti topped with the meat sauce and sprinkle with Parmesan cheese."
-                }
-            }
-        };
-        
-        return recipes;
-    });
+                ri.Ingredient.Id,
+                ri.Ingredient.Name,
+                ri.Quantity
+            })
+        })
+        .ToList();
+});
 
 app.Run();
