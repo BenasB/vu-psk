@@ -1,0 +1,80 @@
+﻿@page "/recipes/{Id:guid}"
+
+@using FrontEnd.Web.Services
+@using global::Recipes.Public
+@attribute [StreamRendering]
+@inject IRecipeService RecipeService
+
+<style>
+    @@media 
+</style>
+
+@if (_task is not { IsCompleted: true })
+{
+    <PageTitle>Recipe loading</PageTitle>
+    <FluentProgressRing />
+}
+else if (_recipe == null)
+{
+    <PageTitle>Recipe not found</PageTitle>
+    <FluentLabel Typo="Typography.H1" MarginBlock="10px">Recipe not found.</FluentLabel>
+    <FluentLabel Typo="Typography.Body" MarginBlock="10px">The requested recipe doesn't exist.</FluentLabel>
+}
+else
+{
+    <PageTitle>@_recipe.Title</PageTitle>
+    <div style="height: 14rem; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+        <img src="https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg" alt="@_recipe.Title"/>
+    </div>
+    <FluentStack Style="margin-block: 10px;">
+        <FluentLabel Typo="Typography.H1" Style="flex-grow: 1">@_recipe.Title</FluentLabel>
+        <FluentStack Width="auto">
+            <FluentAnchor Href="" Appearance="Appearance.Accent">Edit</FluentAnchor>
+            <FluentAnchor Href="" Appearance="Appearance.Accent">Delete</FluentAnchor>
+        </FluentStack>
+    </FluentStack>
+    <FluentGrid AdaptiveRendering>
+        <FluentGridItem sm="12" md="6">
+            <FluentStack Orientation="Orientation.Vertical" Style="min-width: 350px;">
+                <FluentOverflow>
+                    @foreach (var item in _tagNames)
+                    {
+                        <FluentOverflowItem><FluentBadge Appearance="Appearance.Accent">@item</FluentBadge></FluentOverflowItem>
+                    }
+                </FluentOverflow>
+                <p>@_description</p>
+                <FluentLabel Color="Color.Accent" Typo="Typography.H4">Ingredients</FluentLabel>
+                <FluentDataGrid Items=_recipe.Ingredients.AsQueryable() GridTemplateColumns="2fr 1fr" Style="width: 100%;" ShowHover GenerateHeader="GenerateHeaderOption.None">
+                    <PropertyColumn Property="@(x => x.Name)" Align="Align.Start" />
+                    <PropertyColumn Property="@(x => x.Quantity)" Align="Align.End" />
+                </FluentDataGrid>
+            </FluentStack>
+        </FluentGridItem>
+        <FluentGridItem sm="12" md="6">
+            <FluentLabel Color="Color.Accent" Typo="Typography.H4">Instructions</FluentLabel>
+            <ol>
+                @foreach (var instruction in _recipe.Instructions)
+                {
+                    <li style="margin-block: 10px;">@instruction</li>
+                }
+            </ol>
+        </FluentGridItem>
+    </FluentGrid>
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+    
+    private Recipe? _recipe;
+    private Task<Recipe?>? _task;
+
+    private readonly IEnumerable<string> _tagNames = new [] { "Indian", "Dinner" };
+    private readonly string _description = "Chicken Tikka Masala is creamy and easy to make at home with simple ingredients! Full of incredible flavours, it rivals any Indian restaurant!";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _task = RecipeService.GetByIdAsync(Id);
+        _recipe = await _task;
+    }
+}

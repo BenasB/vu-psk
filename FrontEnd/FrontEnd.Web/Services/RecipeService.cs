@@ -5,6 +5,7 @@ namespace FrontEnd.Web.Services;
 public interface IRecipeService
 {
     Task<IEnumerable<Recipe>> GetAllAsync();
+    Task<Recipe?> GetByIdAsync(Guid id);
 }
 
 public class RecipeService : IRecipeService
@@ -20,5 +21,10 @@ public class RecipeService : IRecipeService
     public async Task<IEnumerable<Recipe>> GetAllAsync()
     {
         return await _httpClient.GetFromJsonAsync<IEnumerable<Recipe>>("recipes") ?? throw new InvalidOperationException();
+    }
+    
+    public async Task<Recipe?> GetByIdAsync(Guid id)
+    {
+        return (await GetAllAsync()).FirstOrDefault(r => r.Id == id);
     }
 }

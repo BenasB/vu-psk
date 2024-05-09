@@ -19,6 +19,7 @@ app.MapGet("/recipes", () =>
         {
             new()
             {
+                Id = Guid.Empty,
                 Title = "Mom's Spaghetti",
                 Ingredients = new List<Ingredient>
                 {
