@@ -9,7 +9,20 @@
 
 @if (_task is not { IsCompleted: true })
 {
-    <FluentProgressRing />
+    <FluentSkeleton Height="14rem" Width="100%" Style="margin-bottom: 10px;"/>
+    <FluentSkeleton Height="2.5em" Width="100%" Style="margin-bottom: 10px;"/>
+    <FluentStack Orientation="Orientation.Vertical">
+        <FluentStack>
+            <FluentSkeleton Height="20px" Width="50px"/>
+            <FluentSkeleton Height="20px" Width="50px"/>
+        </FluentStack>
+        <FluentSkeleton Height="0.875em" Width="100%"/>
+        <FluentSkeleton Height="0.875em" Width="100%"/>
+        <FluentSkeleton Height="0.875em" Width="50%"/>
+        <FluentSkeleton Height="1.5em" Width="150px" Style="margin-top: 10px;"/>
+        <FluentSkeleton Height="2em" Width="100%"/>
+        <FluentSkeleton Height="2em" Width="100%"/>
+    </FluentStack>
 }
 else if (_recipe == null)
 {
@@ -30,7 +43,7 @@ else
     </FluentStack>
     <FluentGrid AdaptiveRendering>
         <FluentGridItem sm="12" md="6">
-            <FluentStack Orientation="Orientation.Vertical" Style="min-width: 350px;">
+            <FluentStack Orientation="Orientation.Vertical" Style="min-width: 500px;">
                 <FluentOverflow>
                     @foreach (var item in _tagNames)
                     {
