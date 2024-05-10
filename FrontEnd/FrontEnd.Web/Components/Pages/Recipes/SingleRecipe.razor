@@ -5,24 +5,19 @@
 @attribute [StreamRendering]
 @inject IRecipeService RecipeService
 
-<style>
-    @@media 
-</style>
+<PageTitle>@(_recipe?.Title ?? "Single recipe display")</PageTitle>
 
 @if (_task is not { IsCompleted: true })
 {
-    <PageTitle>Recipe loading</PageTitle>
     <FluentProgressRing />
 }
 else if (_recipe == null)
 {
-    <PageTitle>Recipe not found</PageTitle>
     <FluentLabel Typo="Typography.H1" MarginBlock="10px">Recipe not found.</FluentLabel>
     <FluentLabel Typo="Typography.Body" MarginBlock="10px">The requested recipe doesn't exist.</FluentLabel>
 }
 else
 {
-    <PageTitle>@_recipe.Title</PageTitle>
     <div style="height: 14rem; overflow: hidden; display: flex; justify-content: center; align-items: center;">
         <img src="https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg" alt="@_recipe.Title"/>
     </div>
