@@ -32,14 +32,13 @@ else if (_recipe == null)
 else
 {
     <div style="height: 14rem; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-        <img src="https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg" alt="@_recipe.Title"/>
+        <img src="@_recipeUrl" alt="@_recipe.Title"/>
     </div>
     <FluentStack Style="margin-block: 10px;">
-        <FluentLabel Typo="Typography.H1" Style="flex-grow: 1">@_recipe.Title</FluentLabel>
-        <FluentStack Width="auto">
-            <FluentAnchor Href="" Appearance="Appearance.Accent">Edit</FluentAnchor>
-            <FluentAnchor Href="" Appearance="Appearance.Accent">Delete</FluentAnchor>
-        </FluentStack>
+        <FluentLabel Typo="Typography.H1">@_recipe.Title</FluentLabel>
+        <FluentSpacer/>
+        <FluentAnchor Href="" Appearance="Appearance.Accent">Edit</FluentAnchor>
+        <FluentAnchor Href="" Appearance="Appearance.Accent">Delete</FluentAnchor>
     </FluentStack>
     <FluentGrid AdaptiveRendering>
         <FluentGridItem sm="12" md="6">
@@ -52,7 +51,7 @@ else
                 </FluentOverflow>
                 <p>@_description</p>
                 <FluentLabel Color="Color.Accent" Typo="Typography.H4">Ingredients</FluentLabel>
-                <FluentDataGrid Items=_ingredients.AsQueryable() GridTemplateColumns="2fr 1fr" Style="width: 100%;" ShowHover GenerateHeader="GenerateHeaderOption.None">
+                <FluentDataGrid Items=_ingredients.AsQueryable() Style="width: 100%;" ShowHover GenerateHeader="GenerateHeaderOption.None">
                     <PropertyColumn Property="@(ingredient => ingredient)" />
                 </FluentDataGrid>
             </FluentStack>
@@ -79,7 +78,8 @@ else
     private readonly IEnumerable<string> _tagNames = new [] { "Indian", "Dinner" };
     private readonly IEnumerable<string> _ingredients = new [] { "8 ounces of spaghetti noodles", "1 pound of ground beef", "24 ounces of tomato sauce" };
     private readonly string _description = "Chicken Tikka Masala is creamy and easy to make at home with simple ingredients! Full of incredible flavours, it rivals any Indian restaurant!";
-
+    private readonly string _recipeUrl = "https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg";
+    
     protected override async Task OnInitializedAsync()
     {
         _task = RecipeService.GetByIdAsync(Id);
