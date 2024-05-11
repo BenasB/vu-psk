@@ -44,9 +44,21 @@ else
         <FluentGridItem sm="12" md="6">
             <FluentStack Orientation="Orientation.Vertical" Style="min-width: 500px;">
                 <FluentOverflow>
+                    <FluentOverflowItem>
+                        <FluentBadge Appearance="Appearance.Accent">
+                            <FluentIcon Color="Color.Disabled" Value=@(new Icons.Regular.Size16.Timer())/>@_recipeCookingTime
+                        </FluentBadge>
+                    </FluentOverflowItem>
+                    <FluentOverflowItem>
+                        <FluentBadge Appearance="Appearance.Accent">
+                            <FluentIcon Color="Color.Disabled" Value=@(new Icons.Regular.Size16.PersonBoard())/>@_recipeServings
+                        </FluentBadge>
+                    </FluentOverflowItem>
                     @foreach (var item in _tagNames)
                     {
-                        <FluentOverflowItem><FluentBadge Appearance="Appearance.Accent">@item</FluentBadge></FluentOverflowItem>
+                        <FluentOverflowItem>
+                            <FluentBadge Appearance="Appearance.Accent">@item</FluentBadge>
+                        </FluentOverflowItem>
                     }
                 </FluentOverflow>
                 <p>@_description</p>
@@ -79,6 +91,8 @@ else
     private readonly IEnumerable<string> _ingredients = new [] { "8 ounces of spaghetti noodles", "1 pound of ground beef", "24 ounces of tomato sauce" };
     private readonly string _description = "Chicken Tikka Masala is creamy and easy to make at home with simple ingredients! Full of incredible flavours, it rivals any Indian restaurant!";
     private readonly string _recipeUrl = "https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg";
+    private readonly TimeSpan _recipeCookingTime = TimeSpan.FromSeconds(2125);
+    private readonly int _recipeServings = 4;
     
     protected override async Task OnInitializedAsync()
     {
