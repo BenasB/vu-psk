@@ -1,9 +1,14 @@
-using Identity.Public;
+using Identity.API.Models;
+using Identity.API.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<IdentityDatabaseContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 var app = builder.Build();
 
@@ -13,17 +18,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapGet("/users", () =>
+app.MapGet("/users", async (IdentityDatabaseContext dbContext) =>
 {
-    var users = new User[]
+    var createdUser = new UserEntity() { Username = $"USER-{Guid.NewGuid()}", AssociatedRecipes = new List<int> { 69, 420 }, DateRegistered = DateTime.UtcNow };
+    dbContext.Users.Add(createdUser);
+    await dbContext.SaveChangesAsync();
+
+    return dbContext.Users.Select(u => new
     {
-        new()
-        {
-            Username = "johndoe"
-        }
-    };
-    
-    return users;
+        u.Id,
+        u.Username,
+        u.AssociatedRecipes,
+        u.DateRegistered
+    });
 });
 
 app.Run();

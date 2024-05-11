@@ -8,13 +8,14 @@ services:
     depends_on:
       - db
     environment:
-      - ConnectionStrings__Default=Server=db;Port=5432;Database=RecipesDB;Username=postgres;Password=postgres;
+      - ConnectionStrings__Default=Server=db;Port=5080;Database=RecipesDB;Username=postgres;Password=postgres;
 
   db:
     image: postgres:14
     ports:
-      - "5432:5432"
+      - "5080:5080"
     environment:
+      PGPORT: 5080
       POSTGRES_DB: RecipesDB
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
