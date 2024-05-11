@@ -1,0 +1,21 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings__Default=Server=db;Port=5081;Database=IdentityDB;Username=postgres;Password=postgres;
+
+  db:
+    image: postgres:14
+    ports:
+      - "5081:5081"
+    environment:
+      PGPORT: 5081    
+      POSTGRES_DB: IdentityDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres

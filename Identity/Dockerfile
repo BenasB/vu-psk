@@ -1,7 +1,8 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 8080
+EXPOSE 8081
+ENV ASPNETCORE_URLS=http://*:8081
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
@@ -10,7 +11,7 @@ COPY ["Identity.API/Identity.API.csproj", "Identity.API/"]
 COPY ["Identity.Public/Identity.Public.csproj", "Identity.Public/"]
 RUN dotnet restore "Identity.API/Identity.API.csproj"
 COPY . .
-WORKDIR "/src/Identity.API"
+WORKDIR /src/Identity.API
 RUN dotnet build "Identity.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
