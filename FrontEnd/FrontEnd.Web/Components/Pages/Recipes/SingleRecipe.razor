@@ -1,4 +1,4 @@
-﻿@page "/recipes/{Id:guid}"
+﻿@page "/recipes/{Id:int}"
 
 @using FrontEnd.Web.Services
 @using global::Recipes.Public
@@ -52,9 +52,8 @@ else
                 </FluentOverflow>
                 <p>@_description</p>
                 <FluentLabel Color="Color.Accent" Typo="Typography.H4">Ingredients</FluentLabel>
-                <FluentDataGrid Items=_recipe.Ingredients.AsQueryable() GridTemplateColumns="2fr 1fr" Style="width: 100%;" ShowHover GenerateHeader="GenerateHeaderOption.None">
-                    <PropertyColumn Property="@(x => x.Name)" Align="Align.Start" />
-                    <PropertyColumn Property="@(x => x.Quantity)" Align="Align.End" />
+                <FluentDataGrid Items=_ingredients.AsQueryable() GridTemplateColumns="2fr 1fr" Style="width: 100%;" ShowHover GenerateHeader="GenerateHeaderOption.None">
+                    <PropertyColumn Property="@(ingredient => ingredient)" />
                 </FluentDataGrid>
             </FluentStack>
         </FluentGridItem>
@@ -72,12 +71,13 @@ else
 
 @code {
     [Parameter]
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     
     private Recipe? _recipe;
     private Task<Recipe?>? _task;
 
     private readonly IEnumerable<string> _tagNames = new [] { "Indian", "Dinner" };
+    private readonly IEnumerable<string> _ingredients = new [] { "8 ounces of spaghetti noodles", "1 pound of ground beef", "24 ounces of tomato sauce" };
     private readonly string _description = "Chicken Tikka Masala is creamy and easy to make at home with simple ingredients! Full of incredible flavours, it rivals any Indian restaurant!";
 
     protected override async Task OnInitializedAsync()
