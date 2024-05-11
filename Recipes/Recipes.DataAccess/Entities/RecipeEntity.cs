@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace Recipes.API.Models.Entities;
+namespace Recipes.DataAccess.Entities;
 
 public class RecipeEntity
 {
@@ -11,9 +11,9 @@ public class RecipeEntity
 
     public int AuthorId { get; set; }
 
-    public string Title { get; set; }
+    public required string Title { get; set; }
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     public TimeSpan CookingTime { get; set; }
 
@@ -21,7 +21,7 @@ public class RecipeEntity
 
     public DateTime UpdatedAt { get; set; }
 
-    public IList<string> Instructions { get; set; } = new List<string>();
+    public required IList<string> Instructions { get; set; } = new List<string>();
 
-    public IList<RecipeIngredient> Ingredients { get; set; } = new List<RecipeIngredient>();
+    public required IList<string> Ingredients { get; set; } = new List<string>();
 }
