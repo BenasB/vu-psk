@@ -17,7 +17,10 @@
 else
 {
     <FluentDataGrid Items="_recipes">
-        <PropertyColumn Property="@(r => r.Title)" />
+        <PropertyColumn Property="@(r => r.Title)"/>
+        <TemplateColumn Title="Navigation">
+            <FluentNavLink Href=@("recipes/" + context.Id) Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Link())" IconColor="Color.Accent" />
+        </TemplateColumn>
     </FluentDataGrid>
 }
 
