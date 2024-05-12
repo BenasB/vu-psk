@@ -2,7 +2,7 @@ using Recipes.DataAccess.Entities;
 
 namespace Recipes.DataAccess;
 
-public static class DbSeeder
+public static class DbInitializer
 {
     private static RecipeEntity[] SeedRecipesData => CreateSeedRecipesData();
 

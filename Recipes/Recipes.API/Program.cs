@@ -21,7 +21,7 @@ if (app.Environment.IsDevelopment())
     var recipesDbContext = scope.ServiceProvider.GetRequiredService<RecipesDatabaseContext>();
     
     if (!recipesDbContext.Recipes.Any())
-        await DbSeeder.SeedRecipes(recipesDbContext);
+        await DbInitializer.SeedRecipes(recipesDbContext);
 }
 
 app.MapGet("/recipes", async (RecipesDatabaseContext dbContext) =>
