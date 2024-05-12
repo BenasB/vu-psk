@@ -10,7 +10,7 @@ COPY ["Recipes.API/Recipes.API.csproj", "Recipes.API/"]
 COPY ["Recipes.Public/Recipes.Public.csproj", "Recipes.Public/"]
 RUN dotnet restore "Recipes.API/Recipes.API.csproj"
 COPY . .
-WORKDIR "/src/Recipes.API"
+WORKDIR /src/Recipes.API
 RUN dotnet build "Recipes.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
