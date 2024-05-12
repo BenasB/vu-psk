@@ -1,0 +1,22 @@
+﻿@page "/recipes/{Id:int}/edit"
+@using FrontEnd.Web.Services
+@inject IRecipeService RecipeService
+
+<PageTitle>Edit a recipe</PageTitle>
+
+<FluentLabel Typo="Typography.H1" MarginBlock="10px">Edit a recipe</FluentLabel>
+
+<Form InitialData="_recipe"></Form>
+
+@code
+{
+    [Parameter]
+    public int Id { get; init; }
+
+    private global::Recipes.Public.Recipe? _recipe;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        _recipe = await RecipeService.GetByIdAsync(Id);
+    }
+}

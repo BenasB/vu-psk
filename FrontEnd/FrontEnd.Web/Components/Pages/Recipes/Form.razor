@@ -1,0 +1,204 @@
+﻿@using System.ComponentModel.DataAnnotations
+@rendermode InteractiveServer
+
+<EditForm Model="@FormData" OnValidSubmit="@HandleValidSubmit" FormName="recipe" novalidate>
+    <ObjectGraphDataAnnotationsValidator/>
+
+    <FluentGrid AdaptiveRendering>
+        <FluentGridItem xs="12" sm="12" md="6">
+            <FluentStack Orientation="Orientation.Vertical">
+                <div style="width: 100%;">
+                    <FluentTextField Name="title" @bind-Value="FormData.Title" Label="Title" Required style="width: 100%;"/>
+                    <FluentValidationMessage For="@(() => FormData.Title)"/>
+                </div>
+                <FluentTextArea Name="description"
+                                Rows="5"
+                                @bind-Value="FormData.Description"
+                                Label="Description"
+                                style="width: 100%;"/>
+                <FluentAutocomplete TOption="string"
+                                    AutoComplete="off"
+                                    Label="Tags"
+                                    Placeholder="Select tags"
+                                    OnOptionsSearch="OnTagsSearchAsync"
+                                    OptionText="@(tag => tag)"
+                                    @bind-SelectedOptions="@FormData.Tags"
+                                    Width="100%"/>
+                <div style="width: 100%;">
+                    <FluentNumberField Name="cookingTime"
+                                       @bind-Value="FormData.CookingTimeInMinutes"
+                                       Label="Cooking time (min.)"
+                                       Required
+                                       style="width: 100%;"/>
+                    <FluentValidationMessage For="@(() => FormData.CookingTimeInMinutes)"/>
+                </div>
+                <div style="width: 100%;">
+                    <FluentNumberField Name="servings"
+                                       @bind-Value="FormData.Servings"
+                                       Label="Servings"
+                                       Required
+                                       style="width: 100%;"/>
+                    <FluentValidationMessage For="@(() => FormData.Servings)"/>
+                </div>
+                <FluentStack Orientation="Orientation.Vertical">
+                    <FluentLabel>Ingredients <span style="color: red;">*</span></FluentLabel>
+                    <FluentValidationMessage For="@(() => FormData.Ingredients)"/>
+                    @foreach (var ingredient in FormData.Ingredients)
+                    {
+                        <div style="width: 100%;">
+                            <FluentStack Orientation="Orientation.Horizontal">
+                                <FluentTextField @bind-Value="ingredient.Value" Style="width: 100%"/>
+                                <FluentButton Appearance="Appearance.Lightweight"
+                                              IconEnd="@(new Icons.Regular.Size16.Delete())"
+                                              OnClick="@(() => FormData.Ingredients.Remove(ingredient))"/>
+                            </FluentStack>
+                            <FluentValidationMessage For="@(() => ingredient.Value)"/>
+                        </div>
+                    }
+                    <FluentButton Appearance="Appearance.Lightweight"
+                                  OnClick="() => FormData.Ingredients.Add(new Ingredient())">
+                        Add new ingredient
+                    </FluentButton>
+                </FluentStack>
+                <FluentStack Orientation="Orientation.Vertical">
+                    <FluentLabel>Instructions <span style="color: red;">*</span></FluentLabel>
+                    <FluentValidationMessage For="@(() => FormData.Instructions)"/>
+                    @for (var i = 0; i < FormData.Instructions.Count; i++)
+                    {
+                        <div style="width: 100%;">
+                            @{
+                                var index = i;
+                                var instruction = FormData.Instructions[i];
+                            }
+                            <FluentStack Orientation="Orientation.Horizontal">
+                                <FluentLabel>@(index + 1).</FluentLabel>
+                                <FluentTextArea Rows="5" @bind-Value="instruction.Value" Style="width: 100%"/>
+                                <FluentButton Appearance="Appearance.Lightweight"
+                                              IconEnd="@(new Icons.Regular.Size16.Delete())"
+                                              OnClick="@(() => FormData.Instructions.Remove(instruction))"/>
+                            </FluentStack>
+                            <FluentValidationMessage For="@(() => instruction.Value)"/>
+                        </div>
+                    }
+                    <FluentButton Appearance="Appearance.Lightweight"
+                                  OnClick="() => FormData.Instructions.Add(new InstructionStep())">
+                        Add new step
+                    </FluentButton>
+                </FluentStack>
+            </FluentStack>
+        </FluentGridItem>
+        <FluentGridItem xs="12" sm="12" md="6">
+            <FluentStack Orientation="Orientation.Vertical">
+                <FluentLabel>Picture</FluentLabel>
+                <!--suppress CssUnresolvedCustomProperty -->
+                <FluentInputFile Id="picture"
+                                 Accept="image/*"
+                                 Style="height: 300px; width: 100%; border: 1px dashed var(--accent-fill-rest);">
+                    <ChildContent>
+                        <label for="picture">
+                            <FluentIcon Value="@(new @Icons.Regular.Size24.ArrowUpload())"/>
+                        </label>
+
+                        <div>
+                            Drag files here you wish to upload, or <label for="picture">browse</label> for them.
+                        </div>
+                    </ChildContent>
+                </FluentInputFile>
+            </FluentStack>
+        </FluentGridItem>
+        <FluentGridItem xs="12">
+            <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">Create</FluentButton>
+        </FluentGridItem>
+    </FluentGrid>
+</EditForm>
+
+@code{
+    private static readonly string[] AvailableTags = ["Breakfast", "Lunch", "Dinner", "Indian", "Italian"]; // TODO: Pull tags from Recipes API
+
+    [Parameter] public global::Recipes.Public.Recipe? InitialData { get; set; }
+
+    [SupplyParameterFromForm] private RecipeFormData FormData { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        if (InitialData != null)
+            FormData = new RecipeFormData
+            {
+                Id = InitialData.Id,
+                Title = InitialData.Title,
+                Description = InitialData.Description,
+                Servings = InitialData.Servings,
+                CookingTimeInMinutes = (int)InitialData.CookingTime.TotalMinutes,
+                Tags = [], // TODO: Load from incoming Recipes.Public.Recipe
+                Ingredients = InitialData.Ingredients.Select(x => new Ingredient { Value = x }).ToList(),
+                Instructions = InitialData.Instructions.Select(x => new InstructionStep { Value = x }).ToList()
+            };
+    }
+
+    private class RecipeFormData
+    {
+        public int? Id { get; init; }
+
+        [Required, MinLength(3, ErrorMessage = "Title is too short!")]
+        public string? Title { get; set; }
+
+        public string? Description { get; set; }
+
+        [Required(ErrorMessage = "The cooking time field is required.")]
+        [Range(1, 24 * 60, ErrorMessage = "The cooking time must be between 1 minute and 1 day")]
+        public int? CookingTimeInMinutes { get; set; }
+
+        [Required, Range(1, 24)] public int? Servings { get; set; } = 1;
+
+        [ValidateComplexType, MinLength(1, ErrorMessage = "At least one ingredient must be present")]
+        public List<Ingredient> Ingredients { get; set; } = [];
+
+        [ValidateComplexType, MinLength(1, ErrorMessage = "At least one instruction must be present")]
+        public List<InstructionStep> Instructions { get; set; } = [];
+
+        public IEnumerable<string> Tags { get; set; } = [];
+    }
+
+    private class Ingredient
+    {
+        [Required(ErrorMessage = "Ingredient must have a value")]
+        public string? Value { get; set; }
+    }
+
+    private class InstructionStep
+    {
+        [Required(ErrorMessage = "Instruction step must have a value")]
+        public string? Value { get; set; }
+    }
+
+    private void HandleValidSubmit()
+    {
+        var recipeDto = new global::Recipes.Public.Recipe
+        {
+            Title = FormData.Title!,
+            AuthorId = 1,
+            Description = FormData.Description,
+            CookingTime = TimeSpan.FromMinutes((double)FormData.CookingTimeInMinutes!),
+            Servings = FormData.Servings!.Value,
+            Ingredients = FormData.Ingredients.Select(x => x.Value!),
+            Instructions = FormData.Instructions.Select(x => x.Value!)
+        };
+
+        // TODO: Send out `recipeDto` to the Recipes API
+        // If FormData.Id is null, send to create
+        // otherwise send to update recipe with id FormData.Id
+    }
+
+    private static Task OnTagsSearchAsync(OptionsSearchEventArgs<string> e)
+    {
+        if (string.IsNullOrWhiteSpace(e.Text))
+        {
+            e.Items = AvailableTags;
+            return Task.CompletedTask;
+        }
+
+        e.Items = AvailableTags.Where(tag => tag.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase));
+        return Task.CompletedTask;
+    }
+
+}
