@@ -2,6 +2,7 @@
 using Recipes.DataAccess.Entities;
 
 namespace Recipes.DataAccess;
+
 public class RecipesDatabaseContext : DbContext
 {
     public RecipesDatabaseContext(DbContextOptions<RecipesDatabaseContext> options)
@@ -10,6 +11,5 @@ public class RecipesDatabaseContext : DbContext
         Database.EnsureCreated();
     }
 
-    public DbSet<RecipeEntity> Recipes { get; set; } = null!;
+    public DbSet<RecipeEntity> Recipes { get; init; } = null!;
 }
-

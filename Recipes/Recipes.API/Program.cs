@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Recipes.DataAccess;
-using Recipes.DataAccess.Entities;
 using Recipes.Public;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,36 +16,17 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    
+    using var scope = app.Services.CreateScope();
+    var recipesDbContext = scope.ServiceProvider.GetRequiredService<RecipesDatabaseContext>();
+    
+    if (!recipesDbContext.Recipes.Any())
+        await DbSeeder.SeedRecipes(recipesDbContext);
 }
 
 app.MapGet("/recipes", async (RecipesDatabaseContext dbContext) =>
 {
-    var recipe = new RecipeEntity()
-    {
-        Title = "Mom's Spaghetti",
-        Description = "BlaBla",
-        AuthorId = 1,
-        CookingTime = new TimeSpan(0, 2, 0, 0),
-        UpdatedAt = DateTime.UtcNow,
-        Servings = 3,
-        Instructions = new List<string>
-        {
-            "Cook spaghetti noodles according to package instructions.",
-            "In a large skillet, brown ground beef with chopped onion and minced garlic.",
-            "Add tomato sauce, Italian seasoning, salt, and pepper to the skillet. Simmer for 10 minutes.",
-            "Serve the spaghetti topped with the meat sauce and sprinkle with Parmesan cheese."
-        },
-        Ingredients = new List<string>
-        {
-            "Spaghetti noodles",
-            "Ground beef"
-        }
-    };
-
-    dbContext.Recipes.Add(recipe);
-    await dbContext.SaveChangesAsync();
-
-    return dbContext.Recipes
+    return await dbContext.Recipes
         .Select(r => new Recipe
         {
             Id = r.Id,
@@ -59,7 +39,7 @@ app.MapGet("/recipes", async (RecipesDatabaseContext dbContext) =>
             Ingredients = r.Ingredients,
             Instructions = r.Instructions
         })
-        .ToList();
+        .ToListAsync();
 });
 
 app.Run();
