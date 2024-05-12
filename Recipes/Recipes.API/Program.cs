@@ -20,6 +20,8 @@ if (app.Environment.IsDevelopment())
     using var scope = app.Services.CreateScope();
     var recipesDbContext = scope.ServiceProvider.GetRequiredService<RecipesDatabaseContext>();
     
+    recipesDbContext.Database.Migrate();
+
     if (!recipesDbContext.Recipes.Any())
         await DbInitializer.SeedRecipes(recipesDbContext);
 }
