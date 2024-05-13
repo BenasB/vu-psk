@@ -12,15 +12,15 @@ builder.Services.AddDbContext<RecipesDatabaseContext>(options =>
 
 var app = builder.Build();
 
+using var scope = app.Services.CreateScope();
+var recipesDbContext = scope.ServiceProvider.GetRequiredService<RecipesDatabaseContext>();
+
+recipesDbContext.Database.Migrate();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    
-    using var scope = app.Services.CreateScope();
-    var recipesDbContext = scope.ServiceProvider.GetRequiredService<RecipesDatabaseContext>();
-    
-    recipesDbContext.Database.Migrate();
 
     if (!recipesDbContext.Recipes.Any())
         await DbInitializer.SeedRecipes(recipesDbContext);
