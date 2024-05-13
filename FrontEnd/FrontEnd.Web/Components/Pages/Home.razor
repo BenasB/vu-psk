@@ -8,7 +8,12 @@
 
 @if (_recipes == null)
 {
-    <FluentProgressRing />
+    <FluentStack Wrap="true">
+        @for (var i = 0; i < 12; ++i)
+        {
+            <FluentSkeleton Width="16rem" Height="16rem" Shimmer="true"/>
+        }
+    </FluentStack>
 }
 else if (!_recipes.Any())
 {
