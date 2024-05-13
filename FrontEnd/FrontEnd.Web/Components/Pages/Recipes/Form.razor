@@ -27,10 +27,11 @@
                 <div style="width: 100%;">
                     <FluentNumberField Name="cookingTime"
                                        @bind-Value="FormData.CookingTimeInMinutes"
+                                       ParsingErrorMessage="Cooking time must be an integer"
                                        Label="Cooking time (min.)"
                                        Required
                                        style="width: 100%;"/>
-                    <FluentValidationMessage For="@(() => FormData.CookingTimeInMinutes)"/>
+                    <FluentValidationMessage For="@(() => FormData.CookingTimeInMinutes)" />
                 </div>
                 <div style="width: 100%;">
                     <FluentNumberField Name="servings"
@@ -107,7 +108,7 @@
             </FluentStack>
         </FluentGridItem>
         <FluentGridItem xs="12">
-            <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">Create</FluentButton>
+            <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">@(InitialData == null ? "Create" : "Edit")</FluentButton>
         </FluentGridItem>
     </FluentGrid>
 </EditForm>
@@ -122,6 +123,7 @@
     protected override void OnInitialized()
     {
         if (InitialData != null)
+        {
             FormData = new RecipeFormData
             {
                 Id = InitialData.Id,
@@ -133,6 +135,7 @@
                 Ingredients = InitialData.Ingredients.Select(x => new Ingredient { Value = x }).ToList(),
                 Instructions = InitialData.Instructions.Select(x => new InstructionStep { Value = x }).ToList()
             };
+        }
     }
 
     private class RecipeFormData

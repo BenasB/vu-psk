@@ -4,9 +4,16 @@
 
 <PageTitle>Edit a recipe</PageTitle>
 
-<FluentLabel Typo="Typography.H1" MarginBlock="10px">Edit a recipe</FluentLabel>
-
-<Form InitialData="_recipe"></Form>
+@if (_recipe != null)
+{
+    <FluentLabel Typo="Typography.H1" MarginBlock="10px">Edit a recipe</FluentLabel>
+    <Form InitialData="_recipe"></Form>
+}
+else
+{
+    <FluentLabel Typo="Typography.H1" MarginBlock="10px">Recipe not found.</FluentLabel>
+    <FluentLabel Typo="Typography.Body" MarginBlock="10px">The requested recipe doesn't exist.</FluentLabel>
+}
 
 @code
 {
