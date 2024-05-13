@@ -37,7 +37,7 @@ else
     <FluentStack Style="margin-block: 10px;">
         <FluentLabel Typo="Typography.H1">@_recipe.Title</FluentLabel>
         <FluentSpacer/>
-        <FluentAnchor Href="" Appearance="Appearance.Accent">Edit</FluentAnchor>
+        <FluentAnchor Href=@($"/recipes/{Id}/edit") Appearance="Appearance.Accent">Edit</FluentAnchor>
         <FluentAnchor Href="" Appearance="Appearance.Accent">Delete</FluentAnchor>
     </FluentStack>
     <FluentGrid AdaptiveRendering>
