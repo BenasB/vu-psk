@@ -6,26 +6,39 @@
 
 <PageTitle>Recipes</PageTitle>
 
-<FluentLabel Typo="Typography.H1" MarginBlock="10px">Recipes</FluentLabel>
-
-<FluentLabel Typo="Typography.Body">This component demonstrates showing data from Recipes API.</FluentLabel>
-
 @if (_recipes == null)
 {
     <FluentProgressRing />
 }
+else if (!_recipes.Any())
+{
+    <FluentLabel Typo="Typography.Subject">No recipes exist.</FluentLabel>
+    <FluentStack VerticalAlignment="VerticalAlignment.Center" HorizontalGap="3" Style="margin-block: 10px">
+        <FluentLabel Typo="Typography.Body">Love cooking?</FluentLabel>
+        <FluentAnchor Href="recipes/new" Appearance="Appearance.Hypertext">Share your own!</FluentAnchor>
+    </FluentStack>
+}
 else
 {
-    <FluentDataGrid Items="_recipes">
-        <PropertyColumn Property="@(r => r.Title)"/>
-        <TemplateColumn Title="Navigation">
-            <FluentNavLink Href=@($"recipes/{context.Id}") Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Link())" IconColor="Color.Accent" />
-        </TemplateColumn>
-    </FluentDataGrid>
+    <FluentStack Wrap="true">
+        @foreach (var recipe in _recipes)
+        {
+            <FluentNavLink Href=@($"recipes/{recipe.Id}") Match="NavLinkMatch.All">
+                <FluentCard Width="16rem" Height="16rem" Style="background-color: var(--neutral-layer-1)">
+                    <div style="height: 8rem; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="@_recipeImageUrl" alt="@recipe.Title"/>
+                    </div>
+                    <FluentLabel Typo="Typography.Subject" MarginBlock="10px">@recipe.Title</FluentLabel>
+                    <FluentLabel Typo="Typography.Body">@recipe.Description</FluentLabel>
+                </FluentCard>
+            </FluentNavLink>
+        }
+    </FluentStack>
 }
 
 @code {
     private IQueryable<Recipe>? _recipes;
+    private readonly string _recipeImageUrl = "https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg";
 
     protected override async Task OnInitializedAsync()
     {
