@@ -1,0 +1,28 @@
+@rendermode InteractiveServer
+
+<FluentDesignTheme @bind-Mode="@Mode"
+                   OfficeColor="OfficeColor.PowerPoint"
+                   OnLuminanceChanged="@OnLuminanceChanged"
+                   StorageName="theme" />
+
+<FluentButton IconEnd="@(new Icons.Regular.Size20.DarkTheme())" Title="Mode" OnClick="OnToggleLuminance" />
+
+@code {
+    bool _isDark = false;
+
+    private DesignThemeModes Mode { get; set; }
+    private bool IsDark => Mode == DesignThemeModes.Dark || (Mode == DesignThemeModes.System && _isDark);
+
+    void OnLuminanceChanged(LuminanceChangedEventArgs e)
+    {
+        if (Mode != e.Mode)
+            Mode = e.Mode;
+
+        _isDark = e.IsDark;
+    }
+
+    void OnToggleLuminance()
+    {
+        Mode = _isDark ? DesignThemeModes.Light : DesignThemeModes.Dark;
+    }
+}

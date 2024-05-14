@@ -1,0 +1,98 @@
+﻿@page "/recipes/{Id:int}"
+
+@using FrontEnd.Web.Services
+@using global::Recipes.Public
+@attribute [StreamRendering]
+@inject IRecipeService RecipeService
+
+<PageTitle>@(_recipe?.Title ?? "Single recipe display")</PageTitle>
+
+@if (_task is not { IsCompleted: true })
+{
+    <FluentSkeleton Height="14rem" Width="100%" Style="margin-bottom: 10px;"/>
+    <FluentSkeleton Height="2.5em" Width="100%" Style="margin-bottom: 10px;"/>
+    <FluentStack Orientation="Orientation.Vertical">
+        <FluentStack>
+            <FluentSkeleton Height="20px" Width="50px"/>
+            <FluentSkeleton Height="20px" Width="50px"/>
+        </FluentStack>
+        <FluentSkeleton Height="0.875em" Width="100%"/>
+        <FluentSkeleton Height="0.875em" Width="100%"/>
+        <FluentSkeleton Height="0.875em" Width="50%"/>
+        <FluentSkeleton Height="1.5em" Width="150px" Style="margin-top: 10px;"/>
+        <FluentSkeleton Height="2em" Width="100%"/>
+        <FluentSkeleton Height="2em" Width="100%"/>
+    </FluentStack>
+}
+else if (_recipe == null)
+{
+    <FluentLabel Typo="Typography.H1" MarginBlock="10px">Recipe not found.</FluentLabel>
+    <FluentLabel Typo="Typography.Body" MarginBlock="10px">The requested recipe doesn't exist.</FluentLabel>
+}
+else
+{
+    <div style="height: 14rem; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+        <img src="@_recipeImageUrl" alt="@_recipe.Title"/>
+    </div>
+    <FluentStack Style="margin-block: 10px;">
+        <FluentLabel Typo="Typography.H1">@_recipe.Title</FluentLabel>
+        <FluentSpacer/>
+        <FluentAnchor Href=@($"/recipes/{Id}/edit") Appearance="Appearance.Accent">Edit</FluentAnchor>
+        <FluentAnchor Href="" Appearance="Appearance.Accent">Delete</FluentAnchor>
+    </FluentStack>
+    <FluentGrid AdaptiveRendering>
+        <FluentGridItem sm="12" md="6">
+            <FluentStack Orientation="Orientation.Vertical" Style="min-width: 500px;">
+                <FluentOverflow>
+                    <FluentOverflowItem>
+                        <FluentBadge Appearance="Appearance.Accent">
+                            <FluentIcon Color="Color.Disabled" Value=@(new Icons.Regular.Size16.Timer())/>@_recipe.CookingTime
+                        </FluentBadge>
+                    </FluentOverflowItem>
+                    <FluentOverflowItem>
+                        <FluentBadge Appearance="Appearance.Accent">
+                            <FluentIcon Color="Color.Disabled" Value=@(new Icons.Regular.Size16.PersonBoard())/>@_recipe.Servings
+                        </FluentBadge>
+                    </FluentOverflowItem>
+                    @foreach (var item in _tagNames)
+                    {
+                        <FluentOverflowItem>
+                            <FluentBadge Appearance="Appearance.Accent">@item</FluentBadge>
+                        </FluentOverflowItem>
+                    }
+                </FluentOverflow>
+                <p>@_recipe.Description</p>
+                <FluentLabel Color="Color.Accent" Typo="Typography.H4">Ingredients</FluentLabel>
+                <FluentDataGrid Items=_recipe.Ingredients.AsQueryable() Style="width: 100%;" ShowHover GenerateHeader="GenerateHeaderOption.None">
+                    <PropertyColumn Property="@(ingredient => ingredient)" />
+                </FluentDataGrid>
+            </FluentStack>
+        </FluentGridItem>
+        <FluentGridItem sm="12" md="6">
+            <FluentLabel Color="Color.Accent" Typo="Typography.H4">Instructions</FluentLabel>
+            <ol>
+                @foreach (var instruction in _recipe.Instructions)
+                {
+                    <li style="margin-block: 10px;">@instruction</li>
+                }
+            </ol>
+        </FluentGridItem>
+    </FluentGrid>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    
+    private Recipe? _recipe;
+    private Task<Recipe?>? _task;
+
+    private readonly IEnumerable<string> _tagNames = new [] { "Indian", "Dinner" };
+    private readonly string _recipeImageUrl = "https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg";
+    
+    protected override async Task OnInitializedAsync()
+    {
+        _task = RecipeService.GetByIdAsync(Id);
+        _recipe = await _task;
+    }
+}

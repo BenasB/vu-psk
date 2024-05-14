@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Recipes.API.Models;
-using Recipes.API.Models.Entities;
+using Recipes.DataAccess;
+using Recipes.DataAccess.Entities;
+using Recipes.Public;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,17 +21,6 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/recipes", async (RecipesDatabaseContext dbContext) =>
 {
-    // Ingredients
-    var spaghetti = new IngredientEntity() { Name = "Spaghetti noodles" };
-    var beef = new IngredientEntity() { Name = "Ground beef" };
-
-    dbContext.Ingredients.Add(spaghetti);
-    await dbContext.SaveChangesAsync();
-
-    dbContext.Ingredients.Add(beef);
-    await dbContext.SaveChangesAsync();
-
-    // Recipe
     var recipe = new RecipeEntity()
     {
         Title = "Mom's Spaghetti",
@@ -45,34 +35,29 @@ app.MapGet("/recipes", async (RecipesDatabaseContext dbContext) =>
             "In a large skillet, brown ground beef with chopped onion and minced garlic.",
             "Add tomato sauce, Italian seasoning, salt, and pepper to the skillet. Simmer for 10 minutes.",
             "Serve the spaghetti topped with the meat sauce and sprinkle with Parmesan cheese."
+        },
+        Ingredients = new List<string>
+        {
+            "Spaghetti noodles",
+            "Ground beef"
         }
     };
-    spaghetti = dbContext.Ingredients.Find(1);
-    beef = dbContext.Ingredients.Find(2);
-    recipe.Ingredients.Add(new RecipeIngredient { Ingredient = spaghetti, Quantity = "8 ounces" });
-    recipe.Ingredients.Add(new RecipeIngredient { Ingredient = beef, Quantity = "1 pound" });
 
     dbContext.Recipes.Add(recipe);
     await dbContext.SaveChangesAsync();
 
     return dbContext.Recipes
-        .Include(r => r.Ingredients)
-        .ThenInclude(ri => ri.Ingredient)
-        .Select(r => new
+        .Select(r => new Recipe
         {
-            r.Id,
-            r.Title,
-            r.Description,
-            r.CookingTime,
-            r.Servings,
-            r.AuthorId,
-            r.UpdatedAt,
-            Ingredients = r.Ingredients.Select(ri => new
-            {
-                ri.Ingredient.Id,
-                ri.Ingredient.Name,
-                ri.Quantity
-            })
+            Id = r.Id,
+            Title = r.Title,
+            Description = r.Description,
+            CookingTime = r.CookingTime,
+            Servings = r.Servings,
+            AuthorId = r.AuthorId,
+            UpdatedAt = r.UpdatedAt,
+            Ingredients = r.Ingredients,
+            Instructions = r.Instructions
         })
         .ToList();
 });

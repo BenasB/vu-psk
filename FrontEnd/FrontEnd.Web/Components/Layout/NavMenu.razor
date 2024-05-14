@@ -1,35 +1,37 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">FrontEnd.Web</a>
-    </div>
-</div>
+﻿@rendermode InteractiveServer
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler"/>
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
+<div class="navmenu">
+    <input type="checkbox" title="Menu expand/collapse toggle" id="navmenu-toggle" class="navmenu-icon" />
+    <label for="navmenu-toggle" class="navmenu-icon"><FluentIcon Value="@(new Icons.Regular.Size20.Navigation())" Color="Color.Fill" /></label>
+    <nav class="site-nav" aria-labelledby="main-menu" onclick="document.getElementById('navmenu-toggle').click();">
+        <div Style="text-align: center; margin: 20px 0">
+            @if (_expanded)
+            {
+                <FluentAnchor
+                    Href="recipes/new"
+                    Appearance="Appearance.Accent"
+                    IconEnd="@(new Icons.Regular.Size24.Add().WithColor(Color.Fill))">
+                    New recipe
+                </FluentAnchor>
+            }
+            else
+            {
+                <FluentAnchor
+                    Href="recipes/new"
+                    Appearance="Appearance.Accent"
+                    IconEnd="@(new Icons.Regular.Size20.Add().WithColor(Color.Fill))"/>
+            }
         </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="recipes">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Recipes
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="users">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Users
-            </NavLink>
-        </div>
+        <FluentNavMenu Id="main-menu" Collapsible="true" Width="250" Title="Navigation menu" @bind-Expanded="_expanded">
+            <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Home())" IconColor="Color.Accent">Home</FluentNavLink>
+            <FluentNavLink Href="counter" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.NumberSymbolSquare())" IconColor="Color.Accent">Counter</FluentNavLink>
+            <FluentNavLink Href="recipes" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Check())" IconColor="Color.Accent">Recipes</FluentNavLink>
+            <FluentNavLink Href="users" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Person())" IconColor="Color.Accent">Users</FluentNavLink>
+        </FluentNavMenu>
     </nav>
 </div>
+
+@code
+{
+    private bool _expanded = true;
+}
