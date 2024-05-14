@@ -1,6 +1,5 @@
 ﻿@page "/"
 @using FrontEnd.Web.Services
-@using global::Recipes.Public
 @attribute [StreamRendering]
 @inject IRecipeService RecipeService
 
@@ -42,7 +41,7 @@ else
 }
 
 @code {
-    private IQueryable<Recipe>? _recipes;
+    private IQueryable<global::Recipes.Public.Recipe>? _recipes;
     private readonly string _recipeImageUrl = "https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg";
 
     protected override async Task OnInitializedAsync()
