@@ -20,17 +20,30 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/users", async (IdentityDatabaseContext dbContext) =>
 {
-    var createdUser = new UserEntity() { Username = $"USER-{Guid.NewGuid()}", AssociatedRecipes = new List<int> { 69, 420 }, DateRegistered = DateTime.UtcNow };
-    dbContext.Users.Add(createdUser);
-    await dbContext.SaveChangesAsync();
-
     return dbContext.Users.Select(u => new
     {
         u.Id,
         u.Username,
-        u.AssociatedRecipes,
-        u.DateRegistered
+        u.PasswordHash,
+        u.Email,
+        u.Roles
     });
+});
+
+app.MapPost("/users", async (IdentityDatabaseContext dbContext) =>
+{
+    var createdUser = new UserEntity()
+    {
+        Username = $"USER-{Guid.NewGuid()}",
+        PasswordHash = "abc",
+        Email = "abc@def.com",
+        Roles = UserRole.Admin | UserRole.Member
+    };
+
+    dbContext.Users.Add(createdUser);
+    await dbContext.SaveChangesAsync();
+
+    return createdUser;
 });
 
 app.Run();
