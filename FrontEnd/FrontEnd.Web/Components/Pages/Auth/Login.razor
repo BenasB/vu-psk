@@ -5,7 +5,7 @@
 
 <PageTitle>Authenticate</PageTitle>
 
-<FluentLabel Typo="Typography.H1" MarginBlock="20px">@(IsSignUp ? "Sign Up" : "Log In")</FluentLabel>
+<FluentLabel Typo="Typography.H1" MarginBlock="20px">@(IsSignUp ? "Sign up" : "Log in")</FluentLabel>
 <EditForm Model="Credentials" OnValidSubmit="@Authenticate" FormName="auth" novalidate>
     <ObjectGraphDataAnnotationsValidator/>
 
@@ -23,7 +23,7 @@
             if (IsSignUp)
             {
                 <text>Already have an account? </text>
-                <FluentButton Appearance="Appearance.Lightweight" OnClick="@(() => IsSignUp = false)">Login!</FluentButton>
+                <FluentButton Appearance="Appearance.Lightweight" OnClick="@(() => IsSignUp = false)">Log in!</FluentButton>
             }
             else
             {
@@ -33,11 +33,11 @@
         }
         </FluentLabel>
     </FluentStack>
-    <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">@(IsSignUp ? "Sign Up" : "Log In")</FluentButton>
+    <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">@(IsSignUp ? "Sign up" : "Log in")</FluentButton>
 </EditForm>
 
 @code {
-    [SupplyParameterFromForm] private CredentialsFormData Credentials { get; set; } = new();
+    [SupplyParameterFromForm] private CredentialsFormData Credentials { get; } = new();
 
     private bool IsSignUp { get; set; } = false;
 
