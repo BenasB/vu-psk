@@ -2,14 +2,8 @@
 using Recipes.DataAccess.Entities;
 
 namespace Recipes.DataAccess;
-public class RecipesDatabaseContext : DbContext
+
+public class RecipesDatabaseContext(DbContextOptions<RecipesDatabaseContext> options) : DbContext(options)
 {
-    public RecipesDatabaseContext(DbContextOptions<RecipesDatabaseContext> options)
-        : base(options)
-    {
-        Database.EnsureCreated();
-    }
-
-    public DbSet<RecipeEntity> Recipes { get; set; } = null!;
+    public DbSet<RecipeEntity> Recipes { get; init; } = null!;
 }
-

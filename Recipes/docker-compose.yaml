@@ -6,7 +6,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - ConnectionStrings__Default=Server=db;Port=5432;Database=RecipesDB;Username=postgres;Password=postgres;
 
@@ -18,3 +19,8 @@ services:
       POSTGRES_DB: RecipesDB
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U postgres -d RecipesDB'"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
