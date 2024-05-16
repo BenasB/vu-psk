@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using FrontEnd.Web.Services
+@using FrontEnd.Web.Components.Pages.Recipes
 @attribute [StreamRendering]
 @inject IRecipeService RecipeService
 
@@ -27,26 +28,16 @@ else
     <FluentStack Wrap="true">
         @foreach (var recipe in _recipes)
         {
-            <FluentNavLink Href=@($"recipes/{recipe.Id}") Match="NavLinkMatch.All">
-                <FluentCard Width="16rem" Height="16rem" Style="background-color: var(--neutral-layer-1)">
-                    <div style="height: 8rem; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="@_recipeImageUrl" alt="@recipe.Title"/>
-                    </div>
-                    <FluentLabel Typo="Typography.Subject" MarginBlock="10px">@recipe.Title</FluentLabel>
-                    <FluentLabel Typo="Typography.Body">@recipe.Description</FluentLabel>
-                </FluentCard>
-            </FluentNavLink>
+            <RecipeCard Data="@recipe"/>
         }
     </FluentStack>
 }
 
 @code {
-    private IQueryable<global::Recipes.Public.Recipe>? _recipes;
-    private readonly string _recipeImageUrl = "https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg";
+    private IEnumerable<global::Recipes.Public.Recipe>? _recipes;
 
     protected override async Task OnInitializedAsync()
     {
-        var recipes = await RecipeService.GetAllAsync();
-        _recipes = recipes.AsQueryable();
+        _recipes = await RecipeService.GetAllAsync();
     }
 }
