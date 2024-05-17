@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Recipes.Application.Services;
 using Recipes.DataAccess;
 using Recipes.DataAccess.Entities;
 using Recipes.Public;
@@ -10,6 +11,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<RecipesDatabaseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+
+builder.Services.AddScoped<IRecipesService, RecipesService>();
 
 var app = builder.Build();
 
