@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Recipes.Application.Services;
 
 namespace Recipes.API.Controllers;
 
@@ -7,11 +6,9 @@ namespace Recipes.API.Controllers;
 [Route("recipes")]
 public class RecipesController : ControllerBase
 {
-    private IRecipesService _recipesService;
 
-    public RecipesController(IRecipesService recipesService)
+    public RecipesController()
     {
-        _recipesService = recipesService;
     }
 
 }
