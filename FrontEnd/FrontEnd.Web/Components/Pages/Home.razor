@@ -1,8 +1,43 @@
 ﻿@page "/"
+@using FrontEnd.Web.Services
+@using FrontEnd.Web.Components.Pages.Recipes
+@attribute [StreamRendering]
+@inject IRecipeService RecipeService
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Recipes</PageTitle>
 
-<FluentLabel Typo="Typography.H1" MarginBlock="10px">Hello, world!</FluentLabel>
+@if (_recipes == null)
+{
+    <FluentStack Wrap="true">
+        @for (var i = 0; i < 12; ++i)
+        {
+            <FluentSkeleton Width="16rem" Height="16rem" Shimmer="true"/>
+        }
+    </FluentStack>
+}
+else if (!_recipes.Any())
+{
+    <FluentLabel Typo="Typography.Subject">No recipes exist.</FluentLabel>
+    <FluentStack VerticalAlignment="VerticalAlignment.Center" HorizontalGap="3" Style="margin-block: 10px">
+        <FluentLabel Typo="Typography.Body">Love cooking?</FluentLabel>
+        <FluentAnchor Href="recipes/new" Appearance="Appearance.Hypertext">Share your own!</FluentAnchor>
+    </FluentStack>
+}
+else
+{
+    <FluentStack Wrap="true">
+        @foreach (var recipe in _recipes)
+        {
+            <RecipeCard Data="@recipe"/>
+        }
+    </FluentStack>
+}
 
-<FluentLabel Typo="Typography.Body">Welcome to your new app.</FluentLabel>
+@code {
+    private IEnumerable<global::Recipes.Public.Recipe>? _recipes;
 
+    protected override async Task OnInitializedAsync()
+    {
+        _recipes = await RecipeService.GetAllAsync();
+    }
+}

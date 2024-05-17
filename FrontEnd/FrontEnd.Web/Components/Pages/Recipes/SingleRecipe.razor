@@ -1,7 +1,6 @@
 ﻿@page "/recipes/{Id:int}"
 
 @using FrontEnd.Web.Services
-@using global::Recipes.Public
 @attribute [StreamRendering]
 @inject IRecipeService RecipeService
 
@@ -84,8 +83,8 @@ else
     [Parameter]
     public int Id { get; set; }
     
-    private Recipe? _recipe;
-    private Task<Recipe?>? _task;
+    private global::Recipes.Public.Recipe? _recipe;
+    private Task<global::Recipes.Public.Recipe?>? _task;
 
     private readonly IEnumerable<string> _tagNames = new [] { "Indian", "Dinner" };
     private readonly string _recipeImageUrl = "https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg";
