@@ -6,6 +6,8 @@ using Recipes.Public;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -31,22 +33,6 @@ using (var scope = app.Services.CreateScope())
         await DbInitializer.SeedRecipes(recipesDbContext);
 }
 
-app.MapGet("/recipes", async (RecipesDatabaseContext dbContext) =>
-{
-    return await dbContext.Recipes
-        .Select(r => new Recipe
-        {
-            Id = r.Id,
-            Title = r.Title,
-            Description = r.Description,
-            CookingTime = r.CookingTime,
-            Servings = r.Servings,
-            AuthorId = r.AuthorId,
-            UpdatedAt = r.UpdatedAt,
-            Ingredients = r.Ingredients,
-            Instructions = r.Instructions
-        })
-        .ToListAsync();
-});
+app.MapControllers();
 
 app.Run();

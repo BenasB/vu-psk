@@ -15,4 +15,19 @@ public class RecipesController : ControllerBase
         _recipesRepository = recipesRepository;
     }
 
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IEnumerable<Recipe>>> GetAllRecipes()
+    {
+        var recipes = await _recipesRepository.GetAllAsync();
+
+        if (recipes == null || !recipes.Any())
+        {
+            return NotFound();
+        }
+
+        return Ok(recipes);
+    }
+
 }
