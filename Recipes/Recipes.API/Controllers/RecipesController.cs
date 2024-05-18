@@ -1,33 +1,32 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Recipes.DataAccess.Interfaces;
+using Recipes.DataAccess.Entities;
+using Recipes.DataAccess.Repositories;
 using Recipes.Public;
+using Recipes.Public.DTO;
 
 namespace Recipes.API.Controllers;
 
 [ApiController]
 [Route("recipes")]
-public class RecipesController : ControllerBase
+public class RecipesController(IGenericRepository<RecipeEntity> recipesRepository) : ControllerBase
 {
-    private readonly IGenericRepository<Recipe> _recipesRepository;
-
-    public RecipesController(IGenericRepository<Recipe> recipesRepository)
-    {
-        _recipesRepository = recipesRepository;
-    }
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<Recipe>>> GetAllRecipes()
     {
-        var recipes = await _recipesRepository.GetAllAsync();
-
-        if (recipes == null || !recipes.Any())
+        IEnumerable<RecipeEntity> recipes;
+        try
         {
-            return NotFound();
+            recipes = await recipesRepository.GetAllAsync();
         }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+        
+        // Return type currently doesn't match actual type. RecipeEntity should be probably mapped to some RecipeResponse DTO type.
 
         return Ok(recipes);
     }
-
 }

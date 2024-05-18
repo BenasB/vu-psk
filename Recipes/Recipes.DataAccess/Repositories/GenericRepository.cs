@@ -1,65 +1,36 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Recipes.DataAccess.Interfaces;
-using System.Collections.Generic;
-using System;
 
 namespace Recipes.DataAccess.Repositories;
 
-public class GenericRepository<T> : IGenericRepository<T> where T : class
+public class GenericRepository<T>(RecipesDatabaseContext context) : IGenericRepository<T> where T : class
 {
-    private readonly RecipesDatabaseContext _context;
-    private readonly DbSet<T> _dbSet;
-
-    public GenericRepository(RecipesDatabaseContext context, DbSet<T> dbSet)
-    {
-        _context = context;
-        _dbSet = dbSet;
-    }
-
-    public async Task DeleteByIdAsync(int id)
-    {
-        T? entity = await _dbSet.FindAsync(id);
-
-        if(entity == null)
-        {
-            return;
-        }
-
-        if(_context.Entry(entity).State == EntityState.Detached)
-        {
-            _dbSet.Attach(entity);
-        }
-
-        _dbSet.Remove(entity);
-        await SaveAsync();
-    }
-
     public async Task<IEnumerable<T>> GetAllAsync()
     {
-        return await _dbSet.ToListAsync();
+        return await context.Set<T>().ToListAsync();
     }
 
-    public async Task<T> GetByIdAsync(int id)
+    public async Task<T?> GetByIdAsync(int id)
     {
-        return await _dbSet.FindAsync(id);
+        return await context.Set<T>().FindAsync(id);
     }
 
-    public async Task InsertAsync(T entity)
+    public void Insert(T entity)
     {
-        _dbSet.Add(entity);
-        await SaveAsync();
+        context.Set<T>().Add(entity);
     }
 
-    public async Task SaveAsync()
+    public void Update(T entity)
     {
-        await _context.SaveChangesAsync();
+        context.Set<T>().Update(entity);
     }
 
-    public async Task UpdateAsync(T entity)
+    public void Delete(T entity)
     {
-        _dbSet.Attach(entity);
-        _context.Entry(entity).State = EntityState.Modified;
+        context.Set<T>().Remove(entity);
+    }
 
-        await SaveAsync();
+    public Task SaveChangesAsync()
+    {
+        return context.SaveChangesAsync();
     }
 }
