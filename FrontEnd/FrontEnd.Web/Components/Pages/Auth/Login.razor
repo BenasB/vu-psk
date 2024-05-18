@@ -1,59 +1,28 @@
 ﻿@page "/login"
 @rendermode InteractiveServer
-@using System.ComponentModel
-@using System.ComponentModel.DataAnnotations
+@inject IDialogService DialogService
 
 <PageTitle>Authenticate</PageTitle>
 
-<FluentLabel Typo="Typography.H1" MarginBlock="20px">@(IsSignUp ? "Sign up" : "Log in")</FluentLabel>
-<EditForm Model="Credentials" OnValidSubmit="@Authenticate" FormName="auth" novalidate>
-    <ObjectGraphDataAnnotationsValidator/>
+@code
+{
+    Authenticate.CredentialsFormData DialogData { get; set; } = new();
 
-    <FluentStack Orientation="Orientation.Vertical" VerticalGap="20" Style="margin-block: 20px;">
-        <div>
-            <FluentTextField @bind-Value="Credentials.Username" Placeholder="Username" Required Style="width: 40ch;"/>
-            <FluentValidationMessage For="@(() => Credentials.Username)"/>
-        </div>
-        <div>
-            <FluentTextField Placeholder="Password" @bind-Value="Credentials.Password" TextFieldType="TextFieldType.Password" Required Style="width: 40ch;"/>
-            <FluentValidationMessage For="@(() => Credentials.Password)"/>
-        </div>
-        <FluentLabel Typo="Typography.Body" Style="display: inline-flex; align-items: center; gap: 10px;">
-        @{
-            if (IsSignUp)
-            {
-                <text>Already have an account? </text>
-                <FluentButton Appearance="Appearance.Lightweight" OnClick="@(() => IsSignUp = false)">Log in!</FluentButton>
-            }
-            else
-            {
-                <text>New to our platform? </text>
-                <FluentButton Appearance="Appearance.Lightweight" OnClick="@(() => IsSignUp = true)">Sign up!</FluentButton>
-            }
+    protected override async void OnInitialized()
+    {
+        Authenticate.CredentialsFormData data = new();
+        var dialog = await DialogService.ShowDialogAsync<Authenticate>(data, new DialogParameters
+        {
+            Width = "auto",
+            Height = "auto",
+            Modal = true,
+            PreventScroll = true,
+        });
+
+        var result = await dialog.Result;
+        if (result is { Cancelled: false, Data: not null })
+        {
+            DialogData = (Authenticate.CredentialsFormData)result.Data;
         }
-        </FluentLabel>
-    </FluentStack>
-    <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">@(IsSignUp ? "Sign up" : "Log in")</FluentButton>
-</EditForm>
-
-@code {
-    [SupplyParameterFromForm] private CredentialsFormData Credentials { get; set;  } = new();
-
-    private bool IsSignUp { get; set; } = false;
-
-    private void Authenticate()
-    {
-        Console.WriteLine(Credentials.Username, Credentials.Password);
-    }
-    
-    public record CredentialsFormData
-    {
-        [Required, MinLength(3, ErrorMessage = "Username is too short")]
-        [DisplayName("User name"), Description("Login name")]
-        public string Username { get; set; } = string.Empty;
-
-        [Required, PasswordPropertyText(true), MinLength(8, ErrorMessage = "Password is too short")]
-        [DisplayName("Password"), Description("Login password")]
-        public string Password { get; set; } = string.Empty;
     }
 }
