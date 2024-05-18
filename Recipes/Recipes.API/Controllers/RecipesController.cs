@@ -24,18 +24,79 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        IEnumerable<Recipe> responseRecipes = recipes.Select(recipe => new Recipe { 
-            Id = recipe.Id,
-            Title = recipe.Title,
-            AuthorId = recipe.AuthorId,
-            Description = recipe.Description,
-            CookingTime = recipe.CookingTime,
-            Servings = recipe.Servings,
-            UpdatedAt = recipe.UpdatedAt,
-            Ingredients = recipe.Ingredients,
-            Instructions = recipe.Instructions
-        });
+        var responseRecipes = recipes.Select(recipe => GetRecipeFromEntity(recipe));
 
         return Ok(responseRecipes);
+    }
+
+    [HttpGet("{recipeId:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Recipe>> GetRecipe(int recipeId)
+    {
+        RecipeEntity? recipe;
+        try
+        {
+            recipe = await recipesRepository.GetByIdAsync(recipeId);
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
+        if (recipe is null) return NotFound();
+
+        var responseRecipe = GetRecipeFromEntity(recipe);
+
+        return Ok(responseRecipe);
+    }
+
+    [HttpDelete("{recipeId:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult> DeleteRecipe(int recipeId)
+    {
+        RecipeEntity? recipe;
+        try
+        {
+            recipe = await recipesRepository.GetByIdAsync(recipeId);
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+        
+        if (recipe is null) return NotFound();
+
+        try
+        {
+            recipesRepository.Delete(recipe);
+            await recipesRepository.SaveChangesAsync();
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
+        return NoContent();
+    }
+
+    private Recipe GetRecipeFromEntity(RecipeEntity recipeEntity)
+    {
+        return new Recipe
+        {
+            Id = recipeEntity.Id,
+            Title = recipeEntity.Title,
+            AuthorId = recipeEntity.AuthorId,
+            Description = recipeEntity.Description,
+            CookingTime = recipeEntity.CookingTime,
+            Servings = recipeEntity.Servings,
+            UpdatedAt = recipeEntity.UpdatedAt,
+            Ingredients = recipeEntity.Ingredients,
+            Instructions = recipeEntity.Instructions
+        };
+
     }
 }
