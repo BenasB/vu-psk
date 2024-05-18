@@ -23,9 +23,19 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
         {
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
-        
-        // Return type currently doesn't match actual type. RecipeEntity should be probably mapped to Recipe.
 
-        return Ok(recipes);
+        IEnumerable<Recipe> responseRecipes = recipes.Select(recipe => new Recipe { 
+            Id = recipe.Id,
+            Title = recipe.Title,
+            AuthorId = recipe.AuthorId,
+            Description = recipe.Description,
+            CookingTime = recipe.CookingTime,
+            Servings = recipe.Servings,
+            UpdatedAt = recipe.UpdatedAt,
+            Ingredients = recipe.Ingredients,
+            Instructions = recipe.Instructions
+        });
+
+        return Ok(responseRecipes);
     }
 }
