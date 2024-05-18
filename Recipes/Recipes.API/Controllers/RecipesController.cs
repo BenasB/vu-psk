@@ -76,4 +76,32 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
 
         return Ok(responseRecipe);
     }
+
+    [HttpDelete("{recipeId:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Recipe>> DeleteRecipe(int recipeId)
+    {
+        RecipeEntity? recipe;
+
+        try
+        {
+            recipe = await recipesRepository.GetByIdAsync(recipeId);
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
+        if (recipe == null)
+        {
+            return StatusCode(StatusCodes.Status404NotFound);
+        }
+
+        recipesRepository.Delete(recipe);
+        await recipesRepository.SaveChangesAsync();
+
+        return StatusCode(StatusCodes.Status200OK);
+    }
 }
