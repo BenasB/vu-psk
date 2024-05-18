@@ -38,4 +38,42 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
 
         return Ok(responseRecipes);
     }
+
+    [HttpGet("{recipeId:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Recipe>> GetRecipe(int recipeId)
+    {
+        RecipeEntity? recipe;
+
+        try
+        {
+            recipe = await recipesRepository.GetByIdAsync(recipeId);
+        }
+        catch(Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
+        if(recipe == null)
+        {
+            return StatusCode(StatusCodes.Status404NotFound);
+        }
+
+        Recipe responseRecipe = new Recipe
+        {
+            Id = recipe.Id,
+            Title = recipe.Title,
+            AuthorId = recipe.AuthorId,
+            Description = recipe.Description,
+            CookingTime = recipe.CookingTime,
+            Servings = recipe.Servings,
+            UpdatedAt = recipe.UpdatedAt,
+            Ingredients = recipe.Ingredients,
+            Instructions = recipe.Instructions
+        };
+
+        return Ok(responseRecipe);
+    }
 }
