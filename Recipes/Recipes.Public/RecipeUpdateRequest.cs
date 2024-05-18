@@ -1,4 +1,4 @@
-﻿namespace Recipes.Public.DTO;
+﻿namespace Recipes.Public;
 
 public class RecipeUpdateRequest
 {

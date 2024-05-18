@@ -2,7 +2,6 @@
 using Recipes.DataAccess.Entities;
 using Recipes.DataAccess.Repositories;
 using Recipes.Public;
-using Recipes.Public.DTO;
 
 namespace Recipes.API.Controllers;
 
@@ -25,7 +24,7 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
         
-        // Return type currently doesn't match actual type. RecipeEntity should be probably mapped to some RecipeResponse DTO type.
+        // Return type currently doesn't match actual type. RecipeEntity should be probably mapped to Recipe.
 
         return Ok(recipes);
     }
