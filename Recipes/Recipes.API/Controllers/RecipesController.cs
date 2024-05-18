@@ -24,7 +24,7 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        IEnumerable<Recipe> responseRecipes = recipes.Select(recipe => new Recipe { 
+        var responseRecipes = recipes.Select(recipe => new Recipe { 
             Id = recipe.Id,
             Title = recipe.Title,
             AuthorId = recipe.AuthorId,
@@ -46,22 +46,18 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
     public async Task<ActionResult<Recipe>> GetRecipe(int recipeId)
     {
         RecipeEntity? recipe;
-
         try
         {
             recipe = await recipesRepository.GetByIdAsync(recipeId);
         }
-        catch(Exception)
+        catch (Exception)
         {
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        if(recipe == null)
-        {
-            return NotFound();
-        }
+        if (recipe is null) return NotFound();
 
-        Recipe responseRecipe = new Recipe
+        var responseRecipe = new Recipe
         {
             Id = recipe.Id,
             Title = recipe.Title,
@@ -84,16 +80,19 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
     public async Task<ActionResult> DeleteRecipe(int recipeId)
     {
         RecipeEntity? recipe;
-
         try
         {
             recipe = await recipesRepository.GetByIdAsync(recipeId);
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+        
+        if (recipe is null) return NotFound();
 
-            if (recipe == null)
-            {
-                return NotFound();
-            }
-
+        try
+        {
             recipesRepository.Delete(recipe);
             await recipesRepository.SaveChangesAsync();
         }
