@@ -58,7 +58,7 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
 
         if(recipe == null)
         {
-            return StatusCode(StatusCodes.Status404NotFound);
+            return NotFound();
         }
 
         Recipe responseRecipe = new Recipe
@@ -88,20 +88,20 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
         try
         {
             recipe = await recipesRepository.GetByIdAsync(recipeId);
+
+            if (recipe == null)
+            {
+                return NotFound();
+            }
+
+            recipesRepository.Delete(recipe);
+            await recipesRepository.SaveChangesAsync();
         }
         catch (Exception)
         {
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        if (recipe == null)
-        {
-            return StatusCode(StatusCodes.Status404NotFound);
-        }
-
-        recipesRepository.Delete(recipe);
-        await recipesRepository.SaveChangesAsync();
-
-        return StatusCode(StatusCodes.Status200OK);
+        return Ok();
     }
 }
