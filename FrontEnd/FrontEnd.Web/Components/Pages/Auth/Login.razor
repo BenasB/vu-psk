@@ -37,7 +37,7 @@
 </EditForm>
 
 @code {
-    [SupplyParameterFromForm] private CredentialsFormData Credentials { get; } = new();
+    [SupplyParameterFromForm] private CredentialsFormData Credentials { get; set;  } = new();
 
     private bool IsSignUp { get; set; } = false;
 
