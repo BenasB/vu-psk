@@ -15,12 +15,11 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/users", () =>
 {
-    var users = new[]
+    var users = new User[]
     {
-        new User
+        new()
         {
-            Username = "johndoe",
-            Password = "password123",
+            Username = "johndoe"
         }
     };
     
