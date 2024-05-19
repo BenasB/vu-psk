@@ -10,7 +10,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Recipes.API", "Recipes.API\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Recipes.Public", "Recipes.Public\Recipes.Public.csproj", "{A325124F-590B-486C-BA4A-92094D9AEC65}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Recipes.DataAccess", "Recipes.DataAccess\Recipes.DataAccess.csproj", "{4FD56AB6-DB6A-46A1-BDC4-5AFE46E418B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Recipes.DataAccess", "Recipes.DataAccess\Recipes.DataAccess.csproj", "{4FD56AB6-DB6A-46A1-BDC4-5AFE46E418B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
