@@ -20,14 +20,14 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/users", async (IdentityDatabaseContext dbContext) =>
 {
-    return dbContext.Users.Select(u => new
+    return await dbContext.Users.Select(u => new
     {
         u.Id,
         u.Username,
         u.PasswordHash,
         u.Email,
         u.Roles
-    });
+    }).ToListAsync();
 });
 
 app.MapPost("/users", async (IdentityDatabaseContext dbContext) =>

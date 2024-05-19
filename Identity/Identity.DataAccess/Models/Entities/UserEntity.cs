@@ -10,16 +10,16 @@ public class UserEntity
 	public int Id { get; set; }
 
 	[Required]
-	public string Username { get; set; }
+	public required string Username { get; set; }
 
-	[Required]
-	public string PasswordHash { get; set; }
+    [Required]
+    public required string PasswordHash { get; set; }
 
-	[Required]
-	public string Email { get; set; }
+    [Required]
+    public required string Email { get; set; }
 
-	[Required]
-	public UserRole Roles { get; set; }
+    [Required]
+    public required UserRole Roles { get; set; }
 }
 
 public enum UserRole
