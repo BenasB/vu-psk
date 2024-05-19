@@ -11,7 +11,7 @@
                     Href="recipes/new"
                     Appearance="Appearance.Accent"
                     IconEnd="@(new Icons.Regular.Size24.Add().WithColor(Color.Fill))">
-                    New recipe
+                    Create
                 </FluentAnchor>
             }
             else
@@ -23,9 +23,7 @@
             }
         </div>
         <FluentNavMenu Id="main-menu" Collapsible="true" Width="250" Title="Navigation menu" @bind-Expanded="_expanded">
-            <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Home())" IconColor="Color.Accent">Home</FluentNavLink>
-            <FluentNavLink Href="counter" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.NumberSymbolSquare())" IconColor="Color.Accent">Counter</FluentNavLink>
-            <FluentNavLink Href="recipes" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Check())" IconColor="Color.Accent">Recipes</FluentNavLink>
+            <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Filled.Size24.BookSearch())" IconColor="Color.Accent">Discover</FluentNavLink>
             <FluentNavLink Href="users" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Person())" IconColor="Color.Accent">Users</FluentNavLink>
         </FluentNavMenu>
     </nav>

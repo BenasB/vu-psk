@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Recipes.Public;
+﻿namespace Recipes.Public;
 
 public class Recipe
 {

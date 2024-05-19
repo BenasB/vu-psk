@@ -1,0 +1,16 @@
+﻿<FluentNavLink Href=@($"recipes/{Data.Id}") Match="NavLinkMatch.All">
+    <FluentCard Width="16rem" Height="16rem" Style="background-color: var(--neutral-layer-1)">
+        <div style="height: 8rem; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+            <img src="@_recipeImageUrl" alt="@Data.Title"/>
+        </div>
+        <FluentLabel Typo="Typography.Subject" MarginBlock="10px">@Data.Title</FluentLabel>
+        <FluentLabel Typo="Typography.Body">@Data.Description</FluentLabel>
+    </FluentCard>
+</FluentNavLink>
+
+@code
+{
+    [Parameter] public global::Recipes.Public.Recipe Data { get; set; } = default!;
+    
+    private readonly string _recipeImageUrl = "https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg";
+}

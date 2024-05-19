@@ -5,6 +5,7 @@ namespace FrontEnd.Web.Services;
 public interface IIdentityService
 {
     Task<IEnumerable<User>> GetAllAsync();
+    Task<User?> GetByIdAsync(int id);
 }
 
 public class IdentityService : IIdentityService
@@ -20,5 +21,11 @@ public class IdentityService : IIdentityService
     public async Task<IEnumerable<User>> GetAllAsync()
     {
         return await _httpClient.GetFromJsonAsync<IEnumerable<User>>("users") ?? throw new InvalidOperationException();
+    }
+    
+    public async Task<User?> GetByIdAsync(int id)
+    {
+        var allUsers = (await GetAllAsync()).ToList();
+        return id >= 0 && id < allUsers.Count ? allUsers[id] : null;
     }
 }
