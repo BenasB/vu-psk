@@ -93,16 +93,16 @@
                 <FluentLabel>Picture</FluentLabel>
                 @if (FormData.Image != null)
                 {
-                    <img src="@FormData.Image" alt="Input image"/>
+                    <img src="@FormData.Image" alt="Input image" style="width: 100%"/>
+                    <FluentButton OnClick="() => FormData.Image = null">Remove</FluentButton>
                 }
                 else
                 {
                     <!--suppress CssUnresolvedCustomProperty -->
                     <FluentInputFile Id="picture"
                                      @ref="@_imageFile"
-                                     Mode="InputFileMode.Buffer"
-                                     OnProgressChange="OnProgressChange"
-                                     OnFileUploaded="OnImageUploadCompleted"
+                                     Mode="InputFileMode.Stream"
+                                     OnFileUploaded="OnFileUploadedAsync"
                                      Accept="image/*"
                                      Style="height: 300px; width: 100%; border: 1px dashed var(--accent-fill-rest);">
                         <ChildContent>
@@ -132,7 +132,7 @@
     [SupplyParameterFromForm] private RecipeFormData FormData { get; set; } = new();
 
     private FluentInputFile? _imageFile;
-    private List<byte>? _fullImageBuffer;
+    private MemoryStream? _fullImageBuffer;
 
     protected override void OnInitialized()
     {
@@ -147,7 +147,8 @@
                 CookingTimeInMinutes = (int)InitialData.CookingTime.TotalMinutes,
                 Tags = [], // TODO: Load from incoming Recipes.Public.Recipe
                 Ingredients = InitialData.Ingredients.Select(x => new Ingredient { Value = x }).ToList(),
-                Instructions = InitialData.Instructions.Select(x => new InstructionStep { Value = x }).ToList()
+                Instructions = InitialData.Instructions.Select(x => new InstructionStep { Value = x }).ToList(),
+                Image = InitialData.Image
             };
         }
     }
@@ -200,7 +201,8 @@
             CookingTime = TimeSpan.FromMinutes((double)FormData.CookingTimeInMinutes!),
             Servings = FormData.Servings!.Value,
             Ingredients = FormData.Ingredients.Select(x => x.Value!),
-            Instructions = FormData.Instructions.Select(x => x.Value!)
+            Instructions = FormData.Instructions.Select(x => x.Value!),
+            Image = FormData.Image
         };
 
         // TODO: Send out `recipeDto` to the Recipes API
@@ -219,17 +221,13 @@
         e.Items = AvailableTags.Where(tag => tag.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase));
         return Task.CompletedTask;
     }
-    
-    private void OnProgressChange(FluentInputFileEventArgs file)
+
+    private async Task OnFileUploadedAsync(FluentInputFileEventArgs file)
     {
-        _fullImageBuffer ??= [];
-        _fullImageBuffer.AddRange(file.Buffer.Data);;
-    }
-    
-    private void OnImageUploadCompleted(FluentInputFileEventArgs file)
-    {
-        if (_fullImageBuffer != null)
-            FormData.Image = "data:" + file.ContentType + ";base64," + Convert.ToBase64String(_fullImageBuffer.ToArray());
-        _fullImageBuffer = null;
+        // Load everything in memory, since we'll be sending the image in base64 anyway
+        var memoryStream = new MemoryStream();
+        await file.Stream!.CopyToAsync(memoryStream);
+
+        FormData.Image = "data:" + file.ContentType + ";base64," + Convert.ToBase64String(memoryStream.ToArray());
     }
 }
