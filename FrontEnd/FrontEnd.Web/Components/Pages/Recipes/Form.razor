@@ -91,20 +91,31 @@
         <FluentGridItem xs="12" sm="12" md="6">
             <FluentStack Orientation="Orientation.Vertical">
                 <FluentLabel>Picture</FluentLabel>
-                <!--suppress CssUnresolvedCustomProperty -->
-                <FluentInputFile Id="picture"
-                                 Accept="image/*"
-                                 Style="height: 300px; width: 100%; border: 1px dashed var(--accent-fill-rest);">
-                    <ChildContent>
-                        <label for="picture">
-                            <FluentIcon Value="@(new @Icons.Regular.Size24.ArrowUpload())"/>
-                        </label>
+                @if (FormData.Image != null)
+                {
+                    <img src="@FormData.Image" alt="Input image"/>
+                }
+                else
+                {
+                    <!--suppress CssUnresolvedCustomProperty -->
+                    <FluentInputFile Id="picture"
+                                     @ref="@_imageFile"
+                                     Mode="InputFileMode.Buffer"
+                                     OnProgressChange="OnProgressChange"
+                                     OnFileUploaded="OnImageUploadCompleted"
+                                     Accept="image/*"
+                                     Style="height: 300px; width: 100%; border: 1px dashed var(--accent-fill-rest);">
+                        <ChildContent>
+                            <label for="picture">
+                                <FluentIcon Value="@(new @Icons.Regular.Size24.ArrowUpload())"/>
+                            </label>
 
-                        <div>
-                            Drag files here you wish to upload, or <label for="picture">browse</label> for them.
-                        </div>
-                    </ChildContent>
-                </FluentInputFile>
+                            <div>
+                                Drag files here you wish to upload, or <label for="picture">browse</label> for them.
+                            </div>
+                        </ChildContent>
+                    </FluentInputFile>
+                }
             </FluentStack>
         </FluentGridItem>
         <FluentGridItem xs="12">
@@ -119,6 +130,9 @@
     [Parameter] public global::Recipes.Public.Recipe? InitialData { get; set; }
 
     [SupplyParameterFromForm] private RecipeFormData FormData { get; set; } = new();
+
+    private FluentInputFile? _imageFile;
+    private List<byte>? _fullImageBuffer;
 
     protected override void OnInitialized()
     {
@@ -160,6 +174,8 @@
         public List<InstructionStep> Instructions { get; set; } = [];
 
         public IEnumerable<string> Tags { get; set; } = [];
+        
+        public string? Image { get; set; }
     }
 
     private class Ingredient
@@ -203,5 +219,17 @@
         e.Items = AvailableTags.Where(tag => tag.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase));
         return Task.CompletedTask;
     }
-
+    
+    private void OnProgressChange(FluentInputFileEventArgs file)
+    {
+        _fullImageBuffer ??= [];
+        _fullImageBuffer.AddRange(file.Buffer.Data);;
+    }
+    
+    private void OnImageUploadCompleted(FluentInputFileEventArgs file)
+    {
+        if (_fullImageBuffer != null)
+            FormData.Image = "data:" + file.ContentType + ";base64," + Convert.ToBase64String(_fullImageBuffer.ToArray());
+        _fullImageBuffer = null;
+    }
 }
