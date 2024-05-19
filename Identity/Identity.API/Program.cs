@@ -1,5 +1,5 @@
-using Identity.API.Models;
-using Identity.API.Models.Entities;
+using Identity.DataAccess;
+using Identity.DataAccess.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

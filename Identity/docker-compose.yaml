@@ -9,14 +9,14 @@ services:
       db:
         condition: service_healthy
     environment:
-      - ConnectionStrings__Default=Server=db;Port=5081;Database=IdentityDB;Username=postgres;Password=postgres;
+      - ConnectionStrings__Default=Server=db;Port=5433;Database=IdentityDB;Username=postgres;Password=postgres;
 
   db:
     image: postgres:14
     ports:
-      - "5081:5081"
+      - "5433:5433"
     environment:
-      PGPORT: 5081    
+      PGPORT: 5433    
       POSTGRES_DB: IdentityDB
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres

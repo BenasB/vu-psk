@@ -1,7 +1,7 @@
-﻿using Identity.API.Models.Entities;
+﻿using Identity.DataAccess.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Identity.API.Models;
+namespace Identity.DataAccess;
 public class IdentityDatabaseContext : DbContext
 {
     public IdentityDatabaseContext(DbContextOptions<IdentityDatabaseContext> options)

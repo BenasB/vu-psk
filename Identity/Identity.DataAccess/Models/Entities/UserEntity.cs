@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace Identity.API.Models.Entities;
+namespace Identity.DataAccess.Models.Entities;
 
 public class UserEntity
 {
