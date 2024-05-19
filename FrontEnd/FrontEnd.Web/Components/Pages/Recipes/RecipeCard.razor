@@ -3,7 +3,7 @@
     <FluentCard Width="16rem" Height="17rem" Style="background-color: var(--neutral-layer-1)">
         <img src="@(Data.Image ?? MissingImageUrl)" alt="@Data.Title" style="object-fit: cover; height: 8rem; width: 100%"/>
         <FluentLabel Typo="Typography.Subject" MarginBlock="10px">@Data.Title</FluentLabel>
-        <FluentLabel Typo="Typography.Body">@ShortenString(Data.Description)</FluentLabel>
+        <FluentLabel Typo="Typography.Body">@ShortenString(Data.Description, 85)</FluentLabel>
     </FluentCard>
 </FluentNavLink>
 
@@ -13,9 +13,8 @@
     
     private const string MissingImageUrl = "https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg";
 
-    private static string? ShortenString(string? value)
+    private static string? ShortenString(string? value, int maxLength)
     {
-        const int maxLength = 85;
         if (value?.Length > maxLength)
             return value[..maxLength] + "...";
 
