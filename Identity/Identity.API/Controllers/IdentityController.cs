@@ -2,17 +2,19 @@ using Identity.API.Helpers;
 using Identity.DataAccess;
 using Identity.DataAccess.Models.Entities;
 using Identity.Public;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Net.Http.Headers;
+using System.Security.Claims;
 
 namespace Recipes.API.Controllers;
 
 [ApiController]
 public class IdentityController(IdentityDatabaseContext dbContext) : ControllerBase
 {
-    [Route("users")]
     [HttpGet]
+    [Route("users")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<UserEntity>>> GetAllRecipes()
@@ -41,7 +43,7 @@ public class IdentityController(IdentityDatabaseContext dbContext) : ControllerB
             Username = userCreateRequest.Username,
             PasswordHash = HashingHelper.HashPassword(userCreateRequest.Password),
             Email = userCreateRequest.Email,
-            Roles = UserRole.Member,
+            Roles = UserRole.Member | UserRole.Admin,
         };
 
         try
@@ -54,31 +56,59 @@ public class IdentityController(IdentityDatabaseContext dbContext) : ControllerB
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        return StatusCode(StatusCodes.Status201Created);
+        return Ok(JWTHelper.GenerateJwtToken(userToCreate));
     }
 
-    [Route("login")]
     [HttpPost]
+    [Route("login")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<UserEntity>>> LoginUser(UserLoginRequest userLoginRequest)
     {
-        UserEntity? user;
+        string jwt;
 
         try
         {
+            UserEntity? user;
             user = await dbContext.Users.Where(u => u.Username.Equals(userLoginRequest.Username)).FirstOrDefaultAsync();
             if (user is null)
-                return StatusCode(StatusCodes.Status404NotFound);
+                return NotFound();
 
             if (!user.PasswordHash.SequenceEqual(HashingHelper.HashPassword(userLoginRequest.Password)))
-                return StatusCode(StatusCodes.Status401Unauthorized);
+                return Unauthorized();
+
+            jwt = JWTHelper.GenerateJwtToken(user);
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
+        return Ok(jwt);
+    }
+
+    [HttpGet]
+    [Authorize]
+    [Route("my-account")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<IEnumerable<UserEntity>>> GetUserInfo()
+    {
+        int userId = Int32.Parse(HttpContext.User.FindFirstValue("id")!);
+        UserEntity user;
+
+        try
+        {
+            user = (await dbContext.Users.FindAsync(userId))!;
         }
         catch
         {
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        return StatusCode(StatusCodes.Status201Created, user);
+        return Ok(user);
     }
 }
