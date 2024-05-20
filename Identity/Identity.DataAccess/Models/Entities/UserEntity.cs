@@ -13,7 +13,7 @@ public class UserEntity
 	public required string Username { get; set; }
 
     [Required]
-    public required string PasswordHash { get; set; }
+    public required byte[] PasswordHash { get; set; }
 
     [Required]
     public required string Email { get; set; }
