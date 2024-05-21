@@ -1,0 +1,27 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__Default=Server=db;Port=5433;Database=IdentityDB;Username=postgres;Password=postgres;
+
+  db:
+    image: postgres:14
+    ports:
+      - "5433:5433"
+    environment:
+      PGPORT: 5433    
+      POSTGRES_DB: IdentityDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U postgres -d IdentityDB'"]
+      interval: 5s
+      timeout: 3s
+      retries: 5

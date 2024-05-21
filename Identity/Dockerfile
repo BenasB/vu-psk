@@ -8,9 +8,10 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Identity.API/Identity.API.csproj", "Identity.API/"]
 COPY ["Identity.Public/Identity.Public.csproj", "Identity.Public/"]
+COPY ["Identity.DataAccess/Identity.DataAccess.csproj", "Identity.DataAccess/"]
 RUN dotnet restore "Identity.API/Identity.API.csproj"
 COPY . .
-WORKDIR "/src/Identity.API"
+WORKDIR /src/Identity.API
 RUN dotnet build "Identity.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
