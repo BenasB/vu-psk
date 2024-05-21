@@ -18,8 +18,16 @@
                         <FluentValidationMessage For="@(() => Credentials.Username)"/>
                     </div>
                     <div>
+                        <FluentTextField Placeholder="Email" @bind-Value="Credentials.Email" Required Style="width: 40ch;"/>
+                        <FluentValidationMessage For="@(() => Credentials.Email)"/>
+                    </div>
+                    <div>
                         <FluentTextField Placeholder="Password" @bind-Value="Credentials.Password" TextFieldType="TextFieldType.Password" Required Style="width: 40ch;"/>
                         <FluentValidationMessage For="@(() => Credentials.Password)"/>
+                    </div>
+                    <div>
+                        <FluentTextField Placeholder="Repeat password" @bind-Value="Credentials.PasswordCheck" TextFieldType="TextFieldType.Password" Required Style="width: 40ch;"/>
+                        <FluentValidationMessage For="@(() => Credentials.PasswordCheck)"/>
                     </div>
 
                     <FluentLabel Typo="Typography.Body" Style="display: inline-flex; align-items: center; gap: 10px;">
@@ -49,11 +57,35 @@
     public record SignupCredentialsFormData
     {
         [Required]
-        [DisplayName("User name"), Description("Login name")]
+        [DisplayName("User name"), Description("Registration name")]
         public string Username { get; set; } = string.Empty;
+        
+        [Required]
+        [DisplayName("User name"), Description("E-mail address"), EmailAddress]
+        public string Email { get; set; } = string.Empty;
 
         [Required, PasswordPropertyText(true), MinLength(8, ErrorMessage = "Password is too short (min. 8 characters)")]
-        [DisplayName("Password"), Description("Login password")]
+        [DisplayName("Password"), Description("Registration password")]
         public string Password { get; set; } = string.Empty;
+        
+        [Required, PasswordPropertyText(true), MinLength(8, ErrorMessage = "Password is too short (min. 8 characters)")]
+        [DisplayName("Password"), Description("Repeated password")]
+        [ComparePasswords("Password", ErrorMessage = "Passwords do not match.")]
+        public string PasswordCheck { get; set; } = string.Empty;
+    }
+    
+    public class ComparePasswordsAttribute(string property) : ValidationAttribute
+    {
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+        {
+            var currentValue = value as string;
+            var comparisonProperty = validationContext.ObjectType.GetProperty(property);
+        
+            if (comparisonProperty == null)
+                throw new ArgumentException("Property with this name not found");
+
+            var comparisonValue = comparisonProperty.GetValue(validationContext.ObjectInstance) as string;
+            return currentValue != comparisonValue ? new ValidationResult(ErrorMessage ?? $"{validationContext.DisplayName} and {property} do not match.") : ValidationResult.Success;
+        }
     }
 }
