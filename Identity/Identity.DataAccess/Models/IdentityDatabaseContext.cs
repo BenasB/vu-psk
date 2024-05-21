@@ -5,10 +5,7 @@ namespace Identity.DataAccess;
 public class IdentityDatabaseContext : DbContext
 {
     public IdentityDatabaseContext(DbContextOptions<IdentityDatabaseContext> options)
-        : base(options)
-    {
-        Database.EnsureCreated();
-    }
+        : base(options) { }
 
     public DbSet<UserEntity> Users { get; set; } = null!;
 

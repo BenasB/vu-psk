@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Identity.DataAccess.Migrations
 {
     [DbContext(typeof(IdentityDatabaseContext))]
-    [Migration("20240519124428_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240521162401_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,9 +36,9 @@ namespace Identity.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("PasswordHash")
+                    b.Property<byte[]>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("bytea");
 
                     b.Property<int>("Roles")
                         .HasColumnType("integer");
