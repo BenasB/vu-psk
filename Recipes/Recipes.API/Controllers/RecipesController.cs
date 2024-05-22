@@ -24,7 +24,7 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        var responseRecipes = recipes.Select(recipe => GetRecipeFromEntity(recipe));
+        var responseRecipes = recipes.Select(GetRecipeFromEntity);
 
         return Ok(responseRecipes);
     }

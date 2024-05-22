@@ -1,8 +1,11 @@
 ﻿@page "/recipes/{Id:int}"
 
+@using FrontEnd.Web.Components.CustomIcons
 @using FrontEnd.Web.Services
 @attribute [StreamRendering]
+@rendermode InteractiveServer
 @inject IRecipeService RecipeService
+@inject NavigationManager NavManager
 
 <PageTitle>@(_recipe?.Title ?? "Single recipe display")</PageTitle>
 
@@ -34,15 +37,19 @@ else
         <img src="@_recipeImageUrl" alt="@_recipe.Title"/>
     </div>
     <FluentStack Style="margin-block: 10px;">
-        <FluentLabel Typo="Typography.H1">@_recipe.Title</FluentLabel>
-        <FluentSpacer/>
-        <FluentAnchor Href=@($"/recipes/{Id}/edit") Appearance="Appearance.Accent">Edit</FluentAnchor>
-        <FluentAnchor Href="" Appearance="Appearance.Accent">Delete</FluentAnchor>
+        <FluentLabel Typo="Typography.H1" Style="flex-grow: 1">@_recipe.Title</FluentLabel>
+        <FluentStack Width="auto">
+            <FluentAnchor Appearance="Appearance.Hypertext" Href=@($"https://www.facebook.com/sharer/sharer.php?u={NavManager.Uri}") Target="_blank"><FluentIcon Value="@(new CustomIcons.Facebook())"/></FluentAnchor>
+            <FluentAnchor Appearance="Appearance.Hypertext" Href=@($"https://twitter.com/intent/tweet?url={Uri.EscapeDataString(NavManager.Uri)}&text={Uri.EscapeDataString(_recipe.Title)}") Target="_blank"><FluentIcon Value="@(new CustomIcons.Twitter())"/></FluentAnchor>
+            <FluentAnchor Appearance="Appearance.Hypertext" Href=@($"https://reddit.com/submit?url={NavManager.Uri}&title={_recipe.Title}") Target="_blank"><FluentIcon Value="@(new CustomIcons.Reddit())"/></FluentAnchor>
+            <FluentAnchor Href=@($"/recipes/{Id}/edit") Appearance="Appearance.Accent">Edit</FluentAnchor>
+            <FluentButton OnClick="@DeleteRecipe" Appearance="Appearance.Accent">Delete</FluentButton>
+        </FluentStack>
     </FluentStack>
     <FluentGrid AdaptiveRendering>
         <FluentGridItem sm="12" md="6">
             <FluentStack Orientation="Orientation.Vertical" Style="min-width: 500px;">
-                <FluentOverflow>
+                <FluentOverflow Style="width: 100%;">
                     <FluentOverflowItem>
                         <FluentBadge Appearance="Appearance.Accent">
                             <FluentIcon Color="Color.Disabled" Value=@(new Icons.Regular.Size16.Timer())/>@_recipe.CookingTime
@@ -88,6 +95,12 @@ else
 
     private readonly IEnumerable<string> _tagNames = new [] { "Indian", "Dinner" };
     private readonly string _recipeImageUrl = "https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg";
+
+    private async Task DeleteRecipe()
+    {
+        if (_recipe != null && await RecipeService.DeleteByIdAsync(_recipe.Id)) 
+            NavManager.NavigateTo("/");
+    }
     
     protected override async Task OnInitializedAsync()
     {
