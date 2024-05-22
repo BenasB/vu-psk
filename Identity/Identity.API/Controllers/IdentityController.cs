@@ -22,7 +22,7 @@ public class IdentityController(IdentityDatabaseContext dbContext) : ControllerB
         IEnumerable<UserEntity> users;
         try
         {
-            users = await dbContext.Set<UserEntity>().ToListAsync();
+            users = await dbContext.Users.ToListAsync();
         }
         catch
         {
@@ -30,6 +30,35 @@ public class IdentityController(IdentityDatabaseContext dbContext) : ControllerB
         }
 
         return Ok(users);
+    }
+
+    [HttpGet]
+    [Route("user/{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<IEnumerable<UserEntity>>> GetAllRecipes(int id)
+    {
+        User user;
+
+        try
+        {
+            UserEntity? userEntity = await dbContext.Users.FindAsync(id);
+
+            if (userEntity is null)
+                return NotFound();
+
+            user = new User
+            { 
+                Username = userEntity.Username,
+                Email = userEntity.Email
+            };
+        }
+        catch
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
+        return Ok(user);
     }
 
     [Route("register")]
