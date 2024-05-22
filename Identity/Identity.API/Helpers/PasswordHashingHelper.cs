@@ -1,6 +1,6 @@
-﻿using System.Collections;
+﻿using System.Text;
+using System.Collections;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Identity.API.Helpers;
 

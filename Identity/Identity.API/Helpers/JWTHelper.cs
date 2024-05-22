@@ -1,7 +1,8 @@
-﻿using Identity.DataAccess.Models.Entities;
-using Microsoft.IdentityModel.Tokens;
+﻿using System.Text;
 using System.IdentityModel.Tokens.Jwt;
-using System.Text;
+
+using Microsoft.IdentityModel.Tokens;
+using Identity.DataAccess.Models.Entities;
 
 namespace Identity.API.Helpers;
 
