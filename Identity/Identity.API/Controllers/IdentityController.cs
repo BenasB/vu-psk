@@ -1,28 +1,30 @@
 using Identity.API.Helpers;
 using Identity.DataAccess;
+using Identity.DataAccess.Models;
 using Identity.DataAccess.Models.Entities;
 using Identity.Public;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Net.Http.Headers;
+using Npgsql;
 using System.Security.Claims;
 
-namespace Recipes.API.Controllers;
+namespace Identity.API.Controllers;
 
 [ApiController]
-public class IdentityController(IdentityDatabaseContext dbContext) : ControllerBase
+public class IdentityController(IdentityDatabaseContext dbContext, JWTHelper jwtHelper) : ControllerBase
 {
     [HttpGet]
     [Route("users")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<UserEntity>>> GetAllRecipes()
+    public async Task<ActionResult<IEnumerable<User>>> GetAllUsers()
     {
-        IEnumerable<UserEntity> users;
+        IEnumerable<User> users;
         try
         {
-            users = await dbContext.Users.ToListAsync();
+            users = (await dbContext.Users.ToListAsync())
+                .Select(u => new User() { Username = u.Username, Email = u.Email });
         }
         catch
         {
@@ -35,10 +37,11 @@ public class IdentityController(IdentityDatabaseContext dbContext) : ControllerB
     [HttpGet]
     [Route("user/{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<UserEntity>>> GetAllRecipes(int id)
+    public async Task<ActionResult<User?>> GetUser(int id)
     {
-        User user;
+        User user;  
 
         try
         {
@@ -55,7 +58,7 @@ public class IdentityController(IdentityDatabaseContext dbContext) : ControllerB
         }
         catch
         {
-            return StatusCode(StatusCodes.Status500InternalServerError);
+            return StatusCode(StatusCodes.Status404NotFound);
         }
 
         return Ok(user);
@@ -63,16 +66,17 @@ public class IdentityController(IdentityDatabaseContext dbContext) : ControllerB
 
     [Route("register")]
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<UserEntity>>> RegisterUser(UserCreateRequest userCreateRequest)
+    public async Task<ActionResult<string>> RegisterUser(UserCreateRequest userCreateRequest)
     {
         UserEntity userToCreate = new UserEntity()
         {
             Username = userCreateRequest.Username,
             PasswordHash = HashingHelper.HashPassword(userCreateRequest.Password),
             Email = userCreateRequest.Email,
-            Roles = UserRole.Member | UserRole.Admin,
+            Roles = new List<string> { UserRoles.ADMIN, UserRoles.MEMBER },
         };
 
         try
@@ -80,12 +84,16 @@ public class IdentityController(IdentityDatabaseContext dbContext) : ControllerB
             await dbContext.Users.AddAsync(userToCreate);
             await dbContext.SaveChangesAsync();
         }
+        catch (DbUpdateException ex) when ((ex.InnerException as PostgresException)?.SqlState == "23505")
+        { 
+            return Conflict();
+        }
         catch
         {
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        return Ok(JWTHelper.GenerateJwtToken(userToCreate));
+        return Ok(jwtHelper.GenerateJwtToken(userToCreate));
     }
 
     [HttpPost]
@@ -93,25 +101,23 @@ public class IdentityController(IdentityDatabaseContext dbContext) : ControllerB
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<UserEntity>>> LoginUser(UserLoginRequest userLoginRequest)
+    public async Task<ActionResult<string>> LoginUser(UserLoginRequest userLoginRequest)
     {
         string jwt;
 
         try
         {
-            UserEntity? user;
-            user = await dbContext.Users.Where(u => u.Username.Equals(userLoginRequest.Username)).FirstOrDefaultAsync();
+            UserEntity? user = await dbContext.Users.Where(u => u.Username.Equals(userLoginRequest.Username)).FirstOrDefaultAsync();
             if (user is null)
                 return NotFound();
 
             if (!user.PasswordHash.SequenceEqual(HashingHelper.HashPassword(userLoginRequest.Password)))
                 return Unauthorized();
 
-            jwt = JWTHelper.GenerateJwtToken(user);
+            jwt = jwtHelper.GenerateJwtToken(user);
         }
-        catch(Exception ex)
+        catch
         {
-            Console.WriteLine(ex);
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
@@ -124,14 +130,19 @@ public class IdentityController(IdentityDatabaseContext dbContext) : ControllerB
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<UserEntity>>> GetUserInfo()
+    public async Task<ActionResult<User>> GetMyAccountInfo()
     {
         int userId = Int32.Parse(HttpContext.User.FindFirstValue("id")!);
-        UserEntity user;
+        User user;
 
         try
         {
-            user = (await dbContext.Users.FindAsync(userId))!;
+            UserEntity userEntity = (await dbContext.Users.FindAsync(userId))!;
+            user = new User()
+            {
+                Username = userEntity.Username,
+                Email = userEntity.Email,
+            }
         }
         catch
         {

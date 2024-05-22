@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -20,7 +21,7 @@ namespace Identity.DataAccess.Migrations
                     Username = table.Column<string>(type: "text", nullable: false),
                     PasswordHash = table.Column<byte[]>(type: "bytea", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
-                    Roles = table.Column<int>(type: "integer", nullable: false)
+                    Roles = table.Column<List<string>>(type: "text[]", nullable: false)
                 },
                 constraints: table =>
                 {

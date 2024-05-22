@@ -19,11 +19,11 @@ public class UserEntity
     public required string Email { get; set; }
 
     [Required]
-    public required UserRole Roles { get; set; }
+    public required List<string> Roles { get; set; }
 }
 
-public enum UserRole
+static class UserRoles
 {
-	Admin = 1,
-	Member = 2
+    const string MEMBER = "member";
+    const string ADMIN = "admin";
 }

@@ -1,6 +1,7 @@
 using System.Text;
 
 using Identity.DataAccess;
+using Identity.API.Options;
 using Identity.API.Helpers;
 
 using Microsoft.EntityFrameworkCore;
@@ -21,9 +22,9 @@ builder.Services.AddAuthentication(x =>
 {
     jwt.TokenValidationParameters = new TokenValidationParameters()
     {
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JWTSettings:Key").Value!)),
-        ValidAudience = builder.Configuration.GetSection("JWTSettings:Issuer").Value,
-        ValidIssuer = builder.Configuration.GetSection("JWTSettings:Issuer").Value,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JWT:Key").Value!)),
+        ValidAudience = builder.Configuration.GetSection("JWT:Issuer").Value,
+        ValidIssuer = builder.Configuration.GetSection("JWT:Issuer").Value,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true
     };
@@ -43,12 +44,19 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-ApplicationSettingsHelper.Initialize(builder.Configuration);
+builder.Services.Configure<JWTOptions>(
+    builder.Configuration.GetSection(JWTOptions.JWT));
+builder.Services.AddSingleton<JWTHelper, JWTHelper>();
 
 builder.Services.AddDbContext<IdentityDatabaseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    scope.ServiceProvider.GetRequiredService<IdentityDatabaseContext>().Database.Migrate();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
