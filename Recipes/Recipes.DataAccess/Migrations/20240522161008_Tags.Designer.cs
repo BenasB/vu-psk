@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Recipes.DataAccess;
@@ -11,9 +12,11 @@ using Recipes.DataAccess;
 namespace Recipes.DataAccess.Migrations
 {
     [DbContext(typeof(RecipesDatabaseContext))]
-    partial class RecipesDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240522161008_Tags")]
+    partial class Tags
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

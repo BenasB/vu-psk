@@ -11,4 +11,5 @@ public class Recipe
     public DateTime UpdatedAt { get; set; }
     public required IEnumerable<string> Ingredients { get; init; }
     public required IEnumerable<string> Instructions { get; init; }
+    public required IEnumerable<Tag> Tags { get; init; }
 }

@@ -1,21 +1,28 @@
 using Recipes.DataAccess.Entities;
+using Recipes.DataAccess.Entities.Relationships;
 
 namespace Recipes.DataAccess;
 
 public static class DbInitializer
 {
     private static RecipeEntity[] SeedRecipesData => CreateSeedRecipesData();
+    private static TagEntity[] SeedTagsData => CreateSeedTagsData();
+    private static TagRecipeEntity[] SeedTagRecipes => CreateSeedTagRecipesData();
 
-    public static async Task SeedRecipes(RecipesDatabaseContext context)
+    public static async Task SeedDatabase(RecipesDatabaseContext context)
     {
         await context.Recipes.AddRangeAsync(SeedRecipesData);
+        await context.Tags.AddRangeAsync(SeedTagsData);
+        await context.SaveChangesAsync();
+
+        await context.TagRecipes.AddRangeAsync(SeedTagRecipes);
         await context.SaveChangesAsync();
     }
-    
+
     private static RecipeEntity[] CreateSeedRecipesData()
     {
-        return
-        [
+        return new[]
+            {
             new RecipeEntity
             {
                 Title = "Classic Marinara Pasta",
@@ -140,6 +147,72 @@ public static class DbInitializer
                     "Olive oil"
                 }
             },
-        ];
+        };
+    }
+
+    private static TagEntity[] CreateSeedTagsData()
+    {
+        return new[]
+        {
+            new TagEntity
+            {
+                Name = "Pasta"
+            },
+            new TagEntity
+            {
+                Name = "Vegan"
+            },
+            new TagEntity
+            {
+                Name = "Beef"
+            },
+        };
+    }
+
+    private static TagRecipeEntity[] CreateSeedTagRecipesData()
+    {
+        return new[]
+        {
+            new TagRecipeEntity
+            {
+                TagId = 1,
+                RecipeId = 1,
+            },
+            new TagRecipeEntity
+            {
+                TagId = 1,
+                RecipeId = 2,
+            },
+            new TagRecipeEntity
+            {
+                TagId = 1,
+                RecipeId = 3,
+            },
+            new TagRecipeEntity
+            {
+                TagId = 1,
+                RecipeId = 4,
+            },
+            new TagRecipeEntity
+            {
+                TagId = 1,
+                RecipeId = 5,
+            },
+            new TagRecipeEntity
+            {
+                TagId = 2,
+                RecipeId = 1,
+            },
+            new TagRecipeEntity
+            {
+                TagId = 2,
+                RecipeId = 3,
+            },
+            new TagRecipeEntity
+            {
+                TagId = 2,
+                RecipeId = 5,
+            },
+        };
     }
 }

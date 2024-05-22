@@ -1,13 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Recipes.DataAccess.Entities;
+using Recipes.DataAccess.Entities.Relationships;
 using Recipes.DataAccess.Repositories;
 using Recipes.Public;
+using Tags.API.Controllers;
 
 namespace Recipes.API.Controllers;
 
 [ApiController]
 [Route("recipes")]
-public class RecipesController(IGenericRepository<RecipeEntity> recipesRepository) : ControllerBase
+public class RecipesController(IGenericRepository<RecipeEntity> recipesRepository, IGenericRepository<TagRecipeEntity> tagRecipesRepository) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -83,6 +85,37 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
         return NoContent();
     }
 
+    [HttpDelete("{recipeId:int}/Tags/{tagId:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult> DeleteRecipeTag(int recipeId, int tagId)
+    {
+        TagRecipeEntity? recipeTag;
+        try
+        {
+            recipeTag = await tagRecipesRepository.GetByIdAsync(recipeId, tagId);
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
+        if (recipeTag is null) return NotFound();
+
+        try
+        {
+            tagRecipesRepository.Delete(recipeTag);
+            await tagRecipesRepository.SaveChangesAsync();
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
+        return NoContent();
+    }
+
     private Recipe GetRecipeFromEntity(RecipeEntity recipeEntity)
     {
         return new Recipe
@@ -95,8 +128,8 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
             Servings = recipeEntity.Servings,
             UpdatedAt = recipeEntity.UpdatedAt,
             Ingredients = recipeEntity.Ingredients,
-            Instructions = recipeEntity.Instructions
+            Instructions = recipeEntity.Instructions,
+            Tags = recipeEntity.Tags.Select(t => t.Tag).Select(TagsController.GetTagFromEntity),
         };
-
     }
 }

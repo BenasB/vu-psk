@@ -2,35 +2,42 @@
 
 namespace Recipes.DataAccess.Repositories;
 
-public class GenericRepository<T>(RecipesDatabaseContext context) : IGenericRepository<T> where T : class
+public class GenericRepository<T> : IGenericRepository<T> where T : class
 {
-    public async Task<IEnumerable<T>> GetAllAsync()
+    protected RecipesDatabaseContext Context;
+
+    public GenericRepository(RecipesDatabaseContext context)
     {
-        return await context.Set<T>().ToListAsync();
+        Context = context;
     }
 
-    public async Task<T?> GetByIdAsync(int id)
+    public virtual async Task<IEnumerable<T>> GetAllAsync()
     {
-        return await context.Set<T>().FindAsync(id);
+        return await Context.Set<T>().ToListAsync();
+    }
+
+    public virtual async Task<T?> GetByIdAsync(params object[] id)
+    {
+        return await Context.Set<T>().FindAsync(id);
     }
 
     public void Insert(T entity)
     {
-        context.Set<T>().Add(entity);
+        Context.Set<T>().Add(entity);
     }
 
     public void Update(T entity)
     {
-        context.Set<T>().Update(entity);
+        Context.Set<T>().Update(entity);
     }
 
     public void Delete(T entity)
     {
-        context.Set<T>().Remove(entity);
+        Context.Set<T>().Remove(entity);
     }
 
     public Task SaveChangesAsync()
     {
-        return context.SaveChangesAsync();
+        return Context.SaveChangesAsync();
     }
 }
