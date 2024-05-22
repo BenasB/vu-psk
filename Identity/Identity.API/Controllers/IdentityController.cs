@@ -142,7 +142,7 @@ public class IdentityController(IdentityDatabaseContext dbContext, JWTHelper jwt
             {
                 Username = userEntity.Username,
                 Email = userEntity.Email,
-            }
+            };
         }
         catch
         {
