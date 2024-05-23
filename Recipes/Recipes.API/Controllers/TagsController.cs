@@ -3,7 +3,7 @@ using Recipes.DataAccess.Entities;
 using Recipes.DataAccess.Repositories;
 using Recipes.Public;
 
-namespace Tags.API.Controllers;
+namespace Recipes.API.Controllers;
 
 [ApiController]
 [Route("tags")]
@@ -33,12 +33,12 @@ public class TagsController(IGenericRepository<TagEntity> tagsRepository) : Cont
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Tag>> GetTag(int tagId)
+    public ActionResult<Tag> GetTag(int tagId)
     {
         TagEntity? tag;
         try
         {
-            tag = await tagsRepository.GetByIdAsync(tagId);
+            tag = tagsRepository.GetById(tagId);
         }
         catch (Exception)
         {
@@ -61,7 +61,7 @@ public class TagsController(IGenericRepository<TagEntity> tagsRepository) : Cont
         TagEntity? tag;
         try
         {
-            tag = await tagsRepository.GetByIdAsync(tagId);
+            tag = tagsRepository.GetById(tagId);
         }
         catch (Exception)
         {

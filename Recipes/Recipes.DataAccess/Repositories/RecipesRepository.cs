@@ -1,20 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Recipes.DataAccess.Entities;
 
-namespace Recipes.DataAccess.Repositories
+namespace Recipes.DataAccess.Repositories;
+
+public class RecipesRepository : GenericRepository<RecipeEntity>
 {
-    public class RecipesRepository : GenericRepository<RecipeEntity>, IGenericRepository<RecipeEntity>
+    public RecipesRepository(RecipesDatabaseContext context) : base(context) { }
+
+    public override async Task<IEnumerable<RecipeEntity>> GetAllAsync()
     {
-        public RecipesRepository(RecipesDatabaseContext context) : base(context) { }
+        return await Context.Set<RecipeEntity>().Include(s => s.Tags).ThenInclude(s => s.Tag).ToListAsync();
+    }
 
-        public override async Task<IEnumerable<RecipeEntity>> GetAllAsync()
-        {
-            return await Context.Set<RecipeEntity>().Include(s => s.Tags).ThenInclude(s => s.Tag).ToListAsync();
-        }
-
-        public override async Task<RecipeEntity?> GetByIdAsync(params object[] id)
-        {
-            return Context.Set<RecipeEntity>().Include(s => s.Tags).ThenInclude(s => s.Tag).FirstOrDefault(s => s.Id == (int)id[0]);
-        }
+    public override RecipeEntity? GetById(params object[] id)
+    {
+        return Context.Set<RecipeEntity>().Include(s => s.Tags).ThenInclude(s => s.Tag).FirstOrDefault(s => s.Id == (int)id[0]);
     }
 }

@@ -28,13 +28,12 @@ using (var scope = app.Services.CreateScope())
 {
     var recipesDbContext = scope.ServiceProvider.GetRequiredService<RecipesDatabaseContext>();
     if (app.Environment.IsDevelopment())
-    {
         recipesDbContext.Database.EnsureDeleted();
-        recipesDbContext.Database.Migrate();
 
-        if (app.Environment.IsDevelopment() && !recipesDbContext.Recipes.Any() && !recipesDbContext.Tags.Any())
-            await DbInitializer.SeedDatabase(recipesDbContext);
-    }
+    recipesDbContext.Database.Migrate();
+
+    if (app.Environment.IsDevelopment() && !recipesDbContext.Recipes.Any() && !recipesDbContext.Tags.Any())
+        await DbInitializer.SeedDatabase(recipesDbContext);
 }
 
 app.MapControllers();

@@ -16,9 +16,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return await Context.Set<T>().ToListAsync();
     }
 
-    public virtual async Task<T?> GetByIdAsync(params object[] id)
+    public virtual T? GetById(params object[] id)
     {
-        return await Context.Set<T>().FindAsync(id);
+        return Context.Set<T>().Find(id);
     }
 
     public void Insert(T entity)

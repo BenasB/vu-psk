@@ -3,7 +3,6 @@ using Recipes.DataAccess.Entities;
 using Recipes.DataAccess.Entities.Relationships;
 using Recipes.DataAccess.Repositories;
 using Recipes.Public;
-using Tags.API.Controllers;
 
 namespace Recipes.API.Controllers;
 
@@ -35,12 +34,12 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Recipe>> GetRecipe(int recipeId)
+    public ActionResult<Recipe> GetRecipe(int recipeId)
     {
         RecipeEntity? recipe;
         try
         {
-            recipe = await recipesRepository.GetByIdAsync(recipeId);
+            recipe = recipesRepository.GetById(recipeId);
         }
         catch (Exception)
         {
@@ -63,7 +62,7 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
         RecipeEntity? recipe;
         try
         {
-            recipe = await recipesRepository.GetByIdAsync(recipeId);
+            recipe = recipesRepository.GetById(recipeId);
         }
         catch (Exception)
         {
@@ -94,7 +93,7 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
         TagRecipeEntity? recipeTag;
         try
         {
-            recipeTag = await tagRecipesRepository.GetByIdAsync(recipeId, tagId);
+            recipeTag = tagRecipesRepository.GetById(recipeId, tagId);
         }
         catch (Exception)
         {

@@ -12,5 +12,5 @@ public class TagEntity
 
     public required string Name { get; set; }
 
-    public List<TagRecipeEntity> Recipes { get; set; } = new();
+    public IList<TagRecipeEntity> Recipes { get; set; } = new List<TagRecipeEntity>();
 }
