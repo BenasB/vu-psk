@@ -39,6 +39,9 @@ namespace Recipes.DataAccess.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<string>("Image")
+                        .HasColumnType("text");
+
                     b.Property<string[]>("Ingredients")
                         .IsRequired()
                         .HasColumnType("text[]");
