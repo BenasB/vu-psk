@@ -24,7 +24,7 @@ public class IdentityController(IdentityDatabaseContext dbContext, JWTHelper jwt
         try
         {
             users = (await dbContext.Users.ToListAsync())
-                .Select(u => new User() { Username = u.Username, Email = u.Email });
+                .Select(u => new User() { Id = u.Id,     Username = u.Username, Email = u.Email });
         }
         catch
         {
@@ -35,30 +35,31 @@ public class IdentityController(IdentityDatabaseContext dbContext, JWTHelper jwt
     }
 
     [HttpGet]
+    [ActionName("GetUser")]
     [Route("user/{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<User?>> GetUser(int id)
+    public async Task<ActionResult<User>> GetUser(int id)
     {
         User user;  
 
         try
         {
             UserEntity? userEntity = await dbContext.Users.FindAsync(id);
-
             if (userEntity is null)
                 return NotFound();
 
             user = new User
             { 
+                Id = userEntity.Id,
                 Username = userEntity.Username,
                 Email = userEntity.Email
             };
         }
         catch
         {
-            return StatusCode(StatusCodes.Status404NotFound);
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
         return Ok(user);
@@ -93,7 +94,7 @@ public class IdentityController(IdentityDatabaseContext dbContext, JWTHelper jwt
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        return Ok(jwtHelper.GenerateJwtToken(userToCreate));
+        return CreatedAtAction("GetUser", new { id = userToCreate.Id }, jwtHelper.GenerateJwtToken(userToCreate));
     }
 
     [HttpPost]
@@ -129,6 +130,7 @@ public class IdentityController(IdentityDatabaseContext dbContext, JWTHelper jwt
     [Route("my-account")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<User>> GetMyAccountInfo()
     {
@@ -137,9 +139,13 @@ public class IdentityController(IdentityDatabaseContext dbContext, JWTHelper jwt
 
         try
         {
-            UserEntity userEntity = (await dbContext.Users.FindAsync(userId))!;
+            UserEntity? userEntity = (await dbContext.Users.FindAsync(userId))!;
+            if(userEntity is null)
+                return NotFound();
+
             user = new User()
             {
+                Id = userEntity.Id,
                 Username = userEntity.Username,
                 Email = userEntity.Email,
             };

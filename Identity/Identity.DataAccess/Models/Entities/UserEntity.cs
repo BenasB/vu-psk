@@ -21,9 +21,3 @@ public class UserEntity
     [Required]
     public required List<string> Roles { get; set; }
 }
-
-static class UserRoles
-{
-    const string MEMBER = "member";
-    const string ADMIN = "admin";
-}
