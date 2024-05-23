@@ -84,7 +84,7 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
         return NoContent();
     }
 
-    [HttpDelete("{recipeId:int}/Tags/{tagId:int}")]
+    [HttpDelete("{recipeId:int}/tags/{tagId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

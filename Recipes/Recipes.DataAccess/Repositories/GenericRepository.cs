@@ -4,7 +4,7 @@ namespace Recipes.DataAccess.Repositories;
 
 public class GenericRepository<T> : IGenericRepository<T> where T : class
 {
-    protected RecipesDatabaseContext Context;
+    protected readonly RecipesDatabaseContext Context;
 
     public GenericRepository(RecipesDatabaseContext context)
     {
