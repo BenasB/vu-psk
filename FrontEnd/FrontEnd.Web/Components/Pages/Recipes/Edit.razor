@@ -1,13 +1,19 @@
 ﻿@page "/recipes/{Id:int}/edit"
 @using FrontEnd.Web.Services
 @inject IRecipeService RecipeService
+@rendermode InteractiveServer
 
 <PageTitle>Edit a recipe</PageTitle>
 
-@if (_recipe != null)
+@if (_recipeTask is not { IsCompleted: true })
+{
+    return;
+}
+
+@if (_recipeTask.Result != null)
 {
     <FluentLabel Typo="Typography.H1" MarginBlock="10px">Edit a recipe</FluentLabel>
-    <Form InitialData="_recipe"></Form>
+    <Form InitialData="_recipeTask.Result"></Form>
 }
 else
 {
@@ -20,10 +26,11 @@ else
     [Parameter]
     public int Id { get; init; }
 
-    private global::Recipes.Public.Recipe? _recipe;
+    private Task<global::Recipes.Public.Recipe?>? _recipeTask;
     
     protected override async Task OnInitializedAsync()
     {
-        _recipe = await RecipeService.GetByIdAsync(Id);
+        _recipeTask = RecipeService.GetByIdAsync(Id);
+        await _recipeTask;
     }
 }
