@@ -129,8 +129,8 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
             UpdatedAt = recipeEntity.UpdatedAt,
             Ingredients = recipeEntity.Ingredients,
             Instructions = recipeEntity.Instructions,
-            Image = recipeEntity.Image
-            Tags = recipeEntity.Tags.Select(t => t.Tag).Select(TagsController.GetTagFromEntity),
+            Image = recipeEntity.Image,
+            Tags = recipeEntity.Tags.Select(t => t.Tag).Select(TagsController.GetTagFromEntity)
         };
     }
 }
