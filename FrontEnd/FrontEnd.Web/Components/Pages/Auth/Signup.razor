@@ -1,0 +1,91 @@
+﻿@page "/sign-up"
+@rendermode InteractiveServer
+@using System.ComponentModel
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Sign Up</PageTitle>
+
+<FluentGrid AdaptiveRendering="true" Justify="JustifyContent.Center" Style="margin-block: 20px; margin-inline: 20px;">
+    <FluentGridItem md="5">
+        <FluentStack Orientation="Orientation.Vertical" Style="display: flex; align-items: center; margin-top: 15vh; ">
+            <FluentLabel Typo="Typography.PaneHeader">Sign Up</FluentLabel>
+            <EditForm Model="@Credentials" OnValidSubmit="@SignupAsync" FormName="signup" novalidate>
+                <ObjectGraphDataAnnotationsValidator/>
+
+                <FluentStack Orientation="Orientation.Vertical" VerticalGap="20" Style="margin-block: 20px;">
+                    <div>
+                        <FluentTextField Placeholder="Username" @bind-Value="Credentials.Username" Required Style="width: 40ch;"/>
+                        <FluentValidationMessage For="@(() => Credentials.Username)"/>
+                    </div>
+                    <div>
+                        <FluentTextField Placeholder="Email" @bind-Value="Credentials.Email" Required Style="width: 40ch;"/>
+                        <FluentValidationMessage For="@(() => Credentials.Email)"/>
+                    </div>
+                    <div>
+                        <FluentTextField Placeholder="Password" @bind-Value="Credentials.Password" TextFieldType="TextFieldType.Password" Required Style="width: 40ch;"/>
+                        <FluentValidationMessage For="@(() => Credentials.Password)"/>
+                    </div>
+                    <div>
+                        <FluentTextField Placeholder="Repeat password" @bind-Value="Credentials.PasswordCheck" TextFieldType="TextFieldType.Password" Required Style="width: 40ch;"/>
+                        <FluentValidationMessage For="@(() => Credentials.PasswordCheck)"/>
+                    </div>
+
+                    <FluentLabel Typo="Typography.Body" Style="display: inline-flex; align-items: center; gap: 10px;">
+                        <text>Already have an account? </text>
+                        <FluentAnchor Appearance="Appearance.Lightweight" Href="/log-in">Log in!</FluentAnchor>
+                    </FluentLabel>
+                </FluentStack>
+            </EditForm>
+            <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">Sign Up</FluentButton>
+        </FluentStack>
+    </FluentGridItem>
+    <FluentGridItem md="7" HiddenWhen="GridItemHidden.SmAndDown" Style="overflow: hidden; height: 80vh">
+        <img src="https://cdn.pixabay.com/photo/2024/02/23/22/51/ai-generated-8592930_1280.jpg" alt="Registration page image" style="transform: translate(-50%, -30%)" />
+    </FluentGridItem>
+</FluentGrid>
+
+@code 
+{
+    [SupplyParameterFromForm] private SignupCredentialsFormData Credentials { get; set; } = new();
+
+    private Task SignupAsync()
+    {
+        // Signup 
+        return Task.CompletedTask;
+    }
+
+    public record SignupCredentialsFormData
+    {
+        [Required]
+        [DisplayName("User name"), Description("Registration name")]
+        public string Username { get; set; } = string.Empty;
+        
+        [Required]
+        [DisplayName("User name"), Description("E-mail address"), EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Required, PasswordPropertyText(true), MinLength(8, ErrorMessage = "Password is too short (min. 8 characters)")]
+        [DisplayName("Password"), Description("Registration password")]
+        public string Password { get; set; } = string.Empty;
+        
+        [Required, PasswordPropertyText(true), MinLength(8, ErrorMessage = "Password is too short (min. 8 characters)")]
+        [DisplayName("Password"), Description("Repeated password")]
+        [ComparePasswords("Password", ErrorMessage = "Passwords do not match.")]
+        public string PasswordCheck { get; set; } = string.Empty;
+    }
+    
+    public class ComparePasswordsAttribute(string property) : ValidationAttribute
+    {
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+        {
+            var currentValue = value as string;
+            var comparisonProperty = validationContext.ObjectType.GetProperty(property);
+        
+            if (comparisonProperty == null)
+                throw new ArgumentException("Property with this name not found");
+
+            var comparisonValue = comparisonProperty.GetValue(validationContext.ObjectInstance) as string;
+            return currentValue != comparisonValue ? new ValidationResult(ErrorMessage ?? $"{validationContext.DisplayName} and {property} do not match.") : ValidationResult.Success;
+        }
+    }
+}

@@ -83,7 +83,7 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
         return NoContent();
     }
 
-    private Recipe GetRecipeFromEntity(RecipeEntity recipeEntity)
+    private static Recipe GetRecipeFromEntity(RecipeEntity recipeEntity)
     {
         return new Recipe
         {
@@ -95,7 +95,8 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
             Servings = recipeEntity.Servings,
             UpdatedAt = recipeEntity.UpdatedAt,
             Ingredients = recipeEntity.Ingredients,
-            Instructions = recipeEntity.Instructions
+            Instructions = recipeEntity.Instructions,
+            Image = recipeEntity.Image
         };
 
     }

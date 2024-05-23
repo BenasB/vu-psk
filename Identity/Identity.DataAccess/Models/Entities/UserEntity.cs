@@ -19,11 +19,5 @@ public class UserEntity
     public required string Email { get; set; }
 
     [Required]
-    public required UserRole Roles { get; set; }
-}
-
-public enum UserRole
-{
-	Admin = 1,
-	Member = 2
+    public required List<string> Roles { get; set; }
 }
