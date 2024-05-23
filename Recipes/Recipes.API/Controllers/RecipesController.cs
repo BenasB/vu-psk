@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 using Recipes.DataAccess.Entities;
 using Recipes.DataAccess.Entities.Relationships;
 using Recipes.DataAccess.Repositories;
@@ -111,6 +112,48 @@ public class RecipesController: ControllerBase
             RecipeEntity recipeEntity = await AssignTagsToRecipe(request);
 
             _recipesRepository.Insert(recipeEntity);
+            await _recipesRepository.SaveChangesAsync();
+        }
+        catch
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
+        return NoContent();
+    }
+
+    [HttpPut("{recipeId:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult> UpdateRecipe(int recipeId, [FromBody] RecipeDTO request)
+    {
+        RecipeEntity? oldRecipe;
+        
+        try
+        {
+            oldRecipe = _recipesRepository.GetById(recipeId);
+
+            if(oldRecipe == null)
+            {
+                return StatusCode(StatusCodes.Status404NotFound);
+            }
+
+            await InsertNewTags(request.Tags);
+
+            RecipeEntity newRecipe = await AssignTagsToRecipe(request);
+
+            oldRecipe.Title = newRecipe.Title;
+            oldRecipe.AuthorId = newRecipe.AuthorId;
+            oldRecipe.Description = newRecipe.Description;
+            oldRecipe.CookingTime = newRecipe.CookingTime;
+            oldRecipe.Servings = newRecipe.Servings;
+            oldRecipe.Ingredients = newRecipe.Ingredients;
+            oldRecipe.Instructions = newRecipe.Instructions;
+            oldRecipe.Image = newRecipe.Image;
+            oldRecipe.Tags = newRecipe.Tags;
+
+            _recipesRepository.Update(oldRecipe);
             await _recipesRepository.SaveChangesAsync();
         }
         catch
