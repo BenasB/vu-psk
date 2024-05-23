@@ -12,5 +12,5 @@ public class Recipe
     public required IEnumerable<string> Ingredients { get; init; }
     public required IEnumerable<string> Instructions { get; init; }
     public string? Image { get; init; }
-    public required IEnumerable<Tag> Tags { get; init; }
+    public IEnumerable<Tag> Tags { get; init; } = new List<Tag>();
 }
