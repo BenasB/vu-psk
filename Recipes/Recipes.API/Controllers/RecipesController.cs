@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Recipes.DataAccess.Entities;
+using Recipes.DataAccess.Entities.Relationships;
 using Recipes.DataAccess.Repositories;
 using Recipes.Public;
 
@@ -7,7 +8,7 @@ namespace Recipes.API.Controllers;
 
 [ApiController]
 [Route("recipes")]
-public class RecipesController(IGenericRepository<RecipeEntity> recipesRepository) : ControllerBase
+public class RecipesController(IGenericRepository<RecipeEntity> recipesRepository, IGenericRepository<TagRecipeEntity> tagRecipesRepository) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -33,12 +34,12 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Recipe>> GetRecipe(int recipeId)
+    public ActionResult<Recipe> GetRecipe(int recipeId)
     {
         RecipeEntity? recipe;
         try
         {
-            recipe = await recipesRepository.GetByIdAsync(recipeId);
+            recipe = recipesRepository.GetById(recipeId);
         }
         catch (Exception)
         {
@@ -61,7 +62,7 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
         RecipeEntity? recipe;
         try
         {
-            recipe = await recipesRepository.GetByIdAsync(recipeId);
+            recipe = recipesRepository.GetById(recipeId);
         }
         catch (Exception)
         {
@@ -83,7 +84,38 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
         return NoContent();
     }
 
-    private static Recipe GetRecipeFromEntity(RecipeEntity recipeEntity)
+    [HttpDelete("{recipeId:int}/tags/{tagId:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult> DeleteRecipeTag(int recipeId, int tagId)
+    {
+        TagRecipeEntity? recipeTag;
+        try
+        {
+            recipeTag = tagRecipesRepository.GetById(recipeId, tagId);
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
+        if (recipeTag is null) return NotFound();
+
+        try
+        {
+            tagRecipesRepository.Delete(recipeTag);
+            await tagRecipesRepository.SaveChangesAsync();
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
+        return NoContent();
+    }
+
+    private Recipe GetRecipeFromEntity(RecipeEntity recipeEntity)
     {
         return new Recipe
         {
@@ -96,8 +128,8 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
             UpdatedAt = recipeEntity.UpdatedAt,
             Ingredients = recipeEntity.Ingredients,
             Instructions = recipeEntity.Instructions,
-            Image = recipeEntity.Image
+            Image = recipeEntity.Image,
+            Tags = recipeEntity.Tags.Select(t => t.Tag).Select(TagsController.GetTagFromEntity)
         };
-
     }
 }

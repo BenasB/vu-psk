@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Recipes.DataAccess.Entities.Relationships;
 
 namespace Recipes.DataAccess.Entities;
 
@@ -26,4 +27,6 @@ public class RecipeEntity
     public required IList<string> Ingredients { get; set; } = new List<string>();
     
     public string? Image { get; set; }
+
+    public List<TagRecipeEntity> Tags { get; set; } = new();
 }
