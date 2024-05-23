@@ -90,21 +90,40 @@
         </FluentGridItem>
         <FluentGridItem xs="12" sm="12" md="6">
             <FluentStack Orientation="Orientation.Vertical">
-                <FluentLabel>Picture</FluentLabel>
-                <!--suppress CssUnresolvedCustomProperty -->
-                <FluentInputFile Id="picture"
-                                 Accept="image/*"
-                                 Style="height: 300px; width: 100%; border: 1px dashed var(--accent-fill-rest);">
-                    <ChildContent>
-                        <label for="picture">
-                            <FluentIcon Value="@(new @Icons.Regular.Size24.ArrowUpload())"/>
-                        </label>
+                <FluentStack Orientation="Orientation.Horizontal">
+                    <FluentLabel>Picture</FluentLabel>
+                    @if (FormData.Image != null)
+                    {
+                        <FluentSpacer/>
+                        <FluentButton Appearance="Appearance.Lightweight"
+                                      IconEnd="@(new Icons.Regular.Size16.Delete())"
+                                      OnClick="@(() => FormData.Image = null)"/>
+                    }
+                </FluentStack>
+                @if (FormData.Image != null)
+                {
+                    <img src="@FormData.Image" alt="Input image" style="width: 100%"/>
+                }
+                else
+                {
+                    <!--suppress CssUnresolvedCustomProperty -->
+                    <FluentInputFile Id="picture"
+                                     @ref="@_imageFile"
+                                     Mode="InputFileMode.Stream"
+                                     OnFileUploaded="OnFileUploadedAsync"
+                                     Accept="image/*"
+                                     Style="height: 300px; width: 100%; border: 1px dashed var(--accent-fill-rest);">
+                        <ChildContent>
+                            <label for="picture">
+                                <FluentIcon Value="@(new @Icons.Regular.Size24.ArrowUpload())"/>
+                            </label>
 
-                        <div>
-                            Drag files here you wish to upload, or <label for="picture">browse</label> for them.
-                        </div>
-                    </ChildContent>
-                </FluentInputFile>
+                            <div>
+                                Drag files here you wish to upload, or <label for="picture">browse</label> for them.
+                            </div>
+                        </ChildContent>
+                    </FluentInputFile>
+                }
             </FluentStack>
         </FluentGridItem>
         <FluentGridItem xs="12">
@@ -120,6 +139,8 @@
 
     [SupplyParameterFromForm] private RecipeFormData FormData { get; set; } = new();
 
+    private FluentInputFile? _imageFile;
+
     protected override void OnInitialized()
     {
         if (InitialData != null)
@@ -133,7 +154,8 @@
                 CookingTimeInMinutes = (int)InitialData.CookingTime.TotalMinutes,
                 Tags = [], // TODO: Load from incoming Recipes.Public.Recipe
                 Ingredients = InitialData.Ingredients.Select(x => new Ingredient { Value = x }).ToList(),
-                Instructions = InitialData.Instructions.Select(x => new InstructionStep { Value = x }).ToList()
+                Instructions = InitialData.Instructions.Select(x => new InstructionStep { Value = x }).ToList(),
+                Image = InitialData.Image
             };
         }
     }
@@ -160,6 +182,8 @@
         public List<InstructionStep> Instructions { get; set; } = [];
 
         public IEnumerable<string> Tags { get; set; } = [];
+        
+        public string? Image { get; set; }
     }
 
     private class Ingredient
@@ -184,7 +208,8 @@
             CookingTime = TimeSpan.FromMinutes((double)FormData.CookingTimeInMinutes!),
             Servings = FormData.Servings!.Value,
             Ingredients = FormData.Ingredients.Select(x => x.Value!),
-            Instructions = FormData.Instructions.Select(x => x.Value!)
+            Instructions = FormData.Instructions.Select(x => x.Value!),
+            Image = FormData.Image
         };
 
         // TODO: Send out `recipeDto` to the Recipes API
@@ -204,4 +229,12 @@
         return Task.CompletedTask;
     }
 
+    private async Task OnFileUploadedAsync(FluentInputFileEventArgs file)
+    {
+        // Load everything in memory, since we'll be sending the image in base64 anyway
+        var memoryStream = new MemoryStream();
+        await file.Stream!.CopyToAsync(memoryStream);
+
+        FormData.Image = "data:" + file.ContentType + ";base64," + Convert.ToBase64String(memoryStream.ToArray());
+    }
 }

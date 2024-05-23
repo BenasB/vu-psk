@@ -26,7 +26,7 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        var responseRecipes = recipes.Select(recipe => GetRecipeFromEntity(recipe));
+        var responseRecipes = recipes.Select(GetRecipeFromEntity);
 
         return Ok(responseRecipes);
     }
@@ -129,6 +129,7 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
             UpdatedAt = recipeEntity.UpdatedAt,
             Ingredients = recipeEntity.Ingredients,
             Instructions = recipeEntity.Instructions,
+            Image = recipeEntity.Image
             Tags = recipeEntity.Tags.Select(t => t.Tag).Select(TagsController.GetTagFromEntity),
         };
     }

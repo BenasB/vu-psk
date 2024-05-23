@@ -30,9 +30,9 @@ else if (_recipe == null)
 }
 else
 {
-    <div style="height: 14rem; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-        <img src="@_recipeImageUrl" alt="@_recipe.Title"/>
-    </div>
+    @if(_recipe.Image != null){
+        <img src="@_recipe.Image" alt="@_recipe.Title" style="object-fit: cover; height: 14rem; width: 100%"/>
+    }
     <FluentStack Style="margin-block: 10px;">
         <FluentLabel Typo="Typography.H1">@_recipe.Title</FluentLabel>
         <FluentSpacer/>
@@ -87,7 +87,6 @@ else
     private Task<global::Recipes.Public.Recipe?>? _task;
 
     private readonly IEnumerable<string> _tagNames = new [] { "Indian", "Dinner" };
-    private readonly string _recipeImageUrl = "https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg";
     
     protected override async Task OnInitializedAsync()
     {

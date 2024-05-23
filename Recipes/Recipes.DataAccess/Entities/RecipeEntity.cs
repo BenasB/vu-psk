@@ -25,6 +25,8 @@ public class RecipeEntity
     public required IList<string> Instructions { get; set; } = new List<string>();
 
     public required IList<string> Ingredients { get; set; } = new List<string>();
+    
+    public string? Image { get; set; }
 
     public List<TagRecipeEntity> Tags { get; set; } = new();
 }
