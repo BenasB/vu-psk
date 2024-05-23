@@ -1,4 +1,5 @@
 ﻿namespace Recipes.DataAccess.Entities.Relationships;
+
 public class TagRecipeEntity
 {
     public int RecipeId { get; set; }
