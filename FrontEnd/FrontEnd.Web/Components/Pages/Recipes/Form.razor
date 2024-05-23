@@ -90,11 +90,19 @@
         </FluentGridItem>
         <FluentGridItem xs="12" sm="12" md="6">
             <FluentStack Orientation="Orientation.Vertical">
-                <FluentLabel>Picture</FluentLabel>
+                <FluentStack Orientation="Orientation.Horizontal">
+                    <FluentLabel>Picture</FluentLabel>
+                    @if (FormData.Image != null)
+                    {
+                        <FluentSpacer/>
+                        <FluentButton Appearance="Appearance.Lightweight"
+                                      IconEnd="@(new Icons.Regular.Size16.Delete())"
+                                      OnClick="@(() => FormData.Image = null)"/>
+                    }
+                </FluentStack>
                 @if (FormData.Image != null)
                 {
                     <img src="@FormData.Image" alt="Input image" style="width: 100%"/>
-                    <FluentButton OnClick="() => FormData.Image = null">Remove</FluentButton>
                 }
                 else
                 {
@@ -132,7 +140,6 @@
     [SupplyParameterFromForm] private RecipeFormData FormData { get; set; } = new();
 
     private FluentInputFile? _imageFile;
-    private MemoryStream? _fullImageBuffer;
 
     protected override void OnInitialized()
     {
