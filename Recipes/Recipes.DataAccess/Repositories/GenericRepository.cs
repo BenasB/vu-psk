@@ -26,7 +26,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return Context.Set<T>().Find(id);
     }
 
-    public void Insert(T entity)
+    public virtual void Insert(T entity)
     {
         Context.Set<T>().Add(entity);
     }
