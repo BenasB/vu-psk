@@ -99,7 +99,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> CreateRecipe(RecipeCreateUpdateDTO request)
     {
@@ -108,16 +108,18 @@ public class RecipesController : ControllerBase
             await InsertNewTags(request.Tags);
 
             RecipeEntity recipeEntity = await AssignTagsToRecipe(request);
-
             _recipesRepository.Insert(recipeEntity);
+
             await _recipesRepository.SaveChangesAsync();
+
+            Recipe response = GetRecipeFromEntity(recipeEntity);
+
+            return Created($"/recipes/{response.Id}", response);
         }
         catch
         {
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
-
-        return NoContent();
     }
 
     [HttpPut("{recipeId:int}")]
