@@ -101,7 +101,7 @@ public class RecipesController: ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> CreateRecipe(RecipeDTO request)
+    public async Task<ActionResult> CreateRecipe(RecipeCreateUpdateDTO request)
     {
         try
         {
@@ -124,7 +124,7 @@ public class RecipesController: ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> UpdateRecipe(int recipeId, [FromBody] RecipeDTO request)
+    public async Task<ActionResult> UpdateRecipe(int recipeId, [FromBody] RecipeCreateUpdateDTO request)
     {
         RecipeEntity? oldRecipe;
         
@@ -236,7 +236,7 @@ public class RecipesController: ControllerBase
         await _recipesRepository.SaveChangesAsync();
     }
 
-    private async Task<RecipeEntity> AssignTagsToRecipe(RecipeDTO recipeDTO)
+    private async Task<RecipeEntity> AssignTagsToRecipe(RecipeCreateUpdateDTO recipeDTO)
     {
         var allTags = await _tagRepository.GetAllAsync();
 

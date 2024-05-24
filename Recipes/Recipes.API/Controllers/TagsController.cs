@@ -12,7 +12,7 @@ public class TagsController(IGenericRepository<TagEntity> tagsRepository) : Cont
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<Tag>>> GetAllTags()
+    public async Task<ActionResult<IEnumerable<TagCreateUpdateDTO>>> GetAllTags()
     {
         IEnumerable<TagEntity> tags;
         try
@@ -33,7 +33,7 @@ public class TagsController(IGenericRepository<TagEntity> tagsRepository) : Cont
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public ActionResult<Tag> GetTag(int tagId)
+    public ActionResult<TagCreateUpdateDTO> GetTag(int tagId)
     {
         TagEntity? tag;
         try
@@ -83,9 +83,9 @@ public class TagsController(IGenericRepository<TagEntity> tagsRepository) : Cont
         return NoContent();
     }
 
-    public static Tag GetTagFromEntity(TagEntity tagEntity)
+    public static TagCreateUpdateDTO GetTagFromEntity(TagEntity tagEntity)
     {
-        return new Tag
+        return new TagCreateUpdateDTO
         {
             Id = tagEntity.Id,
             Name = tagEntity.Name,
