@@ -8,7 +8,7 @@ namespace Recipes.API.Controllers;
 
 [ApiController]
 [Route("recipes")]
-public class RecipesController: ControllerBase
+public class RecipesController : ControllerBase
 {
     private readonly IGenericRepository<RecipeEntity> _recipesRepository;
     private readonly IGenericRepository<TagRecipeEntity> _tagRecipeRepository;
