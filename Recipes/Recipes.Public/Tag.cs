@@ -1,6 +1,7 @@
 ﻿namespace Recipes.Public;
 
-public class TagDTO
+public class Tag
 {
+    public long Id { get; set; }
     public required string Name { get; init; }
 }

@@ -83,9 +83,9 @@ public class TagsController(IGenericRepository<TagEntity> tagsRepository) : Cont
         return NoContent();
     }
 
-    public static TagCreateUpdateDTO GetTagFromEntity(TagEntity tagEntity)
+    public static Tag GetTagFromEntity(TagEntity tagEntity)
     {
-        return new TagCreateUpdateDTO
+        return new Tag
         {
             Id = tagEntity.Id,
             Name = tagEntity.Name,
