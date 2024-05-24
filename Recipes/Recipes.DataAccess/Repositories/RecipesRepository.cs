@@ -16,5 +16,4 @@ public class RecipesRepository : GenericRepository<RecipeEntity>
     {
         return Context.Set<RecipeEntity>().Include(s => s.Tags).ThenInclude(s => s.Tag).FirstOrDefault(s => s.Id == (int)id[0]);
     }
-
 }
