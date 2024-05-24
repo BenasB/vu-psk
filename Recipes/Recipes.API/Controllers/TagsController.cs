@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Recipes.DataAccess.Entities;
+using Recipes.DataAccess.Filtering;
 using Recipes.DataAccess.Repositories;
 using Recipes.Public;
 
@@ -12,12 +13,12 @@ public class TagsController(IGenericRepository<TagEntity> tagsRepository) : Cont
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<Tag>>> GetAllTags()
+    public ActionResult<IEnumerable<Tag>> GetAllTags([FromQuery] int? skip, [FromQuery] int? top)
     {
         IEnumerable<TagEntity> tags;
         try
         {
-            tags = await tagsRepository.GetAllAsync();
+            tags = tagsRepository.GetQueryable().Paginate(top, skip);
         }
         catch (Exception)
         {

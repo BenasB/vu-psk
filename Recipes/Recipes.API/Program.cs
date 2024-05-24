@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Recipes.DataAccess;
+using Recipes.DataAccess.Entities;
 using Recipes.DataAccess.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,7 @@ builder.Services.AddDbContext<RecipesDatabaseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IGenericRepository<RecipeEntity>, RecipesRepository>();
 
 var app = builder.Build();
 

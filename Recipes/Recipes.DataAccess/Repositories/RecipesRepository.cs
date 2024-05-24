@@ -7,6 +7,11 @@ public class RecipesRepository : GenericRepository<RecipeEntity>
 {
     public RecipesRepository(RecipesDatabaseContext context) : base(context) { }
 
+    public override IQueryable<RecipeEntity> GetQueryable()
+    {
+        return Context.Set<RecipeEntity>().Include(s => s.Tags).ThenInclude(s => s.Tag);
+    }
+
     public override async Task<IEnumerable<RecipeEntity>> GetAllAsync()
     {
         return await Context.Set<RecipeEntity>().Include(s => s.Tags).ThenInclude(s => s.Tag).ToListAsync();

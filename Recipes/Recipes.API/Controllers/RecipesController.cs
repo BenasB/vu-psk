@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Recipes.DataAccess.Entities;
 using Recipes.DataAccess.Entities.Relationships;
+using Recipes.DataAccess.Filtering;
 using Recipes.DataAccess.Repositories;
 using Recipes.Public;
 
@@ -13,17 +14,34 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<Recipe>>> GetAllRecipes()
+    public ActionResult<IEnumerable<Recipe>> GetAllRecipes([FromQuery] string? title, [FromQuery] string? csvTags, [FromQuery] long? authorId, [FromQuery] int? skip, [FromQuery] int? top)
     {
-        IEnumerable<RecipeEntity> recipes;
+        IQueryable<RecipeEntity> recipesQuery;
         try
         {
-            recipes = await recipesRepository.GetAllAsync();
+            recipesQuery = recipesRepository.GetQueryable();
         }
         catch (Exception)
         {
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
+
+        long[]? tags;
+        try
+        {
+            tags = csvTags?.Split(',').Select(long.Parse).ToArray();
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status400BadRequest);
+        }
+
+        var recipes = recipesQuery
+            .FilterByAuthor(authorId)
+            .FilterByTags(tags)
+            .FilterByTitle(title)
+            .Paginate(top, skip)
+            .ToList();
 
         var responseRecipes = recipes.Select(GetRecipeFromEntity);
 

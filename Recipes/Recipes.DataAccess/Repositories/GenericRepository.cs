@@ -16,6 +16,11 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return await Context.Set<T>().ToListAsync();
     }
 
+    public virtual IQueryable<T> GetQueryable()
+    {
+        return Context.Set<T>();
+    }
+
     public virtual T? GetById(params object[] id)
     {
         return Context.Set<T>().Find(id);
