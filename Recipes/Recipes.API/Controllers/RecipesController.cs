@@ -26,7 +26,7 @@ public class RecipesController(IGenericRepository<RecipeEntity> recipesRepositor
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        long[]? tags;
+        IList<long>? tags;
         try
         {
             tags = csvTags?.Split(',').Select(long.Parse).ToArray();
