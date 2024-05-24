@@ -135,7 +135,7 @@ public class RecipesController : ControllerBase
         {
             recipeToUpdate = _recipesRepository.GetById(recipeId);
 
-            if(recipeToUpdate == null)
+            if (recipeToUpdate == null)
             {
                 return StatusCode(StatusCodes.Status404NotFound);
             }
