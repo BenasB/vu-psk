@@ -107,12 +107,13 @@ public class RecipesController : ControllerBase
         {
             await InsertNewTags(request.Tags);
 
-            RecipeEntity recipeEntity = await AssignTagsToRecipe(request);
-            _recipesRepository.Insert(recipeEntity);
+            var newRecipe = GetRecipeFromDTO(request);
+            newRecipe.Tags = await GetEntityTags(newRecipe, request.Tags);
 
+            _recipesRepository.Insert(newRecipe);
             await _recipesRepository.SaveChangesAsync();
 
-            Recipe response = GetRecipeFromEntity(recipeEntity);
+            Recipe response = GetRecipeFromEntity(newRecipe);
 
             return Created($"/recipes/{response.Id}", response);
         }
@@ -128,40 +129,32 @@ public class RecipesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> UpdateRecipe(int recipeId, [FromBody] RecipeCreateUpdateDTO request)
     {
-        RecipeEntity? oldRecipe;
+        RecipeEntity? recipeToUpdate;
         
         try
         {
-            oldRecipe = _recipesRepository.GetById(recipeId);
+            recipeToUpdate = _recipesRepository.GetById(recipeId);
 
-            if(oldRecipe == null)
+            if(recipeToUpdate == null)
             {
                 return StatusCode(StatusCodes.Status404NotFound);
             }
 
             await InsertNewTags(request.Tags);
 
-            RecipeEntity newRecipe = await AssignTagsToRecipe(request);
+            recipeToUpdate = UpdateOldRecipeEntity(recipeToUpdate, request);
+            recipeToUpdate.Tags = await GetEntityTags(recipeToUpdate, request.Tags);
 
-            oldRecipe.Title = newRecipe.Title;
-            oldRecipe.AuthorId = newRecipe.AuthorId;
-            oldRecipe.Description = newRecipe.Description;
-            oldRecipe.CookingTime = newRecipe.CookingTime;
-            oldRecipe.Servings = newRecipe.Servings;
-            oldRecipe.Ingredients = newRecipe.Ingredients;
-            oldRecipe.Instructions = newRecipe.Instructions;
-            oldRecipe.Image = newRecipe.Image;
-            oldRecipe.Tags = newRecipe.Tags;
-
-            _recipesRepository.Update(oldRecipe);
+            _recipesRepository.Update(recipeToUpdate);
             await _recipesRepository.SaveChangesAsync();
+
+            return NoContent();
         }
         catch
         {
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        return NoContent();
     }
 
     [HttpDelete("{recipeId:int}/tags/{tagId:int}")]
@@ -213,6 +206,35 @@ public class RecipesController : ControllerBase
         };
     }
 
+    private RecipeEntity UpdateOldRecipeEntity(RecipeEntity oldRecipeEntity, RecipeCreateUpdateDTO recipeDTO)
+    {
+        oldRecipeEntity.Title = recipeDTO.Title;
+        oldRecipeEntity.AuthorId = recipeDTO.AuthorId;
+        oldRecipeEntity.Description = recipeDTO.Description;
+        oldRecipeEntity.CookingTime = recipeDTO.CookingTime;
+        oldRecipeEntity.Servings = recipeDTO.Servings;
+        oldRecipeEntity.Ingredients = recipeDTO.Ingredients;
+        oldRecipeEntity.Instructions = recipeDTO.Instructions;
+        oldRecipeEntity.Image = recipeDTO.Image;
+
+        return oldRecipeEntity;
+    }
+
+    private RecipeEntity GetRecipeFromDTO(RecipeCreateUpdateDTO recipeDTO)
+    {
+        return new RecipeEntity()
+        {
+            Title = recipeDTO.Title,
+            AuthorId = recipeDTO.AuthorId,
+            Description = recipeDTO.Description,
+            CookingTime = recipeDTO.CookingTime,
+            Servings = recipeDTO.Servings,
+            Ingredients = recipeDTO.Ingredients,
+            Instructions = recipeDTO.Instructions,
+            Image = recipeDTO.Image
+        };
+    }
+
     private async Task InsertNewTags(IList<string> allTagNames)
     {
         if (allTagNames == null || allTagNames.Count == 0) return;
@@ -238,28 +260,14 @@ public class RecipesController : ControllerBase
         await _recipesRepository.SaveChangesAsync();
     }
 
-    private async Task<RecipeEntity> AssignTagsToRecipe(RecipeCreateUpdateDTO recipeDTO)
+    private async Task<List<TagRecipeEntity>> GetEntityTags(RecipeEntity recipeEntity, IList<string> allTagNames)
     {
         var allTags = await _tagRepository.GetAllAsync();
 
-        var recipeEntity = new RecipeEntity
-        {
-            Title = recipeDTO.Title,
-            AuthorId = recipeDTO.AuthorId,
-            Description = recipeDTO.Description,
-            CookingTime = recipeDTO.CookingTime,
-            Servings = recipeDTO.Servings,
-            Ingredients = recipeDTO.Ingredients,
-            Instructions = recipeDTO.Instructions,
-            Image = recipeDTO.Image,
-        };
-
-        recipeEntity.Tags = allTags
-            .Where(x => recipeDTO.Tags.Contains(x.Name))
-            .ToHashSet()
-            .Select(x => new TagRecipeEntity { Tag = x, Recipe = recipeEntity })
-            .ToList();
-        
-        return recipeEntity;
+        return allTags
+                .Where(x => allTagNames.Contains(x.Name))
+                .ToHashSet()
+                .Select(x => new TagRecipeEntity { Tag = x, Recipe = recipeEntity })
+                .ToList();
     }
 }
