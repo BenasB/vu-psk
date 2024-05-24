@@ -48,11 +48,11 @@ public class RecipesDatabaseContext(DbContextOptions<RecipesDatabaseContext> opt
         var modifiedEntries = ChangeTracker.Entries().Where(e => e.Entity is RecipeEntity && e.State == EntityState.Modified).ToList();
         var addedEntries = ChangeTracker.Entries().Where(e => e.Entity is RecipeEntity && e.State == EntityState.Added).ToList();
 
-        CheckForConflict(modifiedEntries);
+        CheckForConflicts(modifiedEntries);
         UpdateRowVersions(modifiedEntries.Union(addedEntries));
     }
 
-    private void CheckForConflict(IEnumerable<EntityEntry> entriesToCheck)
+    private void CheckForConflicts(IEnumerable<EntityEntry> entriesToCheck)
     {
         foreach (var entry in entriesToCheck)
         {
