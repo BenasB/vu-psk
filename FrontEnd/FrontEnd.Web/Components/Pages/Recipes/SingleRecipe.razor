@@ -2,25 +2,27 @@
 
 @using FrontEnd.Web.Services
 @attribute [StreamRendering]
+@rendermode InteractiveServer
 @inject IRecipeService RecipeService
+@inject NavigationManager NavManager
 
 <PageTitle>@(_recipe?.Title ?? "Single recipe display")</PageTitle>
 
 @if (_task is not { IsCompleted: true })
 {
-    <FluentSkeleton Height="14rem" Width="100%" Style="margin-bottom: 10px;"/>
-    <FluentSkeleton Height="2.5em" Width="100%" Style="margin-bottom: 10px;"/>
+    <FluentSkeleton Height="14rem" Width="100%" Style="margin-bottom: 10px;" />
+    <FluentSkeleton Height="2.5em" Width="100%" Style="margin-bottom: 10px;" />
     <FluentStack Orientation="Orientation.Vertical">
         <FluentStack>
-            <FluentSkeleton Height="20px" Width="50px"/>
-            <FluentSkeleton Height="20px" Width="50px"/>
+            <FluentSkeleton Height="20px" Width="50px" />
+            <FluentSkeleton Height="20px" Width="50px" />
         </FluentStack>
-        <FluentSkeleton Height="0.875em" Width="100%"/>
-        <FluentSkeleton Height="0.875em" Width="100%"/>
-        <FluentSkeleton Height="0.875em" Width="50%"/>
-        <FluentSkeleton Height="1.5em" Width="150px" Style="margin-top: 10px;"/>
-        <FluentSkeleton Height="2em" Width="100%"/>
-        <FluentSkeleton Height="2em" Width="100%"/>
+        <FluentSkeleton Height="0.875em" Width="100%" />
+        <FluentSkeleton Height="0.875em" Width="100%" />
+        <FluentSkeleton Height="0.875em" Width="50%" />
+        <FluentSkeleton Height="1.5em" Width="150px" Style="margin-top: 10px;" />
+        <FluentSkeleton Height="2em" Width="100%" />
+        <FluentSkeleton Height="2em" Width="100%" />
     </FluentStack>
 }
 else if (_recipe == null)
@@ -30,19 +32,24 @@ else if (_recipe == null)
 }
 else
 {
-    @if(_recipe.Image != null){
-        <img src="@_recipe.Image" alt="@_recipe.Title" style="object-fit: cover; height: 14rem; width: 100%"/>
+    @if (_recipe.Image != null)
+    {
+        <img src="@_recipe.Image" alt="@_recipe.Title" style="object-fit: cover; height: 14rem; width: 100%" />
     }
     <FluentStack Style="margin-block: 10px;">
-        <FluentLabel Typo="Typography.H1">@_recipe.Title</FluentLabel>
-        <FluentSpacer/>
-        <FluentAnchor Href=@($"/recipes/{Id}/edit") Appearance="Appearance.Accent">Edit</FluentAnchor>
-        <FluentAnchor Href="" Appearance="Appearance.Accent">Delete</FluentAnchor>
+        <FluentLabel Typo="Typography.H1" Style="flex-grow: 1">@_recipe.Title</FluentLabel>
+        <FluentStack Width="auto">
+            <FluentButton Appearance="Appearance.Outline" IconStart="@(new Icons.Regular.Size20.Share())" Id="share-menu-button" @onclick="@(() => ShareMenuOpen = !ShareMenuOpen)">
+                Share
+            </FluentButton>
+            <FluentAnchor Href=@($"/recipes/{Id}/edit") Appearance="Appearance.Accent">Edit</FluentAnchor>
+            <FluentButton OnClick="@DeleteRecipe" Appearance="Appearance.Accent">Delete</FluentButton>
+        </FluentStack>
     </FluentStack>
     <FluentGrid AdaptiveRendering>
         <FluentGridItem sm="12" md="6">
             <FluentStack Orientation="Orientation.Vertical" Style="min-width: 500px;">
-                <FluentOverflow>
+                <FluentOverflow Style="width: 100%;">
                     <FluentOverflowItem>
                         <FluentBadge Appearance="Appearance.Accent">
                             <FluentIcon Color="Color.Disabled" Value=@(new Icons.Regular.Size16.Timer())/>@_recipe.CookingTime
@@ -77,17 +84,39 @@ else
             </ol>
         </FluentGridItem>
     </FluentGrid>
+    
+    <FluentMenu Anchor="share-menu-button" @bind-Open="ShareMenuOpen" VerticalThreshold="170">
+        <FluentStack Orientation="Orientation.Vertical" Style="align-items: unset;">
+            <FluentAnchor role="menuitem" Appearance="Appearance.Stealth" Href=@($"https://www.facebook.com/sharer/sharer.php?u={NavManager.Uri}") Target="_blank">
+                Facebook
+            </FluentAnchor>
+            <FluentAnchor role="menuitem" Appearance="Appearance.Stealth" Href=@($"https://twitter.com/intent/tweet?url={Uri.EscapeDataString(NavManager.Uri)}&text={Uri.EscapeDataString(_recipe.Title)}") Target="_blank">
+                Twitter
+            </FluentAnchor>
+            <FluentAnchor role="menuitem" Appearance="Appearance.Stealth" Href=@($"https://reddit.com/submit?url={NavManager.Uri}&title={_recipe.Title}") Target="_blank">
+                Reddit
+            </FluentAnchor>
+        </FluentStack>
+    </FluentMenu>
 }
 
 @code {
     [Parameter]
     public int Id { get; set; }
-    
+
+    private bool ShareMenuOpen { get; set; } = false;
+
     private global::Recipes.Public.Recipe? _recipe;
     private Task<global::Recipes.Public.Recipe?>? _task;
 
-    private readonly IEnumerable<string> _tagNames = new [] { "Indian", "Dinner" };
-    
+    private readonly IEnumerable<string> _tagNames = new[] { "Indian", "Dinner" };
+
+    private async Task DeleteRecipe()
+    {
+        if (_recipe != null && await RecipeService.DeleteByIdAsync(_recipe.Id))
+            NavManager.NavigateTo("/");
+    }
+
     protected override async Task OnInitializedAsync()
     {
         _task = RecipeService.GetByIdAsync(Id);
