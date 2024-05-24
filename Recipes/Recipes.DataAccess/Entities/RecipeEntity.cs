@@ -29,4 +29,6 @@ public class RecipeEntity
     public string? Image { get; set; }
 
     public List<TagRecipeEntity> Tags { get; set; } = new();
+
+    public Guid RowVersion { get; set; }
 }
