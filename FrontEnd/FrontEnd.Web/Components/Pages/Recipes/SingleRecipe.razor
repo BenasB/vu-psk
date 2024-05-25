@@ -1,13 +1,15 @@
 ﻿@page "/recipes/{Id:int}"
 
 @using FrontEnd.Web.Services
+@using Identity.Public
 @rendermode InteractiveServer
 @inject IRecipeService RecipeService
 @inject NavigationManager NavManager
+@inject IIdentityService IdentityService
 
 <PageTitle>@(_recipe?.Title ?? "Single recipe display")</PageTitle>
 
-@if (_task is not { IsCompleted: true })
+@if (_recipeTask is not { IsCompleted: true })
 {
     <FluentSkeleton Height="14rem" Width="100%" Style="margin-bottom: 10px;" />
     <FluentSkeleton Height="2.5em" Width="100%" Style="margin-bottom: 10px;" />
@@ -66,10 +68,22 @@ else
                         </FluentOverflowItem>
                     }
                 </FluentOverflow>
+                @if (_author != null)
+                {
+                    <FluentAnchor Href=@($"/users/{_author.Id}") Appearance="Appearance.Stealth" Style="height: 45px">
+                        <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center">
+                                <FluentLabel Typo="Typography.Body">By </FluentLabel>
+                                <FluentPersona Name="@_author.Username"
+                                               Image="@_author.ImageUrl"
+                                               ImageSize="35px">
+                                </FluentPersona>
+                        </FluentStack>
+                    </FluentAnchor>
+                }
                 <p>@_recipe.Description</p>
                 <FluentLabel Color="Color.Accent" Typo="Typography.H4">Ingredients</FluentLabel>
                 <FluentDataGrid Items=_recipe.Ingredients.AsQueryable() Style="width: 100%;" ShowHover GenerateHeader="GenerateHeaderOption.None">
-                    <PropertyColumn Property="@(ingredient => ingredient)" />
+                    <PropertyColumn Property="@(ingredient => ingredient)"/>
                 </FluentDataGrid>
             </FluentStack>
         </FluentGridItem>
@@ -106,7 +120,8 @@ else
     private bool ShareMenuOpen { get; set; } = false;
 
     private global::Recipes.Public.Recipe? _recipe;
-    private Task<global::Recipes.Public.Recipe?>? _task;
+    private User? _author;
+    private Task<global::Recipes.Public.Recipe?>? _recipeTask;
     
     private async Task DeleteRecipe()
     {
@@ -116,7 +131,12 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        _task = RecipeService.GetByIdAsync(Id);
-        _recipe = await _task;
+        _recipeTask = RecipeService.GetByIdAsync(Id);
+        _recipe = await _recipeTask;
+
+        if (_recipe is null)
+            return;
+        
+        _author = await IdentityService.GetByIdAsync(_recipe.AuthorId);
     }
 }
