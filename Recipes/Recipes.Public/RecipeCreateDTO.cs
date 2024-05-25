@@ -1,6 +1,6 @@
 ﻿namespace Recipes.Public;
 
-public class RecipeCreateUpdateDTO
+public class RecipeCreateDTO
 {
     public int AuthorId { get; set; }   
     public required string Title { get; set; }
