@@ -17,7 +17,7 @@ public class JwtGenerator(IOptions<JWTOptions> jwtOptions)
         var value = DateTime.Now.AddMinutes(20.0);
         var bytes = Encoding.UTF8.GetBytes(_jwtOptions.Key);
         var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(bytes), SecurityAlgorithms.HmacSha256);
-
+        
         var claims = new Dictionary<string, object>
         {
             { ClaimTypes.NameIdentifier, user.Id },

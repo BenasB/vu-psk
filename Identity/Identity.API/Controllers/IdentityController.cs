@@ -36,7 +36,7 @@ public class IdentityController(IdentityDatabaseContext dbContext, JwtGenerator 
 
     [HttpGet]
     [ActionName("GetUser")]
-    [Route("user/{id}")]
+    [Route("users/{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
