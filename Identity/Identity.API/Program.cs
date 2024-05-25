@@ -46,7 +46,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.Configure<JWTOptions>(
     builder.Configuration.GetSection(JWTOptions.JWT));
-builder.Services.AddSingleton<JWTHelper, JWTHelper>();
+builder.Services.AddSingleton<JwtGenerator, JwtGenerator>();
 
 builder.Services.AddDbContext<IdentityDatabaseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));

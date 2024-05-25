@@ -1,3 +1,5 @@
+using BitzArt.Blazor.Auth;
+using FrontEnd.Web;
 using FrontEnd.Web.Components;
 using Microsoft.FluentUI.AspNetCore.Components;
 using FrontEnd.Web.Services;
@@ -11,6 +13,9 @@ builder.Services.AddFluentUIComponents();
 
 builder.Services.AddHttpClient<IRecipeService, RecipeService>();
 builder.Services.AddHttpClient<IIdentityService, IdentityService>();
+
+builder.Services.AddCascadingAuthenticationState();
+builder.AddBlazorAuth<SampleServerSideAuthenticationService>();
 
 var app = builder.Build();
 

@@ -12,7 +12,7 @@ using System.Security.Claims;
 namespace Identity.API.Controllers;
 
 [ApiController]
-public class IdentityController(IdentityDatabaseContext dbContext, JWTHelper jwtHelper) : ControllerBase
+public class IdentityController(IdentityDatabaseContext dbContext, JwtGenerator jwtGenerator) : ControllerBase
 {
     [HttpGet]
     [Route("users")]
@@ -94,7 +94,7 @@ public class IdentityController(IdentityDatabaseContext dbContext, JWTHelper jwt
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        return CreatedAtAction("GetUser", new { id = userToCreate.Id }, jwtHelper.GenerateJwtToken(userToCreate));
+        return CreatedAtAction("GetUser", new { id = userToCreate.Id }, jwtGenerator.GenerateJwtToken(userToCreate));
     }
 
     [HttpPost]
@@ -115,7 +115,7 @@ public class IdentityController(IdentityDatabaseContext dbContext, JWTHelper jwt
             if (!user.PasswordHash.SequenceEqual(HashingHelper.HashPassword(userLoginRequest.Password)))
                 return Unauthorized();
 
-            jwt = jwtHelper.GenerateJwtToken(user);
+            jwt = jwtGenerator.GenerateJwtToken(user);
         }
         catch
         {

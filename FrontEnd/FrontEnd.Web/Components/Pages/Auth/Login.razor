@@ -2,6 +2,10 @@
 @rendermode InteractiveServer
 @using System.ComponentModel
 @using System.ComponentModel.DataAnnotations
+@using BitzArt.Blazor.Auth
+@using Identity.Public
+@inject IUserService UserService
+@inject NavigationManager NavigationManager
 
 <PageTitle>Log In</PageTitle>
 
@@ -30,8 +34,8 @@
                         <FluentAnchor Appearance="Appearance.Lightweight" Href="/sign-up">Sign up!</FluentAnchor>
                     </FluentLabel>
                 </FluentStack>
-            </EditForm>
             <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">Log In</FluentButton>
+            </EditForm>
         </FluentStack>
     </FluentGridItem>
 </FluentGrid>
@@ -39,10 +43,16 @@
 @code {
     [SupplyParameterFromForm] private LoginCredentialsFormData Credentials { get; set; } = new();
 
-    private Task LoginAsync()
+    private async Task LoginAsync()
     {
-        // Login 
-        return Task.CompletedTask;
+        var loginRequest = new UserLoginRequest
+        {
+            Username = Credentials.Username,
+            Password = Credentials.Password
+        };
+        
+        await UserService.SignInAsync(loginRequest);
+        NavigationManager.NavigateTo("/", true); // TODO: Consider having returnUrl
     }
     
     public record LoginCredentialsFormData
