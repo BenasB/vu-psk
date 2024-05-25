@@ -47,6 +47,6 @@ public class RecipeService : IRecipeService
 
     public Task UpdateAsync(int id, RecipeCreateUpdateDTO request)
     {
-        return _httpClient.PostAsJsonAsync($"recipes/{id}", request);
+        return _httpClient.PutAsJsonAsync($"recipes/{id}", request);
     }
 }
