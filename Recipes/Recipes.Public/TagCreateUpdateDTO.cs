@@ -1,6 +1,6 @@
 ﻿namespace Recipes.Public;
 
-public class TagUpdateRequest
+public class TagCreateUpdateDTO
 {
     public required string Name { get; init; }
 }

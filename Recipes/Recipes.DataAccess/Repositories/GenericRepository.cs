@@ -21,14 +21,18 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return Context.Set<T>().Find(id);
     }
 
-    public void Insert(T entity)
+    public T Insert(T entity)
     {
-        Context.Set<T>().Add(entity);
+        var entry = Context.Set<T>().Add(entity);
+        Context.Entry(entity).State = EntityState.Added;
+        return entry.Entity;
     }
 
-    public void Update(T entity)
+    public T Update(T entity)
     {
-        Context.Set<T>().Update(entity);
+        var entry = Context.Set<T>().Update(entity);
+        Context.Entry(entity).State = EntityState.Modified;
+        return entry.Entity;
     }
 
     public void Delete(T entity)

@@ -6,6 +6,7 @@ public interface IRecipeService
 {
     Task<IEnumerable<Recipe>> GetAllAsync();
     Task<Recipe?> GetByIdAsync(int id);
+    Task<bool> DeleteByIdAsync(int id);
 }
 
 public class RecipeService : IRecipeService
@@ -24,7 +25,15 @@ public class RecipeService : IRecipeService
     }
     
     public async Task<Recipe?> GetByIdAsync(int id)
+    { 
+        var response = await _httpClient.GetAsync($"recipes/{id}");
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<Recipe>();
+    }
+    
+    public async Task<bool> DeleteByIdAsync(int id)
     {
-        return (await GetAllAsync()).FirstOrDefault(r => r.Id == id);
+        var response = await _httpClient.DeleteAsync($"recipes/{id}");
+        return response.IsSuccessStatusCode;
     }
 }
