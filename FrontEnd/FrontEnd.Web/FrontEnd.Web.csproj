@@ -16,7 +16,6 @@
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
-      <Content Remove="Components\Pages\Recipes\RecipeActions.razor" />
     </ItemGroup>
 
     <ItemGroup>

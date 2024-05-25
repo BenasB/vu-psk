@@ -28,14 +28,9 @@ public class IdentityService : IIdentityService
     
     public async Task<User?> GetByIdAsync(int id)
     {
-        try
-        {
-            return await _httpClient.GetFromJsonAsync<User>($"users/{id}");
-        }
-        catch (HttpRequestException e) when (e.StatusCode == HttpStatusCode.NotFound)
-        {
-            return null;
-        }
+        var response = await _httpClient.GetAsync($"users/{id}");
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<User>();
     }
     
     public async Task<string> LogIn(UserLoginRequest request)

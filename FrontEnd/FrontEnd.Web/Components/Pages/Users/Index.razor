@@ -19,7 +19,7 @@ else
     <FluentDataGrid Items="_users">
         <PropertyColumn Property="@(u => u.Username)" />
         <TemplateColumn Title="Navigation">
-            <FluentNavLink Href=@("users/" + 0) Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Link())" IconColor="Color.Accent" />
+            <FluentNavLink Href=@($"users/{context.Id}") Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Link())" IconColor="Color.Accent" />
         </TemplateColumn>
     </FluentDataGrid>
 }
