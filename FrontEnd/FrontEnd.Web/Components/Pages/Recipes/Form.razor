@@ -150,7 +150,6 @@
         {
             FormData = new RecipeFormData
             {
-                Id = InitialData.Id,
                 Title = InitialData.Title,
                 Description = InitialData.Description,
                 Servings = InitialData.Servings,
@@ -165,8 +164,6 @@
 
     private class RecipeFormData
     {
-        public int? Id { get; init; }
-
         [Required, MinLength(3, ErrorMessage = "Title is too short!")]
         public string? Title { get; set; }
 
@@ -203,28 +200,43 @@
 
     private async Task HandleValidSubmitAsync()
     {
-        var requestDto = new global::Recipes.Public.RecipeCreateUpdateDTO
+        if (InitialData == null)
         {
-            Title = FormData.Title!,
-            Description = FormData.Description,
-            CookingTime = TimeSpan.FromMinutes((double)FormData.CookingTimeInMinutes!),
-            Servings = FormData.Servings!.Value,
-            Ingredients = FormData.Ingredients.Select(x => x.Value!).ToList(),
-            Instructions = FormData.Instructions.Select(x => x.Value!).ToList(),
-            Tags = FormData.Tags.ToList(),
-            Image = FormData.Image
-        };
-
-        var id = FormData.Id;
-        if (id == null)
-        {
-            var response = await RecipeService.CreateAsync(requestDto);
-            id = response.Id;
+            // Creation
+            var requestDto = new global::Recipes.Public.RecipeCreateDTO
+            {
+                Title = FormData.Title!,
+                Description = FormData.Description,
+                CookingTime = TimeSpan.FromMinutes((double)FormData.CookingTimeInMinutes!),
+                Servings = FormData.Servings!.Value,
+                Ingredients = FormData.Ingredients.Select(x => x.Value!).ToList(),
+                Instructions = FormData.Instructions.Select(x => x.Value!).ToList(),
+                Tags = FormData.Tags.ToList(),
+                Image = FormData.Image
+            };
+            
+            var result = await RecipeService.CreateAsync(requestDto);
+            NavigationManager.NavigateTo($"recipes/{result.Id}");
         }
         else
-            await RecipeService.UpdateAsync(id.Value, requestDto);
-        
-        NavigationManager.NavigateTo($"recipes/{id}");
+        {
+            // Update
+            var requestDto = new global::Recipes.Public.RecipeUpdateDTO
+            {
+                Title = FormData.Title!,
+                Description = FormData.Description,
+                CookingTime = TimeSpan.FromMinutes((double)FormData.CookingTimeInMinutes!),
+                Servings = FormData.Servings!.Value,
+                Ingredients = FormData.Ingredients.Select(x => x.Value!).ToList(),
+                Instructions = FormData.Instructions.Select(x => x.Value!).ToList(),
+                Tags = FormData.Tags.ToList(),
+                Image = FormData.Image,
+                Version = InitialData.Version
+            };
+            
+            await RecipeService.UpdateAsync(InitialData.Id, requestDto);
+            NavigationManager.NavigateTo($"recipes/{InitialData.Id}");
+        }
     }
 
     private static Task OnTagsSearchAsync(OptionsSearchEventArgs<string> e)
