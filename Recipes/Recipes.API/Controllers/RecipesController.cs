@@ -232,7 +232,6 @@ public class RecipesController : ControllerBase
     private RecipeEntity UpdateOldRecipeEntity(RecipeEntity oldRecipeEntity, RecipeUpdateDTO recipeDTO)
     {
         oldRecipeEntity.Title = recipeDTO.Title;
-        oldRecipeEntity.AuthorId = recipeDTO.AuthorId;
         oldRecipeEntity.Description = recipeDTO.Description;
         oldRecipeEntity.CookingTime = recipeDTO.CookingTime;
         oldRecipeEntity.Servings = recipeDTO.Servings;
