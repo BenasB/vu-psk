@@ -11,12 +11,12 @@ namespace Recipes.API.Controllers;
 [Route("recipes")]
 public class RecipesController : ControllerBase
 {
-    private readonly IGenericRepository<RecipeEntity> _recipesRepository;
+    private readonly IRecipesRepository _recipesRepository;
     private readonly IGenericRepository<TagRecipeEntity> _tagRecipeRepository;
     private readonly IGenericRepository<TagEntity> _tagRepository;
     
     public RecipesController(
-        IGenericRepository<RecipeEntity> recipeRepository,
+        IRecipesRepository recipeRepository,
         IGenericRepository<TagRecipeEntity> tagRecipeRepository,
         IGenericRepository<TagEntity> tagRepository)
     {
@@ -30,16 +30,6 @@ public class RecipesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public ActionResult<IEnumerable<Recipe>> GetAllRecipes([FromQuery] string? title, [FromQuery] string? csvTags, [FromQuery] long? authorId, [FromQuery] int? skip, [FromQuery] int? top)
     {
-        IQueryable<RecipeEntity> recipesQuery;
-        try
-        {
-            recipesQuery = _recipesRepository.GetQueryable();
-        }
-        catch (Exception)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError);
-        }
-
         IList<long>? tags;
         try
         {
@@ -50,12 +40,15 @@ public class RecipesController : ControllerBase
             return StatusCode(StatusCodes.Status400BadRequest);
         }
 
-        var recipes = recipesQuery
-            .FilterByAuthor(authorId)
-            .FilterByTags(tags)
-            .FilterByTitle(title)
-            .Paginate(top, skip)
-            .ToList();
+        IList<RecipeEntity> recipes;
+        try
+        {
+            recipes = _recipesRepository.GetFiltered(top, skip, title, tags, authorId).ToList();
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
 
         var responseRecipes = recipes.Select(GetRecipeFromEntity);
 
