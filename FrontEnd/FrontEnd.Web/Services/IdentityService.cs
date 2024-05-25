@@ -1,3 +1,4 @@
+using System.Net;
 using Identity.Public;
 
 namespace FrontEnd.Web.Services;
@@ -27,7 +28,14 @@ public class IdentityService : IIdentityService
     
     public async Task<User?> GetByIdAsync(int id)
     {
-        return await _httpClient.GetFromJsonAsync<User>($"users/{id}");
+        try
+        {
+            return await _httpClient.GetFromJsonAsync<User>($"users/{id}");
+        }
+        catch (HttpRequestException e) when (e.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
     }
     
     public async Task<string> LogIn(UserLoginRequest request)
