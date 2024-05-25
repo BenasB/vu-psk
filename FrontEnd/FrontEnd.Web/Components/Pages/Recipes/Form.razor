@@ -1,7 +1,10 @@
 ﻿@using System.ComponentModel.DataAnnotations
+@using FrontEnd.Web.Services
 @rendermode InteractiveServer
+@inject IRecipeService RecipeService
+@inject NavigationManager NavigationManager
 
-<EditForm Model="@FormData" OnValidSubmit="@HandleValidSubmit" FormName="recipe" novalidate>
+<EditForm Model="@FormData" OnValidSubmit="@HandleValidSubmitAsync" FormName="recipe" novalidate>
     <ObjectGraphDataAnnotationsValidator/>
 
     <FluentGrid AdaptiveRendering>
@@ -152,7 +155,7 @@
                 Description = InitialData.Description,
                 Servings = InitialData.Servings,
                 CookingTimeInMinutes = (int)InitialData.CookingTime.TotalMinutes,
-                Tags = [], // TODO: Load from incoming Recipes.Public.Recipe
+                Tags = InitialData.Tags.Select(x => x.Name),
                 Ingredients = InitialData.Ingredients.Select(x => new Ingredient { Value = x }).ToList(),
                 Instructions = InitialData.Instructions.Select(x => new InstructionStep { Value = x }).ToList(),
                 Image = InitialData.Image
@@ -198,23 +201,30 @@
         public string? Value { get; set; }
     }
 
-    private void HandleValidSubmit()
+    private async Task HandleValidSubmitAsync()
     {
-        var recipeDto = new global::Recipes.Public.Recipe
+        var requestDto = new global::Recipes.Public.RecipeCreateUpdateDTO
         {
             Title = FormData.Title!,
-            AuthorId = 1,
             Description = FormData.Description,
             CookingTime = TimeSpan.FromMinutes((double)FormData.CookingTimeInMinutes!),
             Servings = FormData.Servings!.Value,
-            Ingredients = FormData.Ingredients.Select(x => x.Value!),
-            Instructions = FormData.Instructions.Select(x => x.Value!),
+            Ingredients = FormData.Ingredients.Select(x => x.Value!).ToList(),
+            Instructions = FormData.Instructions.Select(x => x.Value!).ToList(),
+            Tags = FormData.Tags.ToList(),
             Image = FormData.Image
         };
 
-        // TODO: Send out `recipeDto` to the Recipes API
-        // If FormData.Id is null, send to create
-        // otherwise send to update recipe with id FormData.Id
+        var id = FormData.Id;
+        if (id == null)
+        {
+            var response = await RecipeService.CreateAsync(requestDto);
+            id = response.Id;
+        }
+        else
+            await RecipeService.UpdateAsync(id.Value, requestDto);
+        
+        NavigationManager.NavigateTo($"recipes/{id}");
     }
 
     private static Task OnTagsSearchAsync(OptionsSearchEventArgs<string> e)

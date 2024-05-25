@@ -1,7 +1,6 @@
 ﻿@page "/recipes/{Id:int}"
 
 @using FrontEnd.Web.Services
-@attribute [StreamRendering]
 @rendermode InteractiveServer
 @inject IRecipeService RecipeService
 @inject NavigationManager NavManager
@@ -60,10 +59,10 @@ else
                             <FluentIcon Color="Color.Disabled" Value=@(new Icons.Regular.Size16.PersonBoard())/>@_recipe.Servings
                         </FluentBadge>
                     </FluentOverflowItem>
-                    @foreach (var item in _tagNames)
+                    @foreach (var item in _recipe.Tags)
                     {
                         <FluentOverflowItem>
-                            <FluentBadge Appearance="Appearance.Accent">@item</FluentBadge>
+                            <FluentBadge Appearance="Appearance.Accent">@item.Name</FluentBadge>
                         </FluentOverflowItem>
                     }
                 </FluentOverflow>
@@ -108,9 +107,7 @@ else
 
     private global::Recipes.Public.Recipe? _recipe;
     private Task<global::Recipes.Public.Recipe?>? _task;
-
-    private readonly IEnumerable<string> _tagNames = new[] { "Indian", "Dinner" };
-
+    
     private async Task DeleteRecipe()
     {
         if (_recipe != null && await RecipeService.DeleteByIdAsync(_recipe.Id))

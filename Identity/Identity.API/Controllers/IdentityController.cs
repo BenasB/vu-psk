@@ -134,7 +134,7 @@ public class IdentityController(IdentityDatabaseContext dbContext, JwtGenerator 
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<User>> GetMyAccountInfo()
     {
-        int userId = Int32.Parse(HttpContext.User.FindFirstValue("id")!);
+        int userId = Int32.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         User user;
 
         try

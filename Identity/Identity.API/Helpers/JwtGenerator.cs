@@ -8,13 +8,13 @@ using Microsoft.Extensions.Options;
 
 namespace Identity.API.Helpers;
 
-public class JwtGenerator(IOptions<JWTOptions> jwtOptions)
+public class JwtGenerator(IOptions<JwtOptions> jwtOptions)
 {
-    private readonly JWTOptions _jwtOptions = jwtOptions.Value;
+    private readonly JwtOptions _jwtOptions = jwtOptions.Value;
 
     public string GenerateJwtToken(UserEntity user)
     {
-        var value = DateTime.Now.AddMinutes(20.0);
+        var value = DateTime.Now.AddHours(2);
         var bytes = Encoding.UTF8.GetBytes(_jwtOptions.Key);
         var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(bytes), SecurityAlgorithms.HmacSha256);
         

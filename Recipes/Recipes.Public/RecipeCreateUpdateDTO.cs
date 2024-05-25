@@ -2,7 +2,6 @@
 
 public class RecipeCreateUpdateDTO
 {
-    public int AuthorId { get; set; }   
     public required string Title { get; set; }
     public string? Description { get; set; }
     public TimeSpan CookingTime { get; set; }
