@@ -89,7 +89,7 @@ public class RecipesController : ControllerBase
         
         if (recipe is null) return NotFound();
         
-        // TODO: Check if user is author
+        // TODO: Check if user is author or admin
 
         try
         {
@@ -151,7 +151,7 @@ public class RecipesController : ControllerBase
                 return StatusCode(StatusCodes.Status404NotFound);
             }
             
-            // TODO: Check if user is author
+            // TODO: Check if user is author or admin
 
             await InsertNewTags(request.Tags);
 
@@ -195,7 +195,7 @@ public class RecipesController : ControllerBase
 
         if (recipeTag is null) return NotFound();
         
-        // TODO: Look up authorId and check if user is authorId
+        // TODO: Look up authorId and check if user is authorId or admin
 
         try
         {
