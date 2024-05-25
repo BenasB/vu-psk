@@ -1,6 +1,7 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Recipes.DataAccess.Entities;
 using Recipes.DataAccess.Entities.Relationships;
 using Recipes.DataAccess.Repositories;
@@ -107,7 +108,7 @@ public class RecipesController : ControllerBase
     [Authorize]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> CreateRecipe(RecipeCreateUpdateDTO request)
+    public async Task<ActionResult> CreateRecipe(RecipeCreateDTO request)
     {
         try
         {
@@ -118,10 +119,10 @@ public class RecipesController : ControllerBase
             var newRecipe = GetRecipeFromDTO(request, authorId);
             newRecipe.Tags = await GetEntityTags(newRecipe, request.Tags);
 
-            _recipesRepository.Insert(newRecipe);
+            newRecipe = _recipesRepository.Insert(newRecipe);
             await _recipesRepository.SaveChangesAsync();
 
-            Recipe response = GetRecipeFromEntity(newRecipe);
+            var response = GetRecipeFromEntity(newRecipe);
 
             return Created($"/recipes/{response.Id}", response);
         }
@@ -133,13 +134,14 @@ public class RecipesController : ControllerBase
 
     [HttpPut("{recipeId:int}")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> UpdateRecipe(int recipeId, [FromBody] RecipeCreateUpdateDTO request)
+    public async Task<ActionResult> UpdateRecipe(int recipeId, [FromBody] RecipeUpdateDTO request)
     {
         RecipeEntity? recipeToUpdate;
-        
+
         try
         {
             recipeToUpdate = _recipesRepository.GetById(recipeId);
@@ -156,15 +158,22 @@ public class RecipesController : ControllerBase
             recipeToUpdate = UpdateOldRecipeEntity(recipeToUpdate, request);
             recipeToUpdate.Tags = await GetEntityTags(recipeToUpdate, request.Tags);
 
-            _recipesRepository.Update(recipeToUpdate);
+            recipeToUpdate = _recipesRepository.Update(recipeToUpdate);
             await _recipesRepository.SaveChangesAsync();
 
-            return NoContent();
+            var response = GetRecipeFromEntity(recipeToUpdate);
+
+            return Ok(response);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return StatusCode(StatusCodes.Status409Conflict, "Recipe was modified by another user.");
         }
         catch
         {
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
+
     }
 
     [HttpDelete("{recipeId:int}/tags/{tagId:int}")]
@@ -215,24 +224,27 @@ public class RecipesController : ControllerBase
             Ingredients = recipeEntity.Ingredients,
             Instructions = recipeEntity.Instructions,
             Image = recipeEntity.Image,
-            Tags = recipeEntity.Tags.Select(t => t.Tag).Select(TagsController.GetTagFromEntity)
+            Tags = recipeEntity.Tags.Select(t => t.Tag).Select(TagsController.GetTagFromEntity),
+            Version = recipeEntity.RowVersion,
         };
     }
 
-    private RecipeEntity UpdateOldRecipeEntity(RecipeEntity oldRecipeEntity, RecipeCreateUpdateDTO recipeDTO)
+    private RecipeEntity UpdateOldRecipeEntity(RecipeEntity oldRecipeEntity, RecipeUpdateDTO recipeDTO)
     {
         oldRecipeEntity.Title = recipeDTO.Title;
+        oldRecipeEntity.AuthorId = recipeDTO.AuthorId;
         oldRecipeEntity.Description = recipeDTO.Description;
         oldRecipeEntity.CookingTime = recipeDTO.CookingTime;
         oldRecipeEntity.Servings = recipeDTO.Servings;
         oldRecipeEntity.Ingredients = recipeDTO.Ingredients;
         oldRecipeEntity.Instructions = recipeDTO.Instructions;
         oldRecipeEntity.Image = recipeDTO.Image;
+        oldRecipeEntity.RowVersion = recipeDTO.Version;
 
         return oldRecipeEntity;
     }
 
-    private RecipeEntity GetRecipeFromDTO(RecipeCreateUpdateDTO recipeDTO, int authorId)
+    private RecipeEntity GetRecipeFromDTO(RecipeCreateDTO recipeDTO, int authorId)
     {
         return new RecipeEntity()
         {

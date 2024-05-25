@@ -13,4 +13,5 @@ public class Recipe
     public required IEnumerable<string> Instructions { get; init; }
     public string? Image { get; init; }
     public IEnumerable<Tag> Tags { get; init; } = new List<Tag>();
+    public Guid Version { get; set; }
 }

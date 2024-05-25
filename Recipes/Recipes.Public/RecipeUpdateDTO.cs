@@ -1,7 +1,8 @@
 ﻿namespace Recipes.Public;
 
-public class RecipeCreateUpdateDTO
+public class RecipeUpdateDTO
 {
+    public int AuthorId { get; set; }   
     public required string Title { get; set; }
     public string? Description { get; set; }
     public TimeSpan CookingTime { get; set; }
@@ -10,4 +11,5 @@ public class RecipeCreateUpdateDTO
     public required IList<string> Ingredients { get; set; } = new List<string>();
     public IList<string> Tags { get; set; } = new List<string>();
     public string? Image { get; set; }
+    public Guid Version { get; set; }
 }
