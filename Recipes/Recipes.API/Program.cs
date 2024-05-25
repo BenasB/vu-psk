@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Recipes.API;
 using Recipes.DataAccess;
 using Recipes.DataAccess.Repositories;
 
@@ -34,6 +35,7 @@ using (var scope = app.Services.CreateScope())
         await DbInitializer.SeedDatabase(recipesDbContext);
 }
 
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
 app.MapControllers();
 
 app.Run();

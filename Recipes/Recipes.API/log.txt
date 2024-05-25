@@ -1,0 +1,32 @@
+
+HTTP GET /recipes/1
+Host: localhost:8080
+Content-Type: 
+Content-Length: 
+
+Status Code: 200
+Content-Type: application/json; charset=utf-8
+Content-Length: 
+=========================
+
+HTTP GET /recipes/1
+Host: localhost:8080
+Content-Type: 
+Content-Length: 
+
+Status Code: 200
+Content-Type: application/json; charset=utf-8
+Content-Length: 
+
+=========================
+
+HTTP GET /recipes/1
+Host: localhost:8080
+Content-Type: 
+Content-Length: 
+
+Status Code: 200
+Content-Type: application/json; charset=utf-8
+Content-Length: 
+
+=========================
