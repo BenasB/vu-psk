@@ -17,7 +17,7 @@ builder.Services.AddHttpClient<IRecipeService, RecipeService>()
 builder.Services.AddHttpClient<IIdentityService, IdentityService>();
 
 builder.Services.AddCascadingAuthenticationState();
-builder.AddBlazorAuth<SampleServerSideAuthenticationService>();
+builder.AddBlazorAuth<JwtServerSideAuthenticationService>();
 
 var app = builder.Build();
 

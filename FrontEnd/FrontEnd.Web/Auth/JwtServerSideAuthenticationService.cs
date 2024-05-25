@@ -4,7 +4,8 @@ using Identity.Public;
 
 namespace FrontEnd.Web.Auth;
 
-public class SampleServerSideAuthenticationService(IIdentityService identityService)
+// ReSharper disable once ClassNeverInstantiated.Global
+public class JwtServerSideAuthenticationService(IIdentityService identityService)
     : ServerSideAuthenticationService<UserLoginRequest, UserCreateRequest>
 {
     protected override async Task<AuthenticationResult> GetSignInResultAsync(UserLoginRequest signInPayload)
