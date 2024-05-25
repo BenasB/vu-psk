@@ -2,7 +2,7 @@ using BitzArt.Blazor.Auth;
 using FrontEnd.Web.Services;
 using Identity.Public;
 
-namespace FrontEnd.Web;
+namespace FrontEnd.Web.Auth;
 
 public class SampleServerSideAuthenticationService(IIdentityService identityService)
     : ServerSideAuthenticationService<UserLoginRequest, UserCreateRequest>
