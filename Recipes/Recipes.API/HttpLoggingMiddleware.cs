@@ -32,11 +32,12 @@ public class RequestResponseLoggingMiddleware
     private string GetRequestLog(HttpContext context)
     {
         var request = context.Request;
-
-        var userId = int.Parse(context.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         var userRole = context.User.FindFirstValue(ClaimTypes.Role);
 
         var requestLog = new StringBuilder();
+        requestLog.AppendLine("");
+        requestLog.AppendLine($"{DateTime.UtcNow}");
         requestLog.AppendLine("");
         requestLog.AppendLine($"HTTP {request.Method} {request.Path}");
         requestLog.AppendLine($"User Id: {userId}");
@@ -54,6 +55,7 @@ public class RequestResponseLoggingMiddleware
 
         var responseLog = new StringBuilder();
         responseLog.AppendLine($"\nStatus Code: {response.StatusCode}");
+        responseLog.AppendLine($"Method Information: {context.GetEndpoint()?.DisplayName}");
         responseLog.AppendLine($"Content-Type: {response.ContentType}");
         responseLog.AppendLine($"Content-Length: {response.ContentLength}");
         responseLog.AppendLine("");
