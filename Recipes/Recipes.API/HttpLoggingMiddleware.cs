@@ -1,6 +1,7 @@
 ﻿namespace Recipes.API;
 
 using Microsoft.AspNetCore.HttpLogging;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,9 +32,12 @@ public class RequestResponseLoggingMiddleware
     {
         var request = context.Request;
 
+        var tokenPayload = GetJWTTokenPayload(context);
+
         var requestLog = new StringBuilder();
         requestLog.AppendLine("");
         requestLog.AppendLine($"HTTP {request.Method} {request.Path}");
+        requestLog.AppendLine($"User: {tokenPayload}");
         requestLog.AppendLine($"Host: {request.Host}");
         requestLog.AppendLine($"Content-Type: {request.ContentType}");
         requestLog.AppendLine($"Content-Length: {request.ContentLength}");
@@ -59,5 +63,22 @@ public class RequestResponseLoggingMiddleware
     {
         _logger.LogInformation(content);
         File.AppendAllText("log.txt", content);
+    }
+
+    private string? GetJWTTokenPayload(HttpContext context)
+    {
+        var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+        if (string.IsNullOrEmpty(token))
+        {
+            return string.Empty;
+        }
+
+        var handler = new JwtSecurityTokenHandler();
+        var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
+
+        var tokenPayload = jsonToken?.Payload.SerializeToJson();
+
+        return tokenPayload;
     }
 }
