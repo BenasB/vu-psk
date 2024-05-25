@@ -8,7 +8,7 @@
             @if (_expanded)
             {
                 <FluentAnchor
-                    Href="recipes/new"
+                    Href=@(_loggedIn ? "recipes/new" : "/log-in")
                     Appearance="Appearance.Accent"
                     IconEnd="@(new Icons.Regular.Size24.Add().WithColor(Color.Fill))">
                     Create
@@ -17,7 +17,7 @@
             else
             {
                 <FluentAnchor
-                    Href="recipes/new"
+                    Href=@(_loggedIn ? "recipes/new" : "/log-in")
                     Appearance="Appearance.Accent"
                     IconEnd="@(new Icons.Regular.Size20.Add().WithColor(Color.Fill))"/>
             }
@@ -31,5 +31,20 @@
 
 @code
 {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationState { get; set; }
+    
     private bool _expanded = true;
+    private bool _loggedIn = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthenticationState is not null)
+        {
+            var authState = await AuthenticationState;
+            var user = authState.User;
+
+            _loggedIn = user.Identity is not null && user.Identity.IsAuthenticated;
+        }
+    }
 }
