@@ -48,11 +48,20 @@ else
         }
         else
         {
-            <FluentStack Wrap="true">
-                @foreach (var recipe in _shownRecipes)
-                {
-                    <RecipeCard Data="@recipe"/>
-                }
+            <FluentStack Orientation="Orientation.Vertical">
+                <FluentStack Wrap="true">
+                    @foreach (var recipe in _shownRecipes)
+                    {
+                        <RecipeCard Data="@recipe"/>
+                    }
+                </FluentStack>
+                <FluentStack Orientation="Orientation.Horizontal"
+                             HorizontalAlignment="HorizontalAlignment.Center"
+                             VerticalAlignment="VerticalAlignment.Center">
+                    <FluentButton OnClick="@SwitchToPreviousPageAsync" Disabled="@(_currentPage == 1)" IconEnd="@(new Icons.Regular.Size20.ArrowLeft())" />
+                    <FluentLabel Typo="Typography.Body">@_currentPage</FluentLabel>
+                    <FluentButton OnClick="@SwitchToNextPageAsync" IconEnd="@(new Icons.Regular.Size20.ArrowRight())" />
+                </FluentStack>
             </FluentStack>
         }
     </FluentStack>
@@ -65,6 +74,9 @@ else
     private System.Timers.Timer? _timer;
     private List<Tag> _availableTags = [];
     private IEnumerable<Tag> _selectedTags = [];
+    private int _currentPage = 1;
+
+    private const int PageSize = 2;
 
     private string? SearchValue
     {
@@ -81,9 +93,11 @@ else
         }
     }
     
+    private (int, int) Pagination => ((_currentPage-1)*PageSize, PageSize);
+    
     protected override async Task OnInitializedAsync()
     {
-        _shownRecipes = await RecipeService.GetAllAsync();
+        _shownRecipes = await RecipeService.GetAllAsync(pagination: Pagination);
         _availableTags = (await RecipeService.GetAllTagsAsync()).ToList();
     }
     
@@ -99,7 +113,8 @@ else
             return;
 
         DisposeTimer();
-        _shownRecipes = await RecipeService.GetAllAsync(searchTerm: _searchValue, tags: _selectedTags);
+        _currentPage = 1;
+        _shownRecipes = await RecipeService.GetAllAsync(searchTerm: _searchValue, tags: _selectedTags, pagination: Pagination);
         SearchValue = string.Empty;
         StateHasChanged();
     }
@@ -115,7 +130,8 @@ else
     
     private async Task OnSearchAsync()
     {
-        _shownRecipes = await RecipeService.GetAllAsync(searchTerm: _searchValue, tags: _selectedTags);
+        _currentPage = 1;
+        _shownRecipes = await RecipeService.GetAllAsync(searchTerm: _searchValue, tags: _selectedTags, pagination: Pagination);
         StateHasChanged();
     }
     
@@ -133,6 +149,19 @@ else
 
     private async Task OnSelectionTagsChangedAsync()
     {
-        _shownRecipes = await RecipeService.GetAllAsync(searchTerm: _searchValue, tags: _selectedTags);
+        _currentPage = 1;
+        _shownRecipes = await RecipeService.GetAllAsync(searchTerm: _searchValue, tags: _selectedTags, pagination: Pagination);
+    }
+
+    private async Task SwitchToPreviousPageAsync()
+    {
+        _currentPage--;
+        _shownRecipes = await RecipeService.GetAllAsync(searchTerm: _searchValue, tags: _selectedTags, pagination: Pagination);
+    }
+    
+    private async Task SwitchToNextPageAsync()
+    {
+        _currentPage++;
+        _shownRecipes = await RecipeService.GetAllAsync(searchTerm: _searchValue, tags: _selectedTags, pagination: Pagination);
     }
 }
