@@ -12,7 +12,7 @@ using System.Security.Claims;
 namespace Identity.API.Controllers;
 
 [ApiController]
-public class IdentityController(IdentityDatabaseContext dbContext, JWTHelper jwtHelper) : ControllerBase
+public class IdentityController(IdentityDatabaseContext dbContext, JwtGenerator jwtGenerator) : ControllerBase
 {
     [HttpGet]
     [Route("users")]
@@ -36,7 +36,7 @@ public class IdentityController(IdentityDatabaseContext dbContext, JWTHelper jwt
 
     [HttpGet]
     [ActionName("GetUser")]
-    [Route("user/{id}")]
+    [Route("users/{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -77,7 +77,7 @@ public class IdentityController(IdentityDatabaseContext dbContext, JWTHelper jwt
             Username = userCreateRequest.Username,
             PasswordHash = HashingHelper.HashPassword(userCreateRequest.Password),
             Email = userCreateRequest.Email,
-            Roles = new List<string> { UserRoles.ADMIN, UserRoles.MEMBER },
+            Roles = [UserRoles.Admin, UserRoles.Member],
         };
 
         try
@@ -94,7 +94,7 @@ public class IdentityController(IdentityDatabaseContext dbContext, JWTHelper jwt
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        return CreatedAtAction("GetUser", new { id = userToCreate.Id }, jwtHelper.GenerateJwtToken(userToCreate));
+        return CreatedAtAction("GetUser", new { id = userToCreate.Id }, jwtGenerator.GenerateJwtToken(userToCreate));
     }
 
     [HttpPost]
@@ -115,7 +115,7 @@ public class IdentityController(IdentityDatabaseContext dbContext, JWTHelper jwt
             if (!user.PasswordHash.SequenceEqual(HashingHelper.HashPassword(userLoginRequest.Password)))
                 return Unauthorized();
 
-            jwt = jwtHelper.GenerateJwtToken(user);
+            jwt = jwtGenerator.GenerateJwtToken(user);
         }
         catch
         {
@@ -134,7 +134,7 @@ public class IdentityController(IdentityDatabaseContext dbContext, JWTHelper jwt
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<User>> GetMyAccountInfo()
     {
-        int userId = Int32.Parse(HttpContext.User.FindFirstValue("id")!);
+        int userId = Int32.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         User user;
 
         try

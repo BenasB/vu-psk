@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="BitzArt.Blazor.Auth.Server" Version="0.2.3" />
       <PackageReference Include="Microsoft.AspNetCore.Components.DataAnnotations.Validation" Version="3.2.0-rc1.20223.4" />
       <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.7.2" />
       <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.7.2" />

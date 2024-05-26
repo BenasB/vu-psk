@@ -1,3 +1,4 @@
+using System.Net;
 using Identity.Public;
 
 namespace FrontEnd.Web.Services;
@@ -6,6 +7,8 @@ public interface IIdentityService
 {
     Task<IEnumerable<User>> GetAllAsync();
     Task<User?> GetByIdAsync(int id);
+    Task<string> LogIn(UserLoginRequest request);
+    Task<string> Register(UserCreateRequest request);
 }
 
 public class IdentityService : IIdentityService
@@ -25,7 +28,22 @@ public class IdentityService : IIdentityService
     
     public async Task<User?> GetByIdAsync(int id)
     {
-        var allUsers = (await GetAllAsync()).ToList();
-        return id >= 0 && id < allUsers.Count ? allUsers[id] : null;
+        var response = await _httpClient.GetAsync($"users/{id}");
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<User>();
+    }
+    
+    public async Task<string> LogIn(UserLoginRequest request)
+    {
+        var response = await _httpClient.PostAsJsonAsync($"login", request);
+        // TODO: Handle failed login
+        return await response.Content.ReadAsStringAsync() ?? throw new InvalidOperationException();
+    }
+
+    public async Task<string> Register(UserCreateRequest request)
+    {
+        var response = await _httpClient.PostAsJsonAsync($"register", request);
+        // TODO: Handle failed register
+        return await response.Content.ReadAsStringAsync() ?? throw new InvalidOperationException();
     }
 }
