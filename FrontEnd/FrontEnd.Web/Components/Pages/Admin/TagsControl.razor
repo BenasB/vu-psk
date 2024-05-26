@@ -5,33 +5,25 @@
 @using Identity.Public
 @rendermode InteractiveServer
 @inject IRecipeService RecipeService
-@inject NavigationManager NavManager
 @attribute [Authorize(Roles = UserRoles.Admin)]
 
 <PageTitle>Tag Management</PageTitle>
 
-<FluentLabel Typo="Typography.Header" Style="flex-grow: 1">Tag Management Panel</FluentLabel>
+<FluentLabel Typo="Typography.Header" MarginBlock="30px">Tag Management Panel</FluentLabel>
 
-@if (_tags == null)
-{
-    <FluentProgressRing />
-}
-else
-{
-    <FluentDataGrid Loading="true" Items="_tags" GenerateHeader="GenerateHeaderOption.Sticky" >
-        <PropertyColumn Title="Id" Property="@(t => t.Id)" />
-        <PropertyColumn Title="Name" Property="@(t => t.Name)" />
-        <TemplateColumn Title="Actions" Align="@Align.End">
-            <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(() => DeleteTag(context.Id))" />
-        </TemplateColumn>
-    </FluentDataGrid>
-    <FluentStack Orientation="Orientation.Horizontal">
-        <FluentTextField Placeholder="New tag" @bind-value="_newTagName" Required Style="width: 25ch;"/>
-        <FluentButton Appearance="Appearance.Outline"
-                      IconEnd="@(new Icons.Filled.Size16.AddCircle())"
-                      OnClick="@(() => CreateTag(_newTagName))"/>
-    </FluentStack>
-}
+<FluentDataGrid Items="_tags" GenerateHeader="GenerateHeaderOption.Sticky" Loading="@(_tags == null)" Style="height: 405px;overflow:auto;">
+    <PropertyColumn Title="Id" Property="@(t => t.Id)" />
+    <PropertyColumn Title="Name" Property="@(t => t.Name)" />
+    <TemplateColumn Title="Actions" Align="@Align.End">
+        <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(() => DeleteTag(context.Id))" />
+    </TemplateColumn>
+</FluentDataGrid>
+<FluentStack Orientation="Orientation.Horizontal" Style="margin-block: 20px;">
+    <FluentTextField Placeholder="New tag" @bind-value="_newTagName" Required Style="width: 25ch;"/>
+    <FluentButton Appearance="Appearance.Outline"
+                  IconEnd="@(new Icons.Filled.Size16.AddCircle())"
+                  OnClick="@(() => CreateTag(_newTagName))"/>
+</FluentStack>
 
 @code {
     private IQueryable<Tag>? _tags;
@@ -40,19 +32,25 @@ else
     private async Task DeleteTag(int tagId)
     {
         if (await RecipeService.DeleteTagByIdAsync(tagId))
-            NavManager.Refresh();
+            await LoadTags();
     }
     
     private async Task CreateTag(string? tagName)
     {
         if (tagName == null) return;
         
-        var newTag = await RecipeService.CreateTagAsync(new TagCreateUpdateDTO { Name = tagName } );
-        _tags?.Append(newTag);
+        await RecipeService.CreateTagAsync(new TagCreateUpdateDTO { Name = tagName } );
+        await LoadTags();
     }
 
     protected override async Task OnInitializedAsync()
     {
-        _tags = (await RecipeService.GetAllTagsAsync()).Items.AsQueryable();
+        await LoadTags();
+    }
+    
+    private async Task LoadTags()
+    {
+        var tags = (await RecipeService.GetAllTagsAsync()).Items;
+        _tags = tags.AsQueryable();
     }
 }
