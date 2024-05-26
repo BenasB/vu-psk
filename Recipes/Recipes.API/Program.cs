@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Recipes.API.Middlewares;
 using Recipes.API.Options;
 using Recipes.DataAccess;
 using Recipes.DataAccess.Repositories;
@@ -72,6 +73,7 @@ using (var scope = app.Services.CreateScope())
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseMiddleware<LoggingMiddleware>();
 app.MapControllers();
 
 app.Run();
