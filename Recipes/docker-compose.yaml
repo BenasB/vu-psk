@@ -9,6 +9,7 @@ services:
       db:
         condition: service_healthy
     environment:
+      - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__Default=Server=db;Port=5432;Database=RecipesDB;Username=postgres;Password=postgres;
 
   db:

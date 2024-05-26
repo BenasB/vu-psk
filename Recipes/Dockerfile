@@ -7,6 +7,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Recipes.API/Recipes.API.csproj", "Recipes.API/"]
+COPY ["Recipes.Business/Recipes.Business.csproj", "Recipes.Business/"]
 COPY ["Recipes.Public/Recipes.Public.csproj", "Recipes.Public/"]
 COPY ["Recipes.DataAccess/Recipes.DataAccess.csproj", "Recipes.DataAccess/"]
 RUN dotnet restore "Recipes.API/Recipes.API.csproj"

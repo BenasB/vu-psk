@@ -9,6 +9,7 @@ services:
       db:
         condition: service_healthy
     environment:
+      - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__Default=Server=db;Port=5433;Database=IdentityDB;Username=postgres;Password=postgres;
 
   db:
@@ -16,12 +17,16 @@ services:
     ports:
       - "5433:5433"
     environment:
-      PGPORT: 5433    
+      PGPORT: 5433
       POSTGRES_DB: IdentityDB
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -U postgres -d IdentityDB'"]
+      test:
+        [
+          "CMD-SHELL",
+          "sh -c 'pg_isready -U postgres -d IdentityDB'"
+        ]
       interval: 5s
       timeout: 3s
       retries: 5

@@ -32,8 +32,6 @@ public class TagCreationService : ITagValidationService
 
         foreach (var tagName in newTagsNamesList)
             _tagRepository.Insert(new TagEntity { Name = tagName });
-
-        await _tagRepository.SaveChangesAsync();
     }
 
     private async Task<IList<TagRecipeEntity>> GetRecipeTags(RecipeEntity recipeEntity, IList<string> allTagNames)
