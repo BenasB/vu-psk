@@ -1,14 +1,16 @@
 ﻿@page "/recipes/{Id:int}"
 
+@using System.Security.Claims
 @using FrontEnd.Web.Services
-@attribute [StreamRendering]
+@using Identity.Public
 @rendermode InteractiveServer
 @inject IRecipeService RecipeService
 @inject NavigationManager NavManager
+@inject IIdentityService IdentityService
 
 <PageTitle>@(_recipe?.Title ?? "Single recipe display")</PageTitle>
 
-@if (_task is not { IsCompleted: true })
+@if (_recipeTask is not { IsCompleted: true })
 {
     <FluentSkeleton Height="14rem" Width="100%" Style="margin-bottom: 10px;" />
     <FluentSkeleton Height="2.5em" Width="100%" Style="margin-bottom: 10px;" />
@@ -42,8 +44,11 @@ else
             <FluentButton Appearance="Appearance.Outline" IconStart="@(new Icons.Regular.Size20.Share())" Id="share-menu-button" @onclick="@(() => ShareMenuOpen = !ShareMenuOpen)">
                 Share
             </FluentButton>
-            <FluentAnchor Href=@($"/recipes/{Id}/edit") Appearance="Appearance.Accent">Edit</FluentAnchor>
-            <FluentButton OnClick="@DeleteRecipe" Appearance="Appearance.Accent">Delete</FluentButton>
+            @if (_isAuthor)
+            {
+                <FluentAnchor Href=@($"/recipes/{Id}/edit") Appearance="Appearance.Accent">Edit</FluentAnchor>
+                <FluentButton OnClick="@DeleteRecipe" Appearance="Appearance.Accent">Delete</FluentButton>
+            }
         </FluentStack>
     </FluentStack>
     <FluentGrid AdaptiveRendering>
@@ -60,17 +65,29 @@ else
                             <FluentIcon Color="Color.Disabled" Value=@(new Icons.Regular.Size16.PersonBoard())/>@_recipe.Servings
                         </FluentBadge>
                     </FluentOverflowItem>
-                    @foreach (var item in _tagNames)
+                    @foreach (var item in _recipe.Tags)
                     {
                         <FluentOverflowItem>
-                            <FluentBadge Appearance="Appearance.Accent">@item</FluentBadge>
+                            <FluentBadge Appearance="Appearance.Accent">@item.Name</FluentBadge>
                         </FluentOverflowItem>
                     }
                 </FluentOverflow>
+                @if (_author != null)
+                {
+                    <FluentAnchor Href=@($"/users/{_author.Id}") Appearance="Appearance.Stealth" Style="height: 45px">
+                        <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center">
+                                <FluentLabel Typo="Typography.Body">By </FluentLabel>
+                                <FluentPersona Name="@_author.Username"
+                                               Image="@_author.ImageUrl"
+                                               ImageSize="35px">
+                                </FluentPersona>
+                        </FluentStack>
+                    </FluentAnchor>
+                }
                 <p>@_recipe.Description</p>
                 <FluentLabel Color="Color.Accent" Typo="Typography.H4">Ingredients</FluentLabel>
                 <FluentDataGrid Items=_recipe.Ingredients.AsQueryable() Style="width: 100%;" ShowHover GenerateHeader="GenerateHeaderOption.None">
-                    <PropertyColumn Property="@(ingredient => ingredient)" />
+                    <PropertyColumn Property="@(ingredient => ingredient)"/>
                 </FluentDataGrid>
             </FluentStack>
         </FluentGridItem>
@@ -103,14 +120,17 @@ else
 @code {
     [Parameter]
     public int Id { get; set; }
-
+    
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationState { get; set; }
+    
     private bool ShareMenuOpen { get; set; } = false;
 
     private global::Recipes.Public.Recipe? _recipe;
-    private Task<global::Recipes.Public.Recipe?>? _task;
-
-    private readonly IEnumerable<string> _tagNames = new[] { "Indian", "Dinner" };
-
+    private User? _author;
+    private Task<global::Recipes.Public.Recipe?>? _recipeTask;
+    private bool _isAuthor;
+    
     private async Task DeleteRecipe()
     {
         if (_recipe != null && await RecipeService.DeleteByIdAsync(_recipe.Id))
@@ -119,7 +139,23 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        _task = RecipeService.GetByIdAsync(Id);
-        _recipe = await _task;
+        _recipeTask = RecipeService.GetByIdAsync(Id);
+        _recipe = await _recipeTask;
+
+        if (_recipe is null)
+            return;
+        
+        _author = await IdentityService.GetByIdAsync(_recipe.AuthorId);
+
+        if (AuthenticationState == null)
+            return;
+        
+        var authState = await AuthenticationState;
+        var user = authState.User;
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            var userId = int.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            _isAuthor = _recipe.AuthorId == userId || user.IsInRole(UserRoles.Admin);
+        }
     }
 }

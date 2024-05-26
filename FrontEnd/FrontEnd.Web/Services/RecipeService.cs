@@ -7,6 +7,9 @@ public interface IRecipeService
     Task<IEnumerable<Recipe>> GetAllAsync();
     Task<Recipe?> GetByIdAsync(int id);
     Task<bool> DeleteByIdAsync(int id);
+    Task<Recipe> CreateAsync(RecipeCreateDTO request);
+    Task UpdateAsync(int id, RecipeUpdateDTO request);
+    Task<IEnumerable<Tag>> GetAllTagsAsync();
 }
 
 public class RecipeService : IRecipeService
@@ -35,5 +38,21 @@ public class RecipeService : IRecipeService
     {
         var response = await _httpClient.DeleteAsync($"recipes/{id}");
         return response.IsSuccessStatusCode;
+    }
+
+    public async Task<Recipe> CreateAsync(RecipeCreateDTO request)
+    {
+        var response = await _httpClient.PostAsJsonAsync("recipes", request);
+        return await response.Content.ReadFromJsonAsync<Recipe>() ?? throw new InvalidOperationException();
+    }
+
+    public Task UpdateAsync(int id, RecipeUpdateDTO request)
+    {
+        return _httpClient.PutAsJsonAsync($"recipes/{id}", request);
+    }
+
+    public async Task<IEnumerable<Tag>> GetAllTagsAsync()
+    {
+        return await _httpClient.GetFromJsonAsync<IEnumerable<Tag>>("tags") ?? throw new InvalidOperationException();
     }
 }

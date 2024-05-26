@@ -1,7 +1,10 @@
 ﻿@using System.ComponentModel.DataAnnotations
+@using FrontEnd.Web.Services
 @rendermode InteractiveServer
+@inject IRecipeService RecipeService
+@inject NavigationManager NavigationManager
 
-<EditForm Model="@FormData" OnValidSubmit="@HandleValidSubmit" FormName="recipe" novalidate>
+<EditForm Model="@FormData" OnValidSubmit="@HandleValidSubmitAsync" FormName="recipe" novalidate>
     <ObjectGraphDataAnnotationsValidator/>
 
     <FluentGrid AdaptiveRendering>
@@ -16,12 +19,12 @@
                                 @bind-Value="FormData.Description"
                                 Label="Description"
                                 style="width: 100%;"/>
-                <FluentAutocomplete TOption="string"
+                <FluentAutocomplete TOption="global::Recipes.Public.Tag"
                                     AutoComplete="off"
                                     Label="Tags"
                                     Placeholder="Select tags"
                                     OnOptionsSearch="OnTagsSearchAsync"
-                                    OptionText="@(tag => tag)"
+                                    OptionText="@(tag => tag.Name)"
                                     @bind-SelectedOptions="@FormData.Tags"
                                     Width="100%"/>
                 <div style="width: 100%;">
@@ -133,37 +136,35 @@
 </EditForm>
 
 @code{
-    private static readonly string[] AvailableTags = ["Breakfast", "Lunch", "Dinner", "Indian", "Italian"]; // TODO: Pull tags from Recipes API
-
     [Parameter] public global::Recipes.Public.Recipe? InitialData { get; set; }
 
     [SupplyParameterFromForm] private RecipeFormData FormData { get; set; } = new();
 
     private FluentInputFile? _imageFile;
+    private List<global::Recipes.Public.Tag> _availableTags = [];
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         if (InitialData != null)
         {
             FormData = new RecipeFormData
             {
-                Id = InitialData.Id,
                 Title = InitialData.Title,
                 Description = InitialData.Description,
                 Servings = InitialData.Servings,
                 CookingTimeInMinutes = (int)InitialData.CookingTime.TotalMinutes,
-                Tags = [], // TODO: Load from incoming Recipes.Public.Recipe
+                Tags = InitialData.Tags,
                 Ingredients = InitialData.Ingredients.Select(x => new Ingredient { Value = x }).ToList(),
                 Instructions = InitialData.Instructions.Select(x => new InstructionStep { Value = x }).ToList(),
                 Image = InitialData.Image
             };
         }
+
+        _availableTags = (await RecipeService.GetAllTagsAsync()).ToList();
     }
 
     private class RecipeFormData
     {
-        public int? Id { get; init; }
-
         [Required, MinLength(3, ErrorMessage = "Title is too short!")]
         public string? Title { get; set; }
 
@@ -181,7 +182,7 @@
         [ValidateComplexType, MinLength(1, ErrorMessage = "At least one instruction must be present")]
         public List<InstructionStep> Instructions { get; set; } = [];
 
-        public IEnumerable<string> Tags { get; set; } = [];
+        public IEnumerable<global::Recipes.Public.Tag> Tags { get; set; } = [];
         
         public string? Image { get; set; }
     }
@@ -198,34 +199,56 @@
         public string? Value { get; set; }
     }
 
-    private void HandleValidSubmit()
+    private async Task HandleValidSubmitAsync()
     {
-        var recipeDto = new global::Recipes.Public.Recipe
+        if (InitialData == null)
         {
-            Title = FormData.Title!,
-            AuthorId = 1,
-            Description = FormData.Description,
-            CookingTime = TimeSpan.FromMinutes((double)FormData.CookingTimeInMinutes!),
-            Servings = FormData.Servings!.Value,
-            Ingredients = FormData.Ingredients.Select(x => x.Value!),
-            Instructions = FormData.Instructions.Select(x => x.Value!),
-            Image = FormData.Image
-        };
-
-        // TODO: Send out `recipeDto` to the Recipes API
-        // If FormData.Id is null, send to create
-        // otherwise send to update recipe with id FormData.Id
+            // Creation
+            var requestDto = new global::Recipes.Public.RecipeCreateDTO
+            {
+                Title = FormData.Title!,
+                Description = FormData.Description,
+                CookingTime = TimeSpan.FromMinutes((double)FormData.CookingTimeInMinutes!),
+                Servings = FormData.Servings!.Value,
+                Ingredients = FormData.Ingredients.Select(x => x.Value!).ToList(),
+                Instructions = FormData.Instructions.Select(x => x.Value!).ToList(),
+                Tags = FormData.Tags.Select(x => x.Name).ToList(),
+                Image = FormData.Image
+            };
+            
+            var result = await RecipeService.CreateAsync(requestDto);
+            NavigationManager.NavigateTo($"recipes/{result.Id}");
+        }
+        else
+        {
+            // Update
+            var requestDto = new global::Recipes.Public.RecipeUpdateDTO
+            {
+                Title = FormData.Title!,
+                Description = FormData.Description,
+                CookingTime = TimeSpan.FromMinutes((double)FormData.CookingTimeInMinutes!),
+                Servings = FormData.Servings!.Value,
+                Ingredients = FormData.Ingredients.Select(x => x.Value!).ToList(),
+                Instructions = FormData.Instructions.Select(x => x.Value!).ToList(),
+                Tags = FormData.Tags.Select(x => x.Name).ToList(),
+                Image = FormData.Image,
+                Version = InitialData.Version
+            };
+            
+            await RecipeService.UpdateAsync(InitialData.Id, requestDto);
+            NavigationManager.NavigateTo($"recipes/{InitialData.Id}");
+        }
     }
 
-    private static Task OnTagsSearchAsync(OptionsSearchEventArgs<string> e)
+    private Task OnTagsSearchAsync(OptionsSearchEventArgs<global::Recipes.Public.Tag> e)
     {
         if (string.IsNullOrWhiteSpace(e.Text))
         {
-            e.Items = AvailableTags;
+            e.Items = _availableTags;
             return Task.CompletedTask;
         }
 
-        e.Items = AvailableTags.Where(tag => tag.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase));
+        e.Items = _availableTags.Where(tag => tag.Name.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase));
         return Task.CompletedTask;
     }
 

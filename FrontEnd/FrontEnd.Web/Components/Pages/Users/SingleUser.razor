@@ -21,7 +21,7 @@ else if (_user == null)
 else
 {
     <FluentStack Orientation="Orientation.Vertical">
-        <FluentPersona Image="@_imageUrl" ImageSize="200px" Style="margin: 0 auto;"/>
+        <FluentPersona Image="@_user.ImageUrl" ImageSize="200px" Style="margin: 0 auto;"/>
         <FluentLabel Typo="Typography.H1" MarginBlock="10px" Alignment="HorizontalAlignment.Center" Style="width: 100%">@_user.Username</FluentLabel>
         <FluentLabel Typo="Typography.H3">Recipes</FluentLabel>
         <FluentLabel Typo="Typography.Body">Recipes should be shown here</FluentLabel>
@@ -34,8 +34,6 @@ else
 
     private Identity.Public.User? _user;
     private Task<Identity.Public.User?>? _task;
-
-    private const string _imageUrl = "https://as2.ftcdn.net/v2/jpg/00/64/67/63/1000_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg";
 
     protected override async Task OnInitializedAsync()
     {

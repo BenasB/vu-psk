@@ -1,8 +1,8 @@
 ﻿namespace Identity.API.Options;
 
-public class JWTOptions
+public class JwtOptions
 {
-    public const string JWT = "JWT";
+    public const string SectionName = "JWT";
 
     public string Key { get; set; } = String.Empty;
     public string Issuer { get; set; } = String.Empty;  

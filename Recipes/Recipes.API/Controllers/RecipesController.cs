@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Recipes.DataAccess.Entities;
 using Recipes.DataAccess.Entities.Relationships;
@@ -69,6 +71,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpDelete("{recipeId:int}")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -85,6 +88,8 @@ public class RecipesController : ControllerBase
         }
         
         if (recipe is null) return NotFound();
+        
+        // TODO: Check if user is author or admin
 
         try
         {
@@ -100,6 +105,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> CreateRecipe(RecipeCreateDTO request)
@@ -108,7 +114,9 @@ public class RecipesController : ControllerBase
         {
             await InsertNewTags(request.Tags);
 
-            var newRecipe = GetRecipeFromDTO(request);
+            var authorId = int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var newRecipe = GetRecipeFromDTO(request, authorId);
             newRecipe.Tags = await GetEntityTags(newRecipe, request.Tags);
 
             newRecipe = _recipesRepository.Insert(newRecipe);
@@ -125,6 +133,7 @@ public class RecipesController : ControllerBase
     }
 
     [HttpPut("{recipeId:int}")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -141,6 +150,8 @@ public class RecipesController : ControllerBase
             {
                 return StatusCode(StatusCodes.Status404NotFound);
             }
+            
+            // TODO: Check if user is author or admin
 
             await InsertNewTags(request.Tags);
 
@@ -162,9 +173,11 @@ public class RecipesController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
+
     }
 
     [HttpDelete("{recipeId:int}/tags/{tagId:int}")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -181,6 +194,8 @@ public class RecipesController : ControllerBase
         }
 
         if (recipeTag is null) return NotFound();
+        
+        // TODO: Look up authorId and check if user is authorId or admin
 
         try
         {
@@ -217,7 +232,6 @@ public class RecipesController : ControllerBase
     private RecipeEntity UpdateOldRecipeEntity(RecipeEntity oldRecipeEntity, RecipeUpdateDTO recipeDTO)
     {
         oldRecipeEntity.Title = recipeDTO.Title;
-        oldRecipeEntity.AuthorId = recipeDTO.AuthorId;
         oldRecipeEntity.Description = recipeDTO.Description;
         oldRecipeEntity.CookingTime = recipeDTO.CookingTime;
         oldRecipeEntity.Servings = recipeDTO.Servings;
@@ -229,12 +243,12 @@ public class RecipesController : ControllerBase
         return oldRecipeEntity;
     }
 
-    private RecipeEntity GetRecipeFromDTO(RecipeCreateDTO recipeDTO)
+    private RecipeEntity GetRecipeFromDTO(RecipeCreateDTO recipeDTO, int authorId)
     {
         return new RecipeEntity()
         {
             Title = recipeDTO.Title,
-            AuthorId = recipeDTO.AuthorId,
+            AuthorId = authorId,
             Description = recipeDTO.Description,
             CookingTime = recipeDTO.CookingTime,
             Servings = recipeDTO.Servings,

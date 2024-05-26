@@ -1,0 +1,73 @@
+@using System.Security.Claims
+@using BitzArt.Blazor.Auth
+@rendermode InteractiveServer
+@inject IUserService UserService
+@inject NavigationManager NavigationManager
+
+<FluentHeader>
+    <FluentLabel Typo="Typography.Header" Color="Color.Fill">
+        <FluentNavLink Href="/">Recipes</FluentNavLink>
+    </FluentLabel>
+    <FluentSpacer />
+    <FluentStack Width="auto">
+        <AuthorizeView>
+            <Authorized>
+                <FluentProfileMenu Image="@_imageUrl"
+                                   FullName="@_name"
+                                   EMail="@_email"
+                                   OnHeaderButtonClick="@SignOutAsync"
+                                   Style="min-width: 330px;">
+                    <FooterTemplate>
+                        <FluentStack>
+                            <FluentLabel Typo="Typography.Body">@(_roles is not null ? string.Join(", ", _roles) : null)</FluentLabel>
+                            <FluentSpacer/>
+                            <FluentAnchor Appearance="@Appearance.Hypertext"
+                                          Href=@($"/users/{_id}")>
+                                View account
+                            </FluentAnchor>
+                        </FluentStack>
+                    </FooterTemplate>
+                </FluentProfileMenu>
+            </Authorized>
+            <NotAuthorized>
+                <FluentAnchor Appearance="Appearance.Neutral" Href="/log-in">Log In</FluentAnchor>
+            </NotAuthorized>
+        </AuthorizeView>
+        <ThemeToggler />
+    </FluentStack>
+</FluentHeader>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationState { get; set; }
+
+    private string? _name;
+    private string? _id;
+    private List<string>? _roles;
+    private string? _email;
+    private string? _imageUrl;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthenticationState is not null)
+        {
+            var authState = await AuthenticationState;
+            var user = authState.User;
+
+            if (user.Identity is not null && user.Identity.IsAuthenticated)
+            {
+                _name = user.FindFirstValue(ClaimTypes.Name);
+                _id = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                _email = user.FindFirstValue(ClaimTypes.Email);
+                _imageUrl = user.FindFirstValue("imageUrl");
+                _roles = user.FindAll(c => c.Type == ClaimTypes.Role).Select(c => char.ToUpper(c.Value[0]) + c.Value[1..]).ToList();
+            }
+        }
+    }
+
+    private async Task SignOutAsync()
+    {
+        await UserService.SignOutAsync();
+        NavigationManager.NavigateTo("/", true);
+    }
+}
