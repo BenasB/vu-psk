@@ -13,9 +13,9 @@ public class RecipesController(IRecipesService recipeService) : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public ActionResult<IEnumerable<Recipe>> GetAllRecipes([FromQuery] string? title, [FromQuery] string? csvTags, [FromQuery] long? authorId, [FromQuery] int? skip, [FromQuery] int? top)
+    public async Task<ActionResult<PaginatedResponse<Recipe>>> GetAllRecipes([FromQuery] string? title, [FromQuery] string? csvTags, [FromQuery] long? authorId, [FromQuery] int? skip, [FromQuery] int? top)
     {
-        return Ok(recipeService.GetAllRecipes(title, csvTags, authorId, skip, top));
+        return Ok(await recipeService.GetAllRecipes(title, csvTags, authorId, skip, top));
     }
 
     [HttpGet("{recipeId:int}")]

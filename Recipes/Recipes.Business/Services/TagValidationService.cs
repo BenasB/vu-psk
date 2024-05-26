@@ -17,8 +17,8 @@ public class TagValidationService : ITagValidationService
 
     public async Task<IList<TagRecipeEntity>> ValidateTags(RecipeEntity recipeEntity, IList<string> tagNames)
     {
-        var allTags = await _tagRepository.GetAllAsync();
-        var selectedTags = allTags.Where(s => tagNames.Contains(s.Name)).ToList();
+        var allTags = await _tagRepository.GetAllAsync(int.MaxValue);
+        var selectedTags = allTags.Items.Where(s => tagNames.Contains(s.Name)).ToList();
 
         if (selectedTags.Count != tagNames.Count)
             throw new HttpException("Tag with provided name does not exist", 400);

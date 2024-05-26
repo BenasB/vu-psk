@@ -1,43 +1,166 @@
 ﻿@page "/"
 @using FrontEnd.Web.Services
 @using FrontEnd.Web.Components.Pages.Recipes
-@attribute [StreamRendering]
+@using global::Recipes.Public
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @inject IRecipeService RecipeService
 
 <PageTitle>Recipes</PageTitle>
 
-@if (_recipes == null)
+@if (_shownRecipes == null)
 {
     <FluentStack Wrap="true">
-        @for (var i = 0; i < 12; ++i)
+        @for (var i = 0; i < PageSize; ++i)
         {
             <FluentSkeleton Width="16rem" Height="16rem" Shimmer="true"/>
         }
     </FluentStack>
 }
-else if (!_recipes.Any())
-{
-    <FluentLabel Typo="Typography.Subject">No recipes exist.</FluentLabel>
-    <FluentStack VerticalAlignment="VerticalAlignment.Center" HorizontalGap="3" Style="margin-block: 10px">
-        <FluentLabel Typo="Typography.Body">Love cooking?</FluentLabel>
-        <FluentAnchor Href="recipes/new" Appearance="Appearance.Hypertext">Share your own!</FluentAnchor>
-    </FluentStack>
-}
 else
 {
-    <FluentStack Wrap="true">
-        @foreach (var recipe in _recipes)
+    <FluentStack Orientation="Orientation.Vertical">
+        
+        <FluentStack Orientation="Orientation.Horizontal">
+            <FluentSearch @bind-Value="@SearchValue"
+                          @bind-Value:after="HandleClearAsync"
+                          @oninput="@(e => SearchValue = e.Value?.ToString())"
+                          Placeholder="Search for recipes"
+                          Style="width: 100%;"/>
+
+            <FluentAutocomplete TOption="Tag"
+                                AutoComplete="off"
+                                Placeholder="Search with tags"
+                                OnOptionsSearch="OnTagsSearchAsync"
+                                OptionText="@(tag => tag.Name)"
+                                @bind-SelectedOptions="_selectedTags"
+                                @bind-SelectedOptions:after="OnSelectionTagsChangedAsync"
+                                Width="100%"/>
+        </FluentStack>
+
+        @if (!_shownRecipes.Items.Any())
         {
-            <RecipeCard Data="@recipe"/>
+            <FluentLabel Typo="Typography.Subject">Couldn't find any recipes</FluentLabel>
+            <FluentStack VerticalAlignment="VerticalAlignment.Center" HorizontalGap="3" Style="margin-block: 10px">
+                <FluentLabel Typo="Typography.Body">Love cooking?</FluentLabel>
+                <FluentAnchor Href="recipes/new" Appearance="Appearance.Hypertext">Share your own!</FluentAnchor>
+            </FluentStack>
+        }
+        else
+        {
+            <FluentStack Orientation="Orientation.Vertical">
+                <FluentStack Wrap="true">
+                    @foreach (var recipe in _shownRecipes.Items)
+                    {
+                        <RecipeCard Data="@recipe"/>
+                    }
+                </FluentStack>
+                <FluentStack Orientation="Orientation.Horizontal"
+                             HorizontalAlignment="HorizontalAlignment.Center"
+                             VerticalAlignment="VerticalAlignment.Center">
+                    <FluentButton OnClick="@SwitchToPreviousPageAsync" Disabled="@(_currentPage == 1)" IconEnd="@(new Icons.Regular.Size20.ArrowLeft())" />
+                    <FluentLabel Typo="Typography.Body">@_currentPage</FluentLabel>
+                    <FluentButton OnClick="@SwitchToNextPageAsync" Disabled="@(_shownRecipes.IsLastPage)" IconEnd="@(new Icons.Regular.Size20.ArrowRight())" />
+                </FluentStack>
+            </FluentStack>
         }
     </FluentStack>
 }
 
 @code {
-    private IEnumerable<global::Recipes.Public.Recipe>? _recipes;
+    private PaginatedResponse<Recipe>? _shownRecipes;
+    
+    private string? _searchValue = string.Empty;
+    private System.Timers.Timer? _timer;
+    private List<Tag> _availableTags = [];
+    private IEnumerable<Tag> _selectedTags = [];
+    private int _currentPage = 1;
 
+    private const int PageSize = 2;
+
+    private string? SearchValue
+    {
+        get => _searchValue;
+        set
+        {
+            if (value == _searchValue) return;
+            _searchValue = value;
+            DisposeTimer();
+            _timer = new System.Timers.Timer(TimeSpan.FromMilliseconds(500));
+            _timer.Elapsed += TimerElapsed_TickAsync;
+            _timer.Enabled = true;
+            _timer.Start();
+        }
+    }
+    
+    private (int, int) Pagination => ((_currentPage-1)*PageSize, PageSize);
+    
     protected override async Task OnInitializedAsync()
     {
-        _recipes = await RecipeService.GetAllAsync();
+        _shownRecipes = await RecipeService.GetAllAsync(pagination: Pagination);
+        _availableTags = (await RecipeService.GetAllTagsAsync()).Items.ToList();
+    }
+    
+    private async void TimerElapsed_TickAsync(object? sender, EventArgs e)
+    {
+        DisposeTimer();
+        await InvokeAsync(OnSearchAsync);
+    }
+    
+    private async Task HandleClearAsync()
+    {
+        if (string.IsNullOrWhiteSpace(SearchValue))
+            return;
+
+        DisposeTimer();
+        _currentPage = 1;
+        _shownRecipes = await RecipeService.GetAllAsync(searchTerm: _searchValue, tags: _selectedTags, pagination: Pagination);
+        SearchValue = string.Empty;
+        StateHasChanged();
+    }
+    
+    private void DisposeTimer()
+    {
+        if (_timer == null) return;
+        _timer.Enabled = false;
+        _timer.Elapsed -= TimerElapsed_TickAsync;
+        _timer.Dispose();
+        _timer = null;
+    }
+    
+    private async Task OnSearchAsync()
+    {
+        _currentPage = 1;
+        _shownRecipes = await RecipeService.GetAllAsync(searchTerm: _searchValue, tags: _selectedTags, pagination: Pagination);
+        StateHasChanged();
+    }
+    
+    private Task OnTagsSearchAsync(OptionsSearchEventArgs<Tag> e)
+    {
+        if (string.IsNullOrWhiteSpace(e.Text))
+        {
+            e.Items = _availableTags;
+            return Task.CompletedTask;
+        }
+
+        e.Items = _availableTags.Where(tag => tag.Name.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase));
+        return Task.CompletedTask;
+    }
+
+    private async Task OnSelectionTagsChangedAsync()
+    {
+        _currentPage = 1;
+        _shownRecipes = await RecipeService.GetAllAsync(searchTerm: _searchValue, tags: _selectedTags, pagination: Pagination);
+    }
+
+    private async Task SwitchToPreviousPageAsync()
+    {
+        _currentPage--;
+        _shownRecipes = await RecipeService.GetAllAsync(searchTerm: _searchValue, tags: _selectedTags, pagination: Pagination);
+    }
+    
+    private async Task SwitchToNextPageAsync()
+    {
+        _currentPage++;
+        _shownRecipes = await RecipeService.GetAllAsync(searchTerm: _searchValue, tags: _selectedTags, pagination: Pagination);
     }
 }

@@ -14,10 +14,10 @@ public class JwtGenerator(IOptions<JwtOptions> jwtOptions)
 
     public string GenerateJwtToken(UserEntity user)
     {
-        var value = DateTime.Now.AddHours(2);
+        var value = DateTime.Now.AddDays(2);
         var bytes = Encoding.UTF8.GetBytes(_jwtOptions.Key);
         var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(bytes), SecurityAlgorithms.HmacSha256);
-        
+
         var claims = new Dictionary<string, object>
         {
             { ClaimTypes.NameIdentifier, user.Id },

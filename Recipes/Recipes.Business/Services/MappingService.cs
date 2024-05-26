@@ -1,4 +1,5 @@
 ﻿using Recipes.DataAccess.Entities;
+using Recipes.DataAccess.Filtering;
 using Recipes.Public;
 
 namespace Recipes.Business.Services;
@@ -59,6 +60,15 @@ public static class MappingService
         {
             Id = tagEntity.Id,
             Name = tagEntity.Name,
+        };
+    }
+
+    public static PaginatedResponse<T> GetPaginatedResponse<T, TEntity>(PaginatedList<TEntity> paginatedList, Func<TEntity, T> convert)
+    {
+        return new PaginatedResponse<T>
+        {
+            IsLastPage = paginatedList.IsLastPage,
+            Items = paginatedList.Items.Select(convert),
         };
     }
 }

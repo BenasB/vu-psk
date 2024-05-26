@@ -11,7 +11,7 @@ public class TagsController(ITagsService tagsService) : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<Tag>>> GetAllTags([FromQuery] int? skip, [FromQuery] int? top)
+    public async Task<ActionResult<PaginatedResponse<Tag>>> GetAllTags([FromQuery] int? skip, [FromQuery] int? top)
     {
         return Ok(await tagsService.GetAllTagsAsync(skip, top));
     }
