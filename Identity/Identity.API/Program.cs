@@ -3,7 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Identity.DataAccess;
 using Identity.API.Options;
 using Identity.API.Helpers;
-
+using Identity.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -30,7 +30,11 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    scope.ServiceProvider.GetRequiredService<IdentityDatabaseContext>().Database.Migrate();
+    var recipesDbContext = scope.ServiceProvider.GetRequiredService<IdentityDatabaseContext>();
+    recipesDbContext.Database.Migrate();
+
+    if (app.Environment.IsDevelopment() && !recipesDbContext.Users.Any())
+        await DbInitializer.SeedDatabase(recipesDbContext);
 }
 
 app.UseAuthentication();
