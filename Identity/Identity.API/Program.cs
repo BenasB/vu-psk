@@ -28,7 +28,6 @@ builder.Services.AddDbContext<IdentityDatabaseContext>(options =>
 
 var app = builder.Build();
 
-
 using (var scope = app.Services.CreateScope())
 {
     var recipesDbContext = scope.ServiceProvider.GetRequiredService<IdentityDatabaseContext>();

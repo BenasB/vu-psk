@@ -25,7 +25,7 @@ public class RecipesService : IRecipesService
 
     public async Task<PaginatedResponse<Recipe>> GetAllRecipes(string? title, string? csvTags, long? authorId, int? skip = null, int? top = null)
     {
-        IList<long>? tags = TryParseTags(csvTags);
+        var tags = TryParseTags(csvTags);
 
         var recipes = await _recipesRepository.GetFiltered(top, skip, title, tags, authorId);
         return MappingService.GetPaginatedResponse(recipes, MappingService.GetRecipeFromEntity);
@@ -90,7 +90,7 @@ public class RecipesService : IRecipesService
         await _tagRecipeRepository.SaveChangesAsync();
     }
 
-    private IList<long> TryParseTags(string? csvTags)
+    private IList<long>? TryParseTags(string? csvTags)
     {
         try
         {
