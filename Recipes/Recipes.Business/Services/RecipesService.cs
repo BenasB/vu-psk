@@ -29,7 +29,6 @@ public class RecipesService : IRecipesService
 
         var recipes = await _recipesRepository.GetFiltered(top, skip, title, tags, authorId);
         return MappingService.GetPaginatedResponse(recipes, MappingService.GetRecipeFromEntity);
-    }
 
     public Recipe GetRecipe(int recipeId)
     {
