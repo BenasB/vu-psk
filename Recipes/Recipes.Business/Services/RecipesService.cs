@@ -75,7 +75,7 @@ public class RecipesService : IRecipesService
         recipeToUpdate.Tags = tags.ToList();
 
         recipeToUpdate = _recipesRepository.Update(recipeToUpdate);
-        await _recipesRepository.SaveChangesAsync();
+        await SaveWithConcurrencyCheck();
 
         return MappingService.GetRecipeFromEntity(recipeToUpdate);
     }
@@ -99,6 +99,18 @@ public class RecipesService : IRecipesService
         catch
         {
             throw new HttpException("Invalid tags format", 400);
+        }
+    }
+
+    private async Task SaveWithConcurrencyCheck()
+    {
+        try
+        {
+            await _recipesRepository.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new HttpException("Recipe was modified by another user.", 409);
         }
     }
 }
