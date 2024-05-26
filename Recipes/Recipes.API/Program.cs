@@ -60,6 +60,7 @@ builder.Services.Configure<LoggerOptions>(
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IRecipesRepository, RecipesRepository>();
 
+builder.Services.AddScoped<IRelatedRecipeStrategy, SameTagRelatedRecipeStrategy>();
 builder.Services.AddScoped<ITagsService, TagsService>();
 builder.Services.AddScoped<IRecipesService, RecipesService>();
 builder.Services.AddScoped<TagCreationService>();
