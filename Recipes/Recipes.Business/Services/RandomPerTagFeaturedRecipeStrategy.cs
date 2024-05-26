@@ -18,7 +18,7 @@ public class RandomPerTagFeaturedRecipeStrategy(IRecipesRepository recipesReposi
                 top: 5,
                 skip: null);
 
-            var recipeToFeature = result.Items.FirstOrDefault(recipe => featuredRecipes.All(x => x.Id != recipe.Id));
+            var recipeToFeature = result.Items.FirstOrDefault(recipe => featuredRecipes.All(x => x.Id != recipe.Id) && recipe.Image != null);
 
             if (recipeToFeature != null)
                 featuredRecipes.Add(recipeToFeature);
