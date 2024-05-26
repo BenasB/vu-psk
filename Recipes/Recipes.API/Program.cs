@@ -51,8 +51,7 @@ builder.Services.ConfigureOptions<ConfigureJwtBearerOptions>();
 builder.Services.Configure<JwtOptions>(
     builder.Configuration.GetRequiredSection(JwtOptions.SectionName));
 builder.Services.Configure<LoggerOptions>(
-    builder.Configuration.GetRequiredSection(LoggerOptions.SectionName)
-    );
+    builder.Configuration.GetRequiredSection(LoggerOptions.SectionName));
 
 var app = builder.Build();
 
