@@ -13,17 +13,20 @@ public class RecipesService : IRecipesService
     private readonly IGenericRepository<TagRecipeEntity> _tagRecipeRepository;
     private readonly ITagValidationService _tagValidationService;
     private readonly IRelatedRecipeStrategy _relatedRecipeStrategy;
+    private readonly IFeaturedRecipeStrategy _featuredRecipeStrategy;
 
     public RecipesService(
         IRecipesRepository recipesRepository,
         IGenericRepository<TagRecipeEntity> tagRecipeRepository,
         ITagValidationService tagValidationService,
-        IRelatedRecipeStrategy relatedRecipeStrategy)
+        IRelatedRecipeStrategy relatedRecipeStrategy,
+        IFeaturedRecipeStrategy featuredRecipeStrategy)
     {
         _recipesRepository = recipesRepository;
         _tagRecipeRepository = tagRecipeRepository;
         _tagValidationService = tagValidationService;
         _relatedRecipeStrategy = relatedRecipeStrategy;
+        _featuredRecipeStrategy = featuredRecipeStrategy;
     }
 
     public async Task<PaginatedResponse<Recipe>> GetAllRecipes(string? title, string? csvTags, long? authorId, int? skip = null, int? top = null)
@@ -102,6 +105,13 @@ public class RecipesService : IRecipesService
         var relatedRecipes = await _relatedRecipeStrategy.GetRelatedRecipesAsync(recipe);
 
         return relatedRecipes.Select(MappingService.GetRecipeFromEntity);
+    }
+    
+    public async Task<IEnumerable<Recipe>> GetFeaturedRecipes()
+    {
+        var featuredRecipes = await _featuredRecipeStrategy.GetFeaturedRecipesAsync();
+
+        return featuredRecipes.Select(MappingService.GetRecipeFromEntity);
     }
 
     private IList<long>? TryParseTags(string? csvTags)

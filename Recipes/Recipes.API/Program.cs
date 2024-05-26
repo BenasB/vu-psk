@@ -61,6 +61,8 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IRecipesRepository, RecipesRepository>();
 
 builder.Services.AddScoped<IRelatedRecipeStrategy, SameTagRelatedRecipeStrategy>();
+builder.Services.AddScoped<IFeaturedRecipeStrategy, RandomPerTagFeaturedRecipeStrategy>();
+
 builder.Services.AddScoped<ITagsService, TagsService>();
 builder.Services.AddScoped<IRecipesService, RecipesService>();
 builder.Services.AddScoped<TagCreationService>();

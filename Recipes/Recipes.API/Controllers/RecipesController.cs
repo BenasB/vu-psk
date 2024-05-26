@@ -83,4 +83,12 @@ public class RecipesController(IRecipesService recipeService) : ControllerBase
     {
         return Ok(await recipeService.GetRelatedRecipes(recipeId));
     }
+    
+    [HttpGet("featured")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<IEnumerable<Recipe>>> GetFeaturedRecipes()
+    {
+        return Ok(await recipeService.GetFeaturedRecipes());
+    }
 }
