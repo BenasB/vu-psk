@@ -20,6 +20,7 @@ public class SameTagRelatedRecipeStrategy(IRecipesRepository recipesRepository) 
             .Select(t => t.Result.Items)
             .SelectMany(x => x)
             .DistinctBy(x => x.Id)
-            .Take(10);
+            .Take(10)
+            .ToList();
     }
 }
