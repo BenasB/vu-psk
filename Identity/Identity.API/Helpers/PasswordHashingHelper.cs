@@ -1,10 +1,9 @@
 ﻿using System.Text;
-using System.Collections;
 using System.Security.Cryptography;
 
 namespace Identity.API.Helpers;
 
-public class HashingHelper
+public static class HashingHelper
 {
     public static byte[] HashPassword(string input, string salt = "salt")
     {

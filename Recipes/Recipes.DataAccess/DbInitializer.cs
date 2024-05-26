@@ -25,7 +25,7 @@ public static class DbInitializer
                 Description = "A refreshing salad featuring the classic combination of tomatoes, mozzarella, and basil.",
                 CookingTime = new TimeSpan(0, 0, 15, 0),
                 Servings = 2,
-                AuthorId = 0,
+                AuthorId = 1,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -56,7 +56,7 @@ public static class DbInitializer
                 Description = "Delicious breakfast burritos packed with eggs, cheese, and your favorite toppings.",
                 CookingTime = new TimeSpan(0, 0, 20, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 1,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -88,7 +88,7 @@ public static class DbInitializer
                 Description = "A hearty vegetable soup with beans and pasta, perfect for a quick and comforting meal.",
                 CookingTime = new TimeSpan(0, 0, 30, 0),
                 Servings = 6,
-                AuthorId = 0,
+                AuthorId = 3,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -122,7 +122,7 @@ public static class DbInitializer
                 Description = "Juicy chicken breasts cooked with lemon and herbs in one pan for an easy weeknight dinner.",
                 CookingTime = new TimeSpan(0, 0, 25, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 4,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -154,7 +154,7 @@ public static class DbInitializer
                 Description = "Moist and delicious banana bread that's simple to make and perfect for breakfast or snacking.",
                 CookingTime = new TimeSpan(0, 1, 0, 0),
                 Servings = 8,
-                AuthorId = 0,
+                AuthorId = 1,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -189,7 +189,7 @@ public static class DbInitializer
                 Description = "Juicy and flavorful chicken breasts marinated in a lemon herb mixture and grilled to perfection.",
                 CookingTime = new TimeSpan(0, 0, 30, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 3,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -222,7 +222,7 @@ public static class DbInitializer
                 Description = "Colorful bell peppers stuffed with a hearty mixture of rice, beans, and vegetables.",
                 CookingTime = new TimeSpan(0, 1, 0, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 2,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -257,7 +257,7 @@ public static class DbInitializer
                 Description = "A rich and creamy tomato soup with fresh basil, perfect for a comforting dinner.",
                 CookingTime = new TimeSpan(0, 0, 45, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 1,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -293,7 +293,7 @@ public static class DbInitializer
                 Description = "A classic Italian dish with succulent shrimp cooked in a garlic butter sauce, served over pasta.",
                 CookingTime = new TimeSpan(0, 0, 25, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 1,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -327,7 +327,7 @@ public static class DbInitializer
                 Description = "Flavorful vegetarian tacos filled with spiced black beans, fresh vegetables, and avocado.",
                 CookingTime = new TimeSpan(0, 0, 20, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 2,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -365,7 +365,7 @@ public static class DbInitializer
                 Description = "A simple and nutritious breakfast featuring creamy avocado spread on toast, topped with a perfectly poached egg.",
                 CookingTime = new TimeSpan(0, 0, 15, 0),
                 Servings = 2,
-                AuthorId = 0,
+                AuthorId = 4,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -401,7 +401,7 @@ public static class DbInitializer
                 Description = "A refreshing smoothie made with mixed berries, banana, and yogurt, perfect for a quick and healthy breakfast.",
                 CookingTime = new TimeSpan(0, 0, 5, 0),
                 Servings = 2,
-                AuthorId = 0,
+                AuthorId = 4,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -430,7 +430,7 @@ public static class DbInitializer
                 Description = "Fluffy and golden pancakes perfect for a traditional breakfast, served with maple syrup and fresh berries.",
                 CookingTime = new TimeSpan(0, 0, 30, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 1,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -467,7 +467,7 @@ public static class DbInitializer
                 Description = "A nutritious and vibrant smoothie bowl packed with spinach, banana, and toppings of your choice.",
                 CookingTime = new TimeSpan(0, 0, 10, 0),
                 Servings = 2,
-                AuthorId = 0,
+                AuthorId = 1,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -501,7 +501,7 @@ public static class DbInitializer
                 Description = "A warm and hearty bowl of oatmeal topped with fresh berries and a drizzle of honey.",
                 CookingTime = new TimeSpan(0, 0, 10, 0),
                 Servings = 2,
-                AuthorId = 0,
+                AuthorId = 4,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -532,7 +532,7 @@ public static class DbInitializer
                 Description = "A vibrant and healthy salad with quinoa, cherry tomatoes, cucumber, olives, and feta cheese, dressed with lemon vinaigrette.",
                 CookingTime = new TimeSpan(0, 0, 20, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 2,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -571,7 +571,7 @@ public static class DbInitializer
                 Description = "A classic Caesar salad with grilled chicken, crisp romaine lettuce, croutons, Parmesan cheese, and a creamy Caesar dressing.",
                 CookingTime = new TimeSpan(0, 0, 25, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 2,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -604,7 +604,7 @@ public static class DbInitializer
                 Description = "A refreshing salad with kale, sliced apples, cranberries, walnuts, and a honey mustard dressing.",
                 CookingTime = new TimeSpan(0, 0, 15, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 3,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -641,7 +641,7 @@ public static class DbInitializer
                 Description = "A simple and elegant Italian salad with fresh tomatoes, mozzarella cheese, basil, and a balsamic glaze.",
                 CookingTime = new TimeSpan(0, 0, 10, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 1,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -675,7 +675,7 @@ public static class DbInitializer
                 Description = "A rich and creamy tomato soup flavored with fresh basil, perfect for a cozy meal.",
                 CookingTime = new TimeSpan(0, 0, 30, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 4,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -713,7 +713,7 @@ public static class DbInitializer
                 Description = "A creamy and flavorful soup made with roasted butternut squash, perfect for a comforting meal.",
                 CookingTime = new TimeSpan(0, 0, 45, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 3,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -755,7 +755,7 @@ public static class DbInitializer
                 Description = "A classic and comforting chicken noodle soup made with tender chicken, vegetables, and egg noodles.",
                 CookingTime = new TimeSpan(0, 1, 0, 0),
                 Servings = 6,
-                AuthorId = 0,
+                AuthorId = 3,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -797,7 +797,7 @@ public static class DbInitializer
                 Description = "Colorful bell peppers stuffed with a savory mixture of ground beef, rice, tomatoes, and spices, baked to perfection.",
                 CookingTime = new TimeSpan(0, 1, 0, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 4,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -838,7 +838,7 @@ public static class DbInitializer
                 Description = "A light and refreshing dish of spiralized zucchini noodles tossed with homemade basil pesto.",
                 CookingTime = new TimeSpan(0, 0, 20, 0),
                 Servings = 2,
-                AuthorId = 0,
+                AuthorId = 2,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -875,7 +875,7 @@ public static class DbInitializer
                 Description = "Delicious and fluffy pancakes made with ripe bananas and gluten-free flour, perfect for a hearty breakfast.",
                 CookingTime = new TimeSpan(0, 0, 20, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 3,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -915,7 +915,7 @@ public static class DbInitializer
                 Description = "A rich and creamy chocolate mousse made with avocado, perfect for a healthy and indulgent treat.",
                 CookingTime = new TimeSpan(0, 0, 15, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 4,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -948,7 +948,7 @@ public static class DbInitializer
                 Description = "Fudgy and delicious brownies made with gluten-free flour, perfect for satisfying your chocolate cravings.",
                 CookingTime = new TimeSpan(0, 0, 40, 0),
                 Servings = 12,
-                AuthorId = 0,
+                AuthorId = 1,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -984,7 +984,7 @@ public static class DbInitializer
                 Description = "Creamy cheesecake bars with a zesty lemon flavor and sweet blueberries, on a graham cracker crust.",
                 CookingTime = new TimeSpan(0, 1, 0, 0),
                 Servings = 9,
-                AuthorId = 0,
+                AuthorId = 4,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -1020,7 +1020,7 @@ public static class DbInitializer
                 Description = "Soft and chewy chocolate chip cookies made without any animal products, perfect for a vegan treat.",
                 CookingTime = new TimeSpan(0, 0, 25, 0),
                 Servings = 12,
-                AuthorId = 0,
+                AuthorId = 3,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -1059,7 +1059,7 @@ public static class DbInitializer
                 Description = "A quick and easy vegetable stir-fry made with fresh veggies and a savory sauce, perfect for a budget-friendly meal.",
                 CookingTime = new TimeSpan(0, 0, 20, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 1,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -1098,7 +1098,7 @@ public static class DbInitializer
                 Description = "A hearty and nutritious lentil soup made with simple ingredients, perfect for a budget-friendly and filling meal.",
                 CookingTime = new TimeSpan(0, 0, 45, 0),
                 Servings = 6,
-                AuthorId = 0,
+                AuthorId = 3,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -1140,7 +1140,7 @@ public static class DbInitializer
                 Description = "Flavorful black bean tacos made with simple ingredients, perfect for a quick, easy, and budget-friendly meal.",
                 CookingTime = new TimeSpan(0, 0, 15, 0),
                 Servings = 4,
-                AuthorId = 0,
+                AuthorId = 1,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -1180,7 +1180,7 @@ public static class DbInitializer
                 Description = "Classic and chewy peanut butter cookies, made with simple ingredients and perfect for a sweet treat.",
                 CookingTime = new TimeSpan(0, 0, 25, 0),
                 Servings = 24,
-                AuthorId = 0,
+                AuthorId = 2,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {
@@ -1218,7 +1218,7 @@ public static class DbInitializer
                 Description = "A warm and comforting apple crisp with a crunchy oat topping, perfect for a cozy dessert.",
                 CookingTime = new TimeSpan(0, 1, 0, 0),
                 Servings = 6,
-                AuthorId = 0,
+                AuthorId = 4,
                 UpdatedAt = DateTime.UtcNow,
                 Instructions = new List<string>
                 {

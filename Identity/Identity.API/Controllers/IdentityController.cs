@@ -1,6 +1,5 @@
 using Identity.API.Helpers;
 using Identity.DataAccess;
-using Identity.DataAccess.Models;
 using Identity.DataAccess.Models.Entities;
 using Identity.Public;
 using Microsoft.AspNetCore.Authorization;
@@ -139,8 +138,8 @@ public class IdentityController(IdentityDatabaseContext dbContext, JwtGenerator 
 
         try
         {
-            UserEntity? userEntity = (await dbContext.Users.FindAsync(userId))!;
-            if(userEntity is null)
+            UserEntity? userEntity = await dbContext.Users.FindAsync(userId);
+            if (userEntity is null)
                 return NotFound();
 
             user = new User()
