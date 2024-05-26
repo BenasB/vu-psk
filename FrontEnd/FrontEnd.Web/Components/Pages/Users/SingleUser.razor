@@ -25,9 +25,9 @@ else
     <FluentStack Orientation="Orientation.Vertical">
         <FluentPersona Image="@_user.ImageUrl" ImageSize="200px" Style="margin: 0 auto;"/>
         <FluentLabel Typo="Typography.H1" MarginBlock="10px" Alignment="HorizontalAlignment.Center" Style="width: 100%">@_user.Username</FluentLabel>
-        <FluentLabel Typo="Typography.H3">Recipes</FluentLabel>
         @if (_userRecipes != null)
         {
+            <FluentLabel Typo="Typography.H3">Recipes</FluentLabel>
             <FluentStack Wrap="true">
                 @foreach (var recipe in _userRecipes)
                 {

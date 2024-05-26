@@ -1,10 +1,12 @@
+using System.Collections.Specialized;
+using System.Web;
 using Recipes.Public;
 
 namespace FrontEnd.Web.Services;
 
 public interface IRecipeService
 {
-    Task<IEnumerable<Recipe>> GetAllAsync(string? searchTerm = null, IEnumerable<Tag>? tags = null, (int skip, int top)? pagination = null);
+    Task<IEnumerable<Recipe>> GetAllAsync(string? searchTerm = null, IEnumerable<Tag>? tags = null, (int Skip, int Top)? pagination = null);
     Task<IEnumerable<Recipe>> GetAllByAuthorAsync(int authorId);
     Task<Recipe?> GetByIdAsync(int id);
     Task<bool> DeleteByIdAsync(int id);
@@ -23,20 +25,23 @@ public class RecipeService : IRecipeService
         _httpClient.BaseAddress = new Uri(configuration.GetValue<string>("ApiSettings:RecipesApiBaseUrl")!);
     }
     
-    public async Task<IEnumerable<Recipe>> GetAllAsync(string? searchTerm = null, IEnumerable<Tag>? tags = null, (int skip, int top)? pagination = null)
+    public async Task<IEnumerable<Recipe>> GetAllAsync(string? searchTerm = null, IEnumerable<Tag>? tags = null, (int Skip, int Top)? pagination = null)
     {
-        var requestUri = (searchTerm, tags, pagination) switch
+        var queryParameters = new Dictionary<string, string?>();
+
+        if (searchTerm != null)
+            queryParameters["title"] = searchTerm;
+        
+        if (tags != null)
+            queryParameters["csvTags"] = string.Join(",", tags.Select(t => t.Id));
+
+        if (pagination != null)
         {
-            (null, null, null) => "recipes",
-            (var nonNullSearchTerm, null, null) => $"recipes?title={nonNullSearchTerm}",
-            (null, var nonNullTags, null) => $"recipes?csvTags={string.Join(",", nonNullTags.Select(t => t.Id))}",
-            (var nonNullSearchTerm, var nonNullTags, null) => $"recipes?title={nonNullSearchTerm}&csvTags={string.Join(",", nonNullTags.Select(t => t.Id))}",
-            (null, null, var (skip, top)) => $"recipes?skip={skip}&top={top}",
-            (var nonNullSearchTerm, null, var (skip, top)) => $"recipes?title={nonNullSearchTerm}&skip={skip}&top={top}",
-            (null, var nonNullTags, var (skip, top)) => $"recipes?csvTags={string.Join(",", nonNullTags.Select(t => t.Id))}&skip={skip}&top={top}",
-            var (nonNullSearchTerm, nonNullTags, (skip, top)) => $"recipes?title={nonNullSearchTerm}&csvTags={string.Join(",", nonNullTags.Select(t => t.Id))}&skip={skip}&top={top}"
-        };
-        return await _httpClient.GetFromJsonAsync<IEnumerable<Recipe>>(requestUri) ?? throw new InvalidOperationException();
+            queryParameters["skip"] = pagination.Value.Skip.ToString();
+            queryParameters["top"] = pagination.Value.Top.ToString();
+        }
+        
+        return await _httpClient.GetFromJsonAsync<IEnumerable<Recipe>>("recipes" + QueryString.Create(queryParameters)) ?? throw new InvalidOperationException();
     }
 
     public async Task<IEnumerable<Recipe>> GetAllByAuthorAsync(int authorId)
