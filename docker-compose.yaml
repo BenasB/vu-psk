@@ -1,0 +1,54 @@
+services:
+  front-end:
+    build:
+      context: .
+      dockerfile: FrontEnd/FrontEnd.Web/Dockerfile
+    ports:
+      - "8082:8080"
+    depends_on:
+      - recipes
+      - identity
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ApiSettings__RecipesApiBaseUrl=http://recipes:8080/
+      - ApiSettings__IdentityApiBaseUrl=http://identity:8080/
+
+  recipes:
+    build:
+      context: Recipes
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Default=Server=db;Port=5432;Database=RecipesDB;Username=postgres;Password=postgres;
+
+  identity:
+    build:
+      context: Identity
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Default=Server=db;Port=5432;Database=IdentityDB;Username=postgres;Password=postgres;
+
+  db:
+    image: postgres:14
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: RecipesDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U postgres -d RecipesDB'"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
