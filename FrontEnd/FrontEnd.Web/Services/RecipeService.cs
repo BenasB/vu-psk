@@ -4,7 +4,7 @@ namespace FrontEnd.Web.Services;
 
 public interface IRecipeService
 {
-    Task<IEnumerable<Recipe>> GetAllAsync();
+    Task<IEnumerable<Recipe>> GetAllAsync(string? searchTerm = null, IEnumerable<Tag>? tags = null);
     Task<IEnumerable<Recipe>> GetAllByAuthorAsync(int authorId);
     Task<Recipe?> GetByIdAsync(int id);
     Task<bool> DeleteByIdAsync(int id);
@@ -23,9 +23,16 @@ public class RecipeService : IRecipeService
         _httpClient.BaseAddress = new Uri(configuration.GetValue<string>("ApiSettings:RecipesApiBaseUrl")!);
     }
     
-    public async Task<IEnumerable<Recipe>> GetAllAsync()
+    public async Task<IEnumerable<Recipe>> GetAllAsync(string? searchTerm = null, IEnumerable<Tag>? tags = null)
     {
-        return await _httpClient.GetFromJsonAsync<IEnumerable<Recipe>>("recipes") ?? throw new InvalidOperationException();
+        var requestUri = (searchTerm, tags) switch
+        {
+            (null, null) => "recipes",
+            (var nonNullSearchTerm, null) => $"recipes?title={nonNullSearchTerm}",
+            (null, var nonNullTags) => $"recipes?csvTags={string.Join(",", nonNullTags.Select(t => t.Id))}",
+            var (nonNullSearchTerm, nonNullTags) => $"recipes?title={nonNullSearchTerm}&csvTags={string.Join(",", nonNullTags.Select(t => t.Id))}"
+        };
+        return await _httpClient.GetFromJsonAsync<IEnumerable<Recipe>>(requestUri) ?? throw new InvalidOperationException();
     }
 
     public async Task<IEnumerable<Recipe>> GetAllByAuthorAsync(int authorId)
