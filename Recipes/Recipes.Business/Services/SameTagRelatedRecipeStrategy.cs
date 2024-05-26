@@ -8,18 +8,22 @@ public class SameTagRelatedRecipeStrategy(IRecipesRepository recipesRepository) 
 {
     public async Task<IEnumerable<RecipeEntity>> GetRelatedRecipesAsync(RecipeEntity recipe)
     {
-        var tasks = recipe.Tags.Select(tag => recipesRepository.GetFiltered(name: null,
-            authorId: null,
-            tags: [tag.TagId],
-            top: null,
-            skip: null)).ToList();
+        var joinedRecipes = new List<RecipeEntity>();
+        foreach (var tag in recipe.Tags)
+        {
+            var result = await recipesRepository.GetFiltered(name: null,
+                authorId: null,
+                tags: [tag.TagId],
+                top: null,
+                skip: null);
+            
+            joinedRecipes = joinedRecipes.Concat(result.Items.ToList()).ToList();
+        }
+        
 
-        await Task.WhenAll(tasks);
-
-        return tasks
-            .Select(t => t.Result.Items)
-            .SelectMany(x => x)
+        return joinedRecipes
             .DistinctBy(x => x.Id)
+            .Where(x => x.Id != recipe.Id)
             .Take(10)
             .ToList();
     }

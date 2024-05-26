@@ -79,8 +79,8 @@ public class RecipesController(IRecipesService recipeService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public ActionResult<IEnumerable<Recipe>> GetRelatedRecipes(int recipeId)
+    public async Task<ActionResult<IEnumerable<Recipe>>> GetRelatedRecipes(int recipeId)
     {
-        return Ok(recipeService.GetRelatedRecipes(recipeId));
+        return Ok(await recipeService.GetRelatedRecipes(recipeId));
     }
 }
