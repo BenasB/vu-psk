@@ -47,12 +47,17 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<RecipesDatabaseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IRecipesRepository, RecipesRepository>();
+builder.Services.AddSingleton<LoggerOptions, LoggerOptions>();
 
 builder.Services.ConfigureOptions<ConfigureJwtBearerOptions>();
 builder.Services.Configure<JwtOptions>(
     builder.Configuration.GetRequiredSection(JwtOptions.SectionName));
 builder.Services.Configure<FeatureToggles>(
     builder.Configuration.GetRequiredSection(FeatureToggles.SectionName));
+builder.Services.Configure<LoggerOptions>(
+    builder.Configuration.GetRequiredSection(LoggerOptions.SectionName));
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IRecipesRepository, RecipesRepository>();
