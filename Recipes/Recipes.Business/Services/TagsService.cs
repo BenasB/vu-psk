@@ -6,24 +6,17 @@ using Recipes.Business.Services.Interfaces;
 
 namespace Recipes.Business.Services;
 
-public class TagsService : ITagsService
+public class TagsService(IGenericRepository<TagEntity> tagsRepository) : ITagsService
 {
-    private readonly IGenericRepository<TagEntity> _tagsRepository;
-
-    public TagsService(IGenericRepository<TagEntity> tagsRepository)
-    {
-        _tagsRepository = tagsRepository;
-    }
-
     public async Task<PaginatedResponse<Tag>> GetAllTagsAsync(int? skip = null, int? top = null)
     {
-        var tags = await _tagsRepository.GetAllAsync(top, skip);
+        var tags = await tagsRepository.GetAllAsync(top, skip);
         return MappingService.GetPaginatedResponse(tags, MappingService.GetTagFromEntity);
     }
 
     public Tag GetTag(int tagId)
     {
-        var tag = _tagsRepository.GetById(tagId);
+        var tag = tagsRepository.GetById(tagId);
         if (tag is null)
             throw new HttpException("Tag not found", 404);
 
@@ -32,11 +25,20 @@ public class TagsService : ITagsService
 
     public async Task DeleteTagAsync(int tagId)
     {
-        var tag = _tagsRepository.GetById(tagId);
+        var tag = tagsRepository.GetById(tagId);
         if (tag is null)
             throw new HttpException("Tag not found", 404);
 
-        _tagsRepository.Delete(tag);
-        await _tagsRepository.SaveChangesAsync();
+        tagsRepository.Delete(tag);
+        await tagsRepository.SaveChangesAsync();
+    }
+
+    public async Task<Tag> CreateTagAsync(TagCreateUpdateDTO request)
+    {
+        var newTag = MappingService.GetTagFromDTO(request);
+        newTag = tagsRepository.Insert(newTag);
+        await tagsRepository.SaveChangesAsync();
+
+        return MappingService.GetTagFromEntity(newTag);
     }
 }

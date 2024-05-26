@@ -10,6 +10,7 @@ COPY ["Recipes.API/Recipes.API.csproj", "Recipes.API/"]
 COPY ["Recipes.Business/Recipes.Business.csproj", "Recipes.Business/"]
 COPY ["Recipes.Public/Recipes.Public.csproj", "Recipes.Public/"]
 COPY ["Recipes.DataAccess/Recipes.DataAccess.csproj", "Recipes.DataAccess/"]
+COPY ["Identity/Identity.Public/Identity.Public.csproj", "Identity/Identity.Public/"]
 RUN dotnet restore "Recipes.API/Recipes.API.csproj"
 COPY . .
 WORKDIR /src/Recipes.API

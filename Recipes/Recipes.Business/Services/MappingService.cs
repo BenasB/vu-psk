@@ -62,6 +62,14 @@ public static class MappingService
             Name = tagEntity.Name,
         };
     }
+    
+    public static TagEntity GetTagFromDTO(TagCreateUpdateDTO tagDTO)
+    {
+        return new TagEntity
+        {
+            Name = tagDTO.Name,
+        };
+    }
 
     public static PaginatedResponse<T> GetPaginatedResponse<T, TEntity>(PaginatedList<TEntity> paginatedList, Func<TEntity, T> convert)
     {

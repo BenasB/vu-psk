@@ -1,4 +1,6 @@
-﻿@rendermode InteractiveServer
+﻿@using System.Security.Claims
+@using Identity.Public
+@rendermode InteractiveServer
 
 <div class="navmenu">
     <input type="checkbox" title="Menu expand/collapse toggle" id="navmenu-toggle" class="navmenu-icon" />
@@ -24,6 +26,10 @@
         </div>
         <FluentNavMenu Id="main-menu" Collapsible="true" Width="250" Title="Navigation menu" @bind-Expanded="_expanded">
             <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Filled.Size24.BookSearch())" IconColor="Color.Accent">Discover</FluentNavLink>
+            @if (_isAdmin)
+            {
+                <FluentNavLink Href="/admin/tags" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size24.Tag())" IconColor="Color.Accent">Admin: Tags</FluentNavLink>
+            }
         </FluentNavMenu>
     </nav>
 </div>
@@ -35,6 +41,7 @@
     
     private bool _expanded = true;
     private bool _loggedIn = false;
+    private bool _isAdmin = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -44,6 +51,7 @@
             var user = authState.User;
 
             _loggedIn = user.Identity is not null && user.Identity.IsAuthenticated;
+            _isAdmin = user.HasClaim(c => c is { Type: ClaimTypes.Role, Value: UserRoles.Admin });
         }
     }
 }
