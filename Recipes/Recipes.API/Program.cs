@@ -1,9 +1,13 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Recipes.API.Middlewares;
 using Recipes.API.Options;
+using Recipes.Business.Services;
+using Recipes.Business.Services.Interfaces;
 using Recipes.DataAccess;
 using Recipes.DataAccess.Repositories;
 
@@ -43,12 +47,28 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<RecipesDatabaseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<IRecipesRepository, RecipesRepository>();
 
 builder.Services.ConfigureOptions<ConfigureJwtBearerOptions>();
 builder.Services.Configure<JwtOptions>(
     builder.Configuration.GetRequiredSection(JwtOptions.SectionName));
+builder.Services.Configure<TagCreationOptions>(
+    builder.Configuration.GetRequiredSection(TagCreationOptions.SectionName));
+
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IRecipesRepository, RecipesRepository>();
+
+builder.Services.AddScoped<ITagsService, TagsService>();
+builder.Services.AddScoped<IRecipesService, RecipesService>();
+builder.Services.AddScoped<TagCreationService>();
+builder.Services.AddScoped<TagValidationService>();
+builder.Services.AddScoped<ITagValidationService>(serviceProvider =>
+{
+    var options = serviceProvider.GetRequiredService<IOptionsMonitor<TagCreationOptions>>().CurrentValue;
+    return options.Enabled
+        ? serviceProvider.GetRequiredService<TagCreationService>()
+        : serviceProvider.GetRequiredService<TagValidationService>();
+});
+
 
 var app = builder.Build();
 
@@ -74,6 +94,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseMiddleware<LoggingMiddleware>();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.MapControllers();
 
 app.Run();
