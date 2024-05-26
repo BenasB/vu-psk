@@ -74,4 +74,13 @@ public class RecipesController(IRecipesService recipeService) : ControllerBase
         await recipeService.DeleteRecipeTag(recipeId, tagId);
         return NoContent();
     }
+    
+    [HttpGet("{recipeId:int}/related")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public ActionResult<IEnumerable<Recipe>> GetRelatedRecipes(int recipeId)
+    {
+        return Ok(recipeService.GetRelatedRecipes(recipeId));
+    }
 }

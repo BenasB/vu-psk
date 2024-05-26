@@ -10,4 +10,5 @@ public interface IRecipesService
     Task<Recipe> CreateRecipe(RecipeCreateDTO request, int authorId);
     Task<Recipe> UpdateRecipe(int recipeId, RecipeUpdateDTO request);
     Task DeleteRecipeTag(int recipeId, int tagId);
+    Task<IEnumerable<Recipe>> GetRelatedRecipes(int recipeId);
 }

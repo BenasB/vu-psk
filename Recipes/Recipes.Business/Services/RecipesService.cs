@@ -12,15 +12,18 @@ public class RecipesService : IRecipesService
     private readonly IRecipesRepository _recipesRepository;
     private readonly IGenericRepository<TagRecipeEntity> _tagRecipeRepository;
     private readonly ITagValidationService _tagValidationService;
+    private readonly IRelatedRecipeStrategy _relatedRecipeStrategy;
 
     public RecipesService(
         IRecipesRepository recipesRepository,
         IGenericRepository<TagRecipeEntity> tagRecipeRepository,
-        ITagValidationService tagValidationService)
+        ITagValidationService tagValidationService,
+        IRelatedRecipeStrategy relatedRecipeStrategy)
     {
         _recipesRepository = recipesRepository;
         _tagRecipeRepository = tagRecipeRepository;
         _tagValidationService = tagValidationService;
+        _relatedRecipeStrategy = relatedRecipeStrategy;
     }
 
     public async Task<PaginatedResponse<Recipe>> GetAllRecipes(string? title, string? csvTags, long? authorId, int? skip = null, int? top = null)
@@ -88,6 +91,17 @@ public class RecipesService : IRecipesService
 
         _tagRecipeRepository.Delete(recipeTag);
         await _tagRecipeRepository.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<Recipe>> GetRelatedRecipes(int recipeId)
+    {
+        var recipe = _recipesRepository.GetById(recipeId);
+        if (recipe == null)
+            throw new HttpException("Recipe not found", 404);
+
+        var relatedRecipes = await _relatedRecipeStrategy.GetRelatedRecipesAsync(recipe);
+
+        return relatedRecipes.Select(MappingService.GetRecipeFromEntity);
     }
 
     private IList<long>? TryParseTags(string? csvTags)
