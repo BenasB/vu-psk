@@ -44,7 +44,7 @@ public class TagsController(ITagsService tagsService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> CreateTag(TagCreateUpdateDTO request)
+    public async Task<ActionResult<Tag>> CreateTag(TagCreateUpdateDTO request)
     {
         var response = await tagsService.CreateTagAsync(request);
         return Created($"/tags/{response.Id}", response);

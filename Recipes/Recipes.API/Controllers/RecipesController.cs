@@ -44,7 +44,7 @@ public class RecipesController(IRecipesService recipeService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> CreateRecipe(RecipeCreateDTO request)
+    public async Task<ActionResult<Recipe>> CreateRecipe(RecipeCreateDTO request)
     {
         var authorId = int.Parse(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var response = await recipeService.CreateRecipe(request, authorId);
