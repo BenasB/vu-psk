@@ -47,7 +47,7 @@ public class LoggingMiddleware
     {
         var request = context.Request;
         var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        var userRoles = context.User.FindAll(ClaimTypes.Role).Select(x => x.Type);
+        var userRoles = context.User.FindAll(ClaimTypes.Role).Select(x => x.Value);
 
         var requestLog = new StringBuilder();
         requestLog.AppendLine("");
