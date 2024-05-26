@@ -31,7 +31,7 @@ public class LoggingMiddleware
     {
         var request = context.Request;
         var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        var userRole = context.User.FindFirstValue(ClaimTypes.Role);
+        var userRoles = context.User.FindAll(ClaimTypes.Role).Select(x => x.Type);
 
         var requestLog = new StringBuilder();
         requestLog.AppendLine("");
@@ -39,7 +39,7 @@ public class LoggingMiddleware
         requestLog.AppendLine("");
         requestLog.AppendLine($"HTTP {request.Method} {request.Path}");
         requestLog.AppendLine($"User Id: {userId}");
-        requestLog.AppendLine($"User Role: {userRole}");
+        requestLog.AppendLine($"User Roles: {string.Join(", ", userRoles)}");
         requestLog.AppendLine($"Host: {request.Host}");
         requestLog.AppendLine($"Content-Type: {request.ContentType}");
         requestLog.AppendLine($"Content-Length: {request.ContentLength}");
