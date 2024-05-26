@@ -1,7 +1,5 @@
-using System.Collections.Specialized;
 using System.Data;
 using System.Net;
-using System.Web;
 using Recipes.Public;
 
 namespace FrontEnd.Web.Services;
@@ -17,6 +15,8 @@ public interface IRecipeService
     Task<Recipe> CreateAsync(RecipeCreateDTO request);
     Task UpdateAsync(int id, RecipeUpdateDTO request);
     Task<PaginatedResponse<Tag>> GetAllTagsAsync();
+    Task<bool> DeleteTagByIdAsync(int tagId);
+    Task<Tag> CreateTagAsync(TagCreateUpdateDTO request);
 }
 
 public class RecipeService : IRecipeService
@@ -92,5 +92,17 @@ public class RecipeService : IRecipeService
     public async Task<PaginatedResponse<Tag>> GetAllTagsAsync()
     {
         return await _httpClient.GetFromJsonAsync<PaginatedResponse<Tag>>("tags") ?? throw new InvalidOperationException();
+    }
+
+    public async Task<bool> DeleteTagByIdAsync(int tagId)
+    {
+        var response = await _httpClient.DeleteAsync($"tags/{tagId}");
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<Tag> CreateTagAsync(TagCreateUpdateDTO request)
+    {
+        var response = await _httpClient.PostAsJsonAsync("tags", request);
+        return await response.Content.ReadFromJsonAsync<Tag>() ?? throw new InvalidOperationException();
     }
 }

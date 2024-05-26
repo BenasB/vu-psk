@@ -76,7 +76,7 @@ public class IdentityController(IdentityDatabaseContext dbContext, JwtGenerator 
             Username = userCreateRequest.Username,
             PasswordHash = HashingHelper.HashPassword(userCreateRequest.Password),
             Email = userCreateRequest.Email,
-            Roles = [UserRoles.Admin, UserRoles.Member],
+            Roles = [UserRoles.Member],
         };
 
         try

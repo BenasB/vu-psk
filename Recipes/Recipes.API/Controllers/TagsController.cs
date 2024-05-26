@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Recipes.Business.Services.Interfaces;
 using Recipes.Public;
 
@@ -26,6 +27,7 @@ public class TagsController(ITagsService tagsService) : ControllerBase
     }
 
     [HttpDelete("{tagId:int}")]
+    [Authorize(Roles = "admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -34,5 +36,16 @@ public class TagsController(ITagsService tagsService) : ControllerBase
     {
         await tagsService.DeleteTagAsync(tagId);
         return NoContent();
+    }
+    
+    [HttpPost]
+    [Authorize(Roles = "admin")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Tag>> CreateTag(TagCreateUpdateDTO request)
+    {
+        var response = await tagsService.CreateTagAsync(request);
+        return Created($"/tags/{response.Id}", response);
     }
 }
