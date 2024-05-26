@@ -45,10 +45,14 @@ builder.Services.AddDbContext<RecipesDatabaseContext>(options =>
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IRecipesRepository, RecipesRepository>();
+builder.Services.AddSingleton<LoggerOptions, LoggerOptions>();
 
 builder.Services.ConfigureOptions<ConfigureJwtBearerOptions>();
 builder.Services.Configure<JwtOptions>(
     builder.Configuration.GetRequiredSection(JwtOptions.SectionName));
+builder.Services.Configure<LoggerOptions>(
+    builder.Configuration.GetRequiredSection(LoggerOptions.SectionName)
+    );
 
 var app = builder.Build();
 

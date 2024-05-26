@@ -1,5 +1,6 @@
 ﻿namespace Recipes.API.Middlewares;
 
+using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,16 +9,30 @@ public class LoggingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<LoggingMiddleware> _logger;
+    private LoggerOptions _options;
 
     public LoggingMiddleware(RequestDelegate next,
-    ILogger<LoggingMiddleware> logger)
+    ILogger<LoggingMiddleware> logger,
+    IOptionsMonitor<LoggerOptions> options
+    )
     {
         _next = next;
         _logger = logger;
+
+        options.OnChange(option =>
+        {
+            _options = option;
+        });
     }
 
-    public async Task Invoke(HttpContext context)
+    public async Task InvokeAsync(HttpContext context)
     {
+        if(!_options.IsEnabled)
+        {
+            await _next(context);
+            return;
+        }
+
         string requestLog = GetRequestLog(context);
         Log(requestLog);
 
@@ -65,7 +80,9 @@ public class LoggingMiddleware
     private void Log(string content)
     {
         _logger.LogInformation(content);
-        File.AppendAllText("log.txt", content);
+
+        if(_options.LogToFile)
+            File.AppendAllText(_options.LogFilePath, content);
     }
 
 }
