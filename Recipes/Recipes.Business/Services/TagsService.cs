@@ -15,10 +15,10 @@ public class TagsService : ITagsService
         _tagsRepository = tagsRepository;
     }
 
-    public async Task<IEnumerable<Tag>> GetAllTagsAsync(int? skip = null, int? top = null)
+    public async Task<PaginatedResponse<Tag>> GetAllTagsAsync(int? skip = null, int? top = null)
     {
         var tags = await _tagsRepository.GetAllAsync(top, skip);
-        return tags.Select(MappingService.GetTagFromEntity);
+        return MappingService.GetPaginatedResponse(tags, MappingService.GetTagFromEntity);
     }
 
     public Tag GetTag(int tagId)

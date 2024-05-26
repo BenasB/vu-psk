@@ -4,7 +4,7 @@ namespace Recipes.Business.Services.Interfaces;
 
 public interface IRecipesService
 {
-    IEnumerable<Recipe> GetAllRecipes(string? title, string? csvTags, long? authorId, int? skip = null, int? top = null);
+    Task<PaginatedResponse<Recipe>> GetAllRecipes(string? title, string? csvTags, long? authorId, int? skip = null, int? top = null);
     Recipe GetRecipe(int recipeId);
     Task DeleteRecipe(int recipeId);
     Task<Recipe> CreateRecipe(RecipeCreateDTO request, int authorId);
