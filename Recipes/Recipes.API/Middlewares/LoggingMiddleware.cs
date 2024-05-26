@@ -18,6 +18,7 @@ public class LoggingMiddleware
     {
         _next = next;
         _logger = logger;
+        _options = options.CurrentValue;
 
         options.OnChange(option =>
         {
