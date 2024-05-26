@@ -160,7 +160,7 @@
             };
         }
 
-        _availableTags = (await RecipeService.GetAllTagsAsync()).ToList();
+        _availableTags = (await RecipeService.GetAllTagsAsync()).Items.ToList();
     }
 
     private class RecipeFormData

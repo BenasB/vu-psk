@@ -6,13 +6,13 @@ namespace FrontEnd.Web.Services;
 
 public interface IRecipeService
 {
-    Task<IEnumerable<Recipe>> GetAllAsync(string? searchTerm = null, IEnumerable<Tag>? tags = null, (int Skip, int Top)? pagination = null);
-    Task<IEnumerable<Recipe>> GetAllByAuthorAsync(int authorId);
+    Task<PaginatedResponse<Recipe>> GetAllAsync(string? searchTerm = null, IEnumerable<Tag>? tags = null, (int Skip, int Top)? pagination = null);
+    Task<PaginatedResponse<Recipe>> GetAllByAuthorAsync(int authorId);
     Task<Recipe?> GetByIdAsync(int id);
     Task<bool> DeleteByIdAsync(int id);
     Task<Recipe> CreateAsync(RecipeCreateDTO request);
     Task UpdateAsync(int id, RecipeUpdateDTO request);
-    Task<IEnumerable<Tag>> GetAllTagsAsync();
+    Task<PaginatedResponse<Tag>> GetAllTagsAsync();
 }
 
 public class RecipeService : IRecipeService
@@ -25,7 +25,7 @@ public class RecipeService : IRecipeService
         _httpClient.BaseAddress = new Uri(configuration.GetValue<string>("ApiSettings:RecipesApiBaseUrl")!);
     }
     
-    public async Task<IEnumerable<Recipe>> GetAllAsync(string? searchTerm = null, IEnumerable<Tag>? tags = null, (int Skip, int Top)? pagination = null)
+    public async Task<PaginatedResponse<Recipe>> GetAllAsync(string? searchTerm = null, IEnumerable<Tag>? tags = null, (int Skip, int Top)? pagination = null)
     {
         var queryParameters = new Dictionary<string, string?>();
 
@@ -41,12 +41,12 @@ public class RecipeService : IRecipeService
             queryParameters["top"] = pagination.Value.Top.ToString();
         }
         
-        return await _httpClient.GetFromJsonAsync<IEnumerable<Recipe>>("recipes" + QueryString.Create(queryParameters)) ?? throw new InvalidOperationException();
+        return await _httpClient.GetFromJsonAsync<PaginatedResponse<Recipe>>("recipes" + QueryString.Create(queryParameters)) ?? throw new InvalidOperationException();
     }
 
-    public async Task<IEnumerable<Recipe>> GetAllByAuthorAsync(int authorId)
+    public async Task<PaginatedResponse<Recipe>> GetAllByAuthorAsync(int authorId)
     {
-        return await _httpClient.GetFromJsonAsync<IEnumerable<Recipe>>($"recipes?authorId={authorId}") ?? throw new InvalidOperationException();
+        return await _httpClient.GetFromJsonAsync<PaginatedResponse<Recipe>>($"recipes?authorId={authorId}") ?? throw new InvalidOperationException();
     }
 
     public async Task<Recipe?> GetByIdAsync(int id)
@@ -73,8 +73,8 @@ public class RecipeService : IRecipeService
         return _httpClient.PutAsJsonAsync($"recipes/{id}", request);
     }
 
-    public async Task<IEnumerable<Tag>> GetAllTagsAsync()
+    public async Task<PaginatedResponse<Tag>> GetAllTagsAsync()
     {
-        return await _httpClient.GetFromJsonAsync<IEnumerable<Tag>>("tags") ?? throw new InvalidOperationException();
+        return await _httpClient.GetFromJsonAsync<PaginatedResponse<Tag>>("tags") ?? throw new InvalidOperationException();
     }
 }

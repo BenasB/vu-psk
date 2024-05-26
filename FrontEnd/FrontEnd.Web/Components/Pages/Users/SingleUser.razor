@@ -54,6 +54,6 @@ else
         if (_user == null)
             return;
 
-        _userRecipes = await RecipeService.GetAllByAuthorAsync(_user.Id);
+        _userRecipes = (await RecipeService.GetAllByAuthorAsync(_user.Id)).Items;
     }
 }
