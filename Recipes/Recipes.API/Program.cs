@@ -51,8 +51,8 @@ builder.Services.AddDbContext<RecipesDatabaseContext>(options =>
 builder.Services.ConfigureOptions<ConfigureJwtBearerOptions>();
 builder.Services.Configure<JwtOptions>(
     builder.Configuration.GetRequiredSection(JwtOptions.SectionName));
-builder.Services.Configure<TagCreationOptions>(
-    builder.Configuration.GetRequiredSection(TagCreationOptions.SectionName));
+builder.Services.Configure<FeatureToggles>(
+    builder.Configuration.GetRequiredSection(FeatureToggles.SectionName));
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IRecipesRepository, RecipesRepository>();
@@ -63,8 +63,8 @@ builder.Services.AddScoped<TagCreationService>();
 builder.Services.AddScoped<TagValidationService>();
 builder.Services.AddScoped<ITagValidationService>(serviceProvider =>
 {
-    var options = serviceProvider.GetRequiredService<IOptionsMonitor<TagCreationOptions>>().CurrentValue;
-    return options.Enabled
+    var options = serviceProvider.GetRequiredService<IOptionsMonitor<FeatureToggles>>().CurrentValue;
+    return options.AllowImplicitTagCreation
         ? serviceProvider.GetRequiredService<TagCreationService>()
         : serviceProvider.GetRequiredService<TagValidationService>();
 });
