@@ -1,4 +1,4 @@
-﻿namespace Recipes.API;
+﻿namespace Recipes.API.Middlewares;
 
 using System.Security.Claims;
 using System.Text;

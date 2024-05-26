@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Recipes.API;
+using Recipes.API.Middlewares;
 using Recipes.API.Options;
 using Recipes.DataAccess;
 using Recipes.DataAccess.Entities;
