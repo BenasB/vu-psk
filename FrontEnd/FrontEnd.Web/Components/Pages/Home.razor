@@ -7,68 +7,93 @@
 
 <PageTitle>Recipes</PageTitle>
 
-@if (_shownRecipes == null)
+@if (_shownRecipes == null || _featuredRecipes == null)
 {
-    <FluentStack Wrap="true">
-        @for (var i = 0; i < PageSize; ++i)
-        {
-            <FluentSkeleton Width="16rem" Height="16rem" Shimmer="true"/>
-        }
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="50">
+        <div style="width: 100%">
+            <FluentLabel Typo="Typography.H2" Color="Color.Accent" MarginBlock="10px">Featured</FluentLabel>
+            <FluentSkeleton Width="100%" Height="28rem" Shimmer="true"/>
+        </div>
+        <FluentStack Orientation="Orientation.Vertical">
+            <FluentLabel Typo="Typography.H2" Color="Color.Accent" MarginBlock="10px">All recipes</FluentLabel>
+            <FluentStack Wrap="true">
+                @for (var i = 0; i < PageSize; ++i)
+                {
+                    <FluentSkeleton Width="16rem" Height="16rem" Shimmer="true"/>
+                }
+            </FluentStack>
+        </FluentStack>
     </FluentStack>
 }
 else
 {
-    <FluentStack Orientation="Orientation.Vertical">
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="50">
         
-        <FluentStack Orientation="Orientation.Horizontal">
-            <FluentSearch @bind-Value="@SearchValue"
-                          @bind-Value:after="HandleClearAsync"
-                          @oninput="@(e => SearchValue = e.Value?.ToString())"
-                          Placeholder="Search for recipes"
-                          Style="width: 100%;"/>
+        <div style="width: 100%">
+            <FluentLabel Typo="Typography.H2" Color="Color.Accent" MarginBlock="10px">Featured</FluentLabel>
+            <FluentHorizontalScroll Speed="1200" Class="full-width">
+                @foreach (var featuredRecipe in _featuredRecipes)
+                {
+                    <div style="margin: 0 10px">
+                        <BigRecipeCard Data="featuredRecipe"></BigRecipeCard>
+                    </div>
+                }
+            </FluentHorizontalScroll>
+        </div>
+        
+        <FluentStack Orientation="Orientation.Vertical" Style="margin: 10px 0">
+            <FluentLabel Typo="Typography.H2" Color="Color.Accent" MarginBlock="10px">All recipes</FluentLabel>
+            <FluentStack Orientation="Orientation.Horizontal">
+                <FluentSearch @bind-Value="@SearchValue"
+                              @bind-Value:after="HandleClearAsync"
+                              @oninput="@(e => SearchValue = e.Value?.ToString())"
+                              Placeholder="Search for recipes"
+                              Style="width: 100%;"/>
 
-            <FluentAutocomplete TOption="Tag"
-                                AutoComplete="off"
-                                Placeholder="Search with tags"
-                                OnOptionsSearch="OnTagsSearchAsync"
-                                OptionText="@(tag => tag.Name)"
-                                @bind-SelectedOptions="_selectedTags"
-                                @bind-SelectedOptions:after="OnSelectionTagsChangedAsync"
-                                Width="100%"/>
+                <FluentAutocomplete TOption="Tag"
+                                    AutoComplete="off"
+                                    Placeholder="Search with tags"
+                                    OnOptionsSearch="OnTagsSearchAsync"
+                                    OptionText="@(tag => tag.Name)"
+                                    @bind-SelectedOptions="_selectedTags"
+                                    @bind-SelectedOptions:after="OnSelectionTagsChangedAsync"
+                                    Width="100%"/>
+            </FluentStack>
+
+            @if (!_shownRecipes.Items.Any())
+            {
+                <FluentLabel Typo="Typography.Subject">Couldn't find any recipes</FluentLabel>
+                <FluentStack VerticalAlignment="VerticalAlignment.Center" HorizontalGap="3" Style="margin-block: 10px">
+                    <FluentLabel Typo="Typography.Body">Love cooking?</FluentLabel>
+                    <FluentAnchor Href="recipes/new" Appearance="Appearance.Hypertext">Share your own!</FluentAnchor>
+                </FluentStack>
+            }
+            else
+            {
+                <FluentStack Orientation="Orientation.Vertical">
+                    <FluentStack Wrap="true">
+                        @foreach (var recipe in _shownRecipes.Items)
+                        {
+                            <RecipeCard Data="@recipe"/>
+                        }
+                    </FluentStack>
+                    <FluentStack Orientation="Orientation.Horizontal"
+                                 HorizontalAlignment="HorizontalAlignment.Center"
+                                 VerticalAlignment="VerticalAlignment.Center">
+                        <FluentButton OnClick="@SwitchToPreviousPageAsync" Disabled="@(_currentPage == 1)" IconEnd="@(new Icons.Regular.Size20.ArrowLeft())" />
+                        <FluentLabel Typo="Typography.Body">@_currentPage</FluentLabel>
+                        <FluentButton OnClick="@SwitchToNextPageAsync" Disabled="@(_shownRecipes.IsLastPage)" IconEnd="@(new Icons.Regular.Size20.ArrowRight())" />
+                    </FluentStack>
+                </FluentStack>
+            }
         </FluentStack>
-
-        @if (!_shownRecipes.Items.Any())
-        {
-            <FluentLabel Typo="Typography.Subject">Couldn't find any recipes</FluentLabel>
-            <FluentStack VerticalAlignment="VerticalAlignment.Center" HorizontalGap="3" Style="margin-block: 10px">
-                <FluentLabel Typo="Typography.Body">Love cooking?</FluentLabel>
-                <FluentAnchor Href="recipes/new" Appearance="Appearance.Hypertext">Share your own!</FluentAnchor>
-            </FluentStack>
-        }
-        else
-        {
-            <FluentStack Orientation="Orientation.Vertical">
-                <FluentStack Wrap="true">
-                    @foreach (var recipe in _shownRecipes.Items)
-                    {
-                        <RecipeCard Data="@recipe"/>
-                    }
-                </FluentStack>
-                <FluentStack Orientation="Orientation.Horizontal"
-                             HorizontalAlignment="HorizontalAlignment.Center"
-                             VerticalAlignment="VerticalAlignment.Center">
-                    <FluentButton OnClick="@SwitchToPreviousPageAsync" Disabled="@(_currentPage == 1)" IconEnd="@(new Icons.Regular.Size20.ArrowLeft())" />
-                    <FluentLabel Typo="Typography.Body">@_currentPage</FluentLabel>
-                    <FluentButton OnClick="@SwitchToNextPageAsync" Disabled="@(_shownRecipes.IsLastPage)" IconEnd="@(new Icons.Regular.Size20.ArrowRight())" />
-                </FluentStack>
-            </FluentStack>
-        }
     </FluentStack>
 }
 
 @code {
     private PaginatedResponse<Recipe>? _shownRecipes;
-    
+    private IEnumerable<Recipe>? _featuredRecipes;
+
     private string? _searchValue = string.Empty;
     private System.Timers.Timer? _timer;
     private List<Tag> _availableTags = [];
@@ -91,21 +116,22 @@ else
             _timer.Start();
         }
     }
-    
-    private (int, int) Pagination => ((_currentPage-1)*PageSize, PageSize);
-    
+
+    private (int, int) Pagination => ((_currentPage - 1) * PageSize, PageSize);
+
     protected override async Task OnInitializedAsync()
     {
         _shownRecipes = await RecipeService.GetAllAsync(pagination: Pagination);
+        _featuredRecipes = await RecipeService.GetFeaturedAsync();
         _availableTags = (await RecipeService.GetAllTagsAsync()).Items.ToList();
     }
-    
+
     private async void TimerElapsed_TickAsync(object? sender, EventArgs e)
     {
         DisposeTimer();
         await InvokeAsync(OnSearchAsync);
     }
-    
+
     private async Task HandleClearAsync()
     {
         if (string.IsNullOrWhiteSpace(SearchValue))
@@ -117,7 +143,7 @@ else
         SearchValue = string.Empty;
         StateHasChanged();
     }
-    
+
     private void DisposeTimer()
     {
         if (_timer == null) return;
@@ -126,14 +152,14 @@ else
         _timer.Dispose();
         _timer = null;
     }
-    
+
     private async Task OnSearchAsync()
     {
         _currentPage = 1;
         _shownRecipes = await RecipeService.GetAllAsync(searchTerm: _searchValue, tags: _selectedTags, pagination: Pagination);
         StateHasChanged();
     }
-    
+
     private Task OnTagsSearchAsync(OptionsSearchEventArgs<Tag> e)
     {
         if (string.IsNullOrWhiteSpace(e.Text))
@@ -157,10 +183,11 @@ else
         _currentPage--;
         _shownRecipes = await RecipeService.GetAllAsync(searchTerm: _searchValue, tags: _selectedTags, pagination: Pagination);
     }
-    
+
     private async Task SwitchToNextPageAsync()
     {
         _currentPage++;
         _shownRecipes = await RecipeService.GetAllAsync(searchTerm: _searchValue, tags: _selectedTags, pagination: Pagination);
     }
+
 }

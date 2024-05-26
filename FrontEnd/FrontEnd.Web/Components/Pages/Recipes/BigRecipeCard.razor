@@ -1,0 +1,34 @@
+﻿<FluentNavLink Href=@($"recipes/{Data.Id}") Match="NavLinkMatch.All">
+    <!--suppress CssUnresolvedCustomProperty -->
+    <FluentCard Width="40vw" Style="background-color: var(--neutral-layer-1); min-width: 400px">
+        <FluentGrid Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center">
+            <FluentGridItem xs="12" md="9" Style="height: 100%">
+                <img src="@(Data.Image ?? MissingImageUrl)" alt="@Data.Title" style="object-fit: cover; height: 26rem; width: 100%; border-radius: 5px"/>
+            </FluentGridItem>
+
+            <FluentGridItem xs="12" md="3">
+                <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="height: 100%">
+                    <FluentStack Orientation="Orientation.Vertical">
+                        <FluentLabel Typo="Typography.Subject" MarginBlock="10px" Weight="FontWeight.Bold">@Data.Title</FluentLabel>
+                        <FluentLabel Typo="Typography.Body">@ShortenString(Data.Description, 200)</FluentLabel>
+                    </FluentStack>
+                </FluentStack>
+            </FluentGridItem>
+        </FluentGrid>
+    </FluentCard>
+</FluentNavLink>
+
+@code
+{
+    [Parameter, EditorRequired] public global::Recipes.Public.Recipe Data { get; set; } = default!;
+    
+    private const string MissingImageUrl = "https://worldfoodtour.co.uk/wp-content/uploads/2013/06/neptune-placeholder-48.jpg";
+
+    private static string? ShortenString(string? value, int maxLength)
+    {
+        if (value?.Length > maxLength)
+            return value[..maxLength] + "...";
+
+        return value;
+    }
+}
