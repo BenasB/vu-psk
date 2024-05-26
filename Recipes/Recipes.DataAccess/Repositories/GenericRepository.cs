@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Recipes.DataAccess.Filtering;
 
 namespace Recipes.DataAccess.Repositories;
 
@@ -11,9 +12,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         Context = context;
     }
 
-    public virtual async Task<IEnumerable<T>> GetAllAsync()
+    public virtual async Task<IEnumerable<T>> GetAllAsync(int? top = null, int? skip = null)
     {
-        return await Context.Set<T>().ToListAsync();
+        return await Context.Set<T>().Paginate(top, skip).ToListAsync();
     }
 
     public virtual T? GetById(params object[] id)

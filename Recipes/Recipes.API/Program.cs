@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Recipes.API.Options;
 using Recipes.DataAccess;
-using Recipes.DataAccess.Entities;
 using Recipes.DataAccess.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,7 +43,7 @@ builder.Services.AddDbContext<RecipesDatabaseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped(typeof(IGenericRepository<RecipeEntity>), typeof(RecipesRepository));
+builder.Services.AddScoped<IRecipesRepository, RecipesRepository>();
 
 builder.Services.ConfigureOptions<ConfigureJwtBearerOptions>();
 builder.Services.Configure<JwtOptions>(

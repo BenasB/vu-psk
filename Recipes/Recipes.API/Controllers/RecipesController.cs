@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Recipes.DataAccess.Entities;
 using Recipes.DataAccess.Entities.Relationships;
+using Recipes.DataAccess.Filtering;
 using Recipes.DataAccess.Repositories;
 using Recipes.Public;
 
@@ -13,12 +14,12 @@ namespace Recipes.API.Controllers;
 [Route("recipes")]
 public class RecipesController : ControllerBase
 {
-    private readonly IGenericRepository<RecipeEntity> _recipesRepository;
+    private readonly IRecipesRepository _recipesRepository;
     private readonly IGenericRepository<TagRecipeEntity> _tagRecipeRepository;
     private readonly IGenericRepository<TagEntity> _tagRepository;
     
     public RecipesController(
-        IGenericRepository<RecipeEntity> recipeRepository,
+        IRecipesRepository recipeRepository,
         IGenericRepository<TagRecipeEntity> tagRecipeRepository,
         IGenericRepository<TagEntity> tagRepository)
     {
@@ -30,12 +31,22 @@ public class RecipesController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<Recipe>>> GetAllRecipes()
+    public ActionResult<IEnumerable<Recipe>> GetAllRecipes([FromQuery] string? title, [FromQuery] string? csvTags, [FromQuery] long? authorId, [FromQuery] int? skip, [FromQuery] int? top)
     {
-        IEnumerable<RecipeEntity> recipes;
+        IList<long>? tags;
         try
         {
-            recipes = await _recipesRepository.GetAllAsync();
+            tags = csvTags?.Split(',').Select(long.Parse).ToArray();
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status400BadRequest);
+        }
+
+        IList<RecipeEntity> recipes;
+        try
+        {
+            recipes = _recipesRepository.GetFiltered(top, skip, title, tags, authorId).ToList();
         }
         catch (Exception)
         {
