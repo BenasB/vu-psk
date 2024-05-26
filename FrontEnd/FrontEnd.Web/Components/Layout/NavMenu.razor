@@ -51,7 +51,7 @@
             var user = authState.User;
 
             _loggedIn = user.Identity is not null && user.Identity.IsAuthenticated;
-            _isAdmin = user.HasClaim(c => c is { Type: ClaimTypes.Role, Value: UserRoles.Admin });
+            _isAdmin = user.IsInRole(UserRoles.Admin);
         }
     }
 }
