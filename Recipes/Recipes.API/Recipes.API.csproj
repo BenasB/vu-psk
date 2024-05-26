@@ -31,7 +31,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Recipes.DataAccess\Recipes.DataAccess.csproj" />
+      <ProjectReference Include="..\Recipes.Business\Recipes.Business.csproj" />
       <ProjectReference Include="..\Recipes.Public\Recipes.Public.csproj" />
     </ItemGroup>
 

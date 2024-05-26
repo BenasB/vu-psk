@@ -8,9 +8,9 @@ public class RecipesRepository : GenericRepository<RecipeEntity>, IRecipesReposi
 {
     public RecipesRepository(RecipesDatabaseContext context) : base(context) { }
 
-    public override async Task<IEnumerable<RecipeEntity>> GetAllAsync(int? top = null, int? skip = null)
+    public override async Task<PaginatedList<RecipeEntity>> GetAllAsync(int? top = null, int? skip = null)
     {
-        return await Context.Set<RecipeEntity>().Include(s => s.Tags).ThenInclude(s => s.Tag).Paginate(top, skip).ToListAsync();
+        return await Context.Set<RecipeEntity>().Include(s => s.Tags).ThenInclude(s => s.Tag).Paginate(top, skip);
     }
 
     public override RecipeEntity? GetById(params object[] id)
@@ -18,9 +18,9 @@ public class RecipesRepository : GenericRepository<RecipeEntity>, IRecipesReposi
         return Context.Set<RecipeEntity>().Include(s => s.Tags).ThenInclude(s => s.Tag).FirstOrDefault(s => s.Id == (int)id[0]);
     }
 
-    public IEnumerable<RecipeEntity> GetFiltered(int? top, int? skip, string? name, IList<long>? tags, long? authorId)
+    public async Task<PaginatedList<RecipeEntity>> GetFiltered(int? top, int? skip, string? name, IList<long>? tags, long? authorId)
     {
-        return Context.Set<RecipeEntity>()
+        return await Context.Set<RecipeEntity>()
             .Include(s => s.Tags)
             .ThenInclude(s => s.Tag)
             .FilterByAuthor(authorId)
