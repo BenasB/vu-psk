@@ -33,7 +33,6 @@
     <ItemGroup>
       <ProjectReference Include="..\Recipes.Business\Recipes.Business.csproj" />
       <ProjectReference Include="..\Recipes.Public\Recipes.Public.csproj" />
-      <ProjectReference Include="..\..\Identity\Identity.Public\Identity.Public.csproj" />
     </ItemGroup>
 
 </Project>

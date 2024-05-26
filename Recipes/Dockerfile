@@ -10,11 +10,10 @@ COPY ["Recipes.API/Recipes.API.csproj", "Recipes.API/"]
 COPY ["Recipes.Business/Recipes.Business.csproj", "Recipes.Business/"]
 COPY ["Recipes.Public/Recipes.Public.csproj", "Recipes.Public/"]
 COPY ["Recipes.DataAccess/Recipes.DataAccess.csproj", "Recipes.DataAccess/"]
-COPY ["Identity/Identity.Public/Identity.Public.csproj", "Identity/Identity.Public/"]
+RUN dotnet restore "Recipes.API/Recipes.API.csproj"
 COPY . .
-COPY Identity/Identity.Public/ Identity/Identity.Public/
 WORKDIR /src/Recipes.API
-RUN dotnet build "Recipes.API.csproj" -c $BUILD_CONFIGURATION --no-restore -o /app/build
+RUN dotnet build "Recipes.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
