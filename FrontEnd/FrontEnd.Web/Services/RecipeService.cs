@@ -5,6 +5,7 @@ namespace FrontEnd.Web.Services;
 public interface IRecipeService
 {
     Task<IEnumerable<Recipe>> GetAllAsync();
+    Task<IEnumerable<Recipe>> GetAllByAuthorAsync(int authorId);
     Task<Recipe?> GetByIdAsync(int id);
     Task<bool> DeleteByIdAsync(int id);
     Task<Recipe> CreateAsync(RecipeCreateDTO request);
@@ -26,7 +27,12 @@ public class RecipeService : IRecipeService
     {
         return await _httpClient.GetFromJsonAsync<IEnumerable<Recipe>>("recipes") ?? throw new InvalidOperationException();
     }
-    
+
+    public async Task<IEnumerable<Recipe>> GetAllByAuthorAsync(int authorId)
+    {
+        return await _httpClient.GetFromJsonAsync<IEnumerable<Recipe>>($"recipes?authorId={authorId}") ?? throw new InvalidOperationException();
+    }
+
     public async Task<Recipe?> GetByIdAsync(int id)
     { 
         var response = await _httpClient.GetAsync($"recipes/{id}");

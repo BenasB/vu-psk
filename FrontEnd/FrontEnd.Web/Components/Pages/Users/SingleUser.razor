@@ -1,8 +1,10 @@
 ﻿@page "/users/{Id:int}"
 
 @using FrontEnd.Web.Services
+@using FrontEnd.Web.Components.Pages.Recipes
 @attribute [StreamRendering]
 @inject IIdentityService IdentityService
+@inject IRecipeService RecipeService
 
 <PageTitle>@(_user?.Username ?? "Single user display")</PageTitle>
 
@@ -24,7 +26,15 @@ else
         <FluentPersona Image="@_user.ImageUrl" ImageSize="200px" Style="margin: 0 auto;"/>
         <FluentLabel Typo="Typography.H1" MarginBlock="10px" Alignment="HorizontalAlignment.Center" Style="width: 100%">@_user.Username</FluentLabel>
         <FluentLabel Typo="Typography.H3">Recipes</FluentLabel>
-        <FluentLabel Typo="Typography.Body">Recipes should be shown here</FluentLabel>
+        @if (_userRecipes != null)
+        {
+            <FluentStack Wrap="true">
+                @foreach (var recipe in _userRecipes)
+                {
+                    <RecipeCard Data="@recipe"/>
+                }
+            </FluentStack>
+        } 
     </FluentStack>
 }
 
@@ -34,10 +44,16 @@ else
 
     private Identity.Public.User? _user;
     private Task<Identity.Public.User?>? _task;
+    private IEnumerable<global::Recipes.Public.Recipe>? _userRecipes;
 
     protected override async Task OnInitializedAsync()
     {
         _task = IdentityService.GetByIdAsync(Id);
         _user = await _task;
+
+        if (_user == null)
+            return;
+
+        _userRecipes = await RecipeService.GetAllByAuthorAsync(_user.Id);
     }
 }
