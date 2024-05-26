@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Recipes.Business.Services.Interfaces;
 using Recipes.Public;
 
@@ -60,7 +61,14 @@ public class RecipesController(IRecipesService recipeService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> UpdateRecipe(int recipeId, [FromBody] RecipeUpdateDTO request)
     {
-        return Ok(await recipeService.UpdateRecipe(recipeId, request));
+        try
+        {
+            return Ok(await recipeService.UpdateRecipe(recipeId, request));
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return Conflict("Recipe was modified by another user");
+        }
     }
 
     [HttpDelete("{recipeId:int}/tags/{tagId:int}")]
