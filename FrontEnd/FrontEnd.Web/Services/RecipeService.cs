@@ -1,4 +1,6 @@
 using System.Collections.Specialized;
+using System.Data;
+using System.Net;
 using System.Web;
 using Recipes.Public;
 
@@ -68,9 +70,11 @@ public class RecipeService : IRecipeService
         return await response.Content.ReadFromJsonAsync<Recipe>() ?? throw new InvalidOperationException();
     }
 
-    public Task UpdateAsync(int id, RecipeUpdateDTO request)
+    public async Task UpdateAsync(int id, RecipeUpdateDTO request)
     {
-        return _httpClient.PutAsJsonAsync($"recipes/{id}", request);
+        var response = await _httpClient.PutAsJsonAsync($"recipes/{id}", request);
+        if (response.StatusCode == HttpStatusCode.Conflict)
+            throw new DBConcurrencyException();
     }
 
     public async Task<PaginatedResponse<Tag>> GetAllTagsAsync()

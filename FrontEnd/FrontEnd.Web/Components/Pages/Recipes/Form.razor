@@ -1,4 +1,5 @@
 ﻿@using System.ComponentModel.DataAnnotations
+@using System.Data
 @using FrontEnd.Web.Services
 @rendermode InteractiveServer
 @inject IRecipeService RecipeService
@@ -8,16 +9,19 @@
     <ObjectGraphDataAnnotationsValidator/>
 
     <FluentGrid AdaptiveRendering>
+        @if (_activeTab == "tab-current")
+        {
         <FluentGridItem xs="12" sm="12" md="6">
             <FluentStack Orientation="Orientation.Vertical">
                 <div style="width: 100%;">
-                    <FluentTextField Name="title" @bind-Value="FormData.Title" Label="Title" Required style="width: 100%;"/>
+                    <FluentTextField Name="title" @bind-Value="FormData.Title" Label="Title" Required style="width: 100%;" ReadOnly="ReadOnly"/>
                     <FluentValidationMessage For="@(() => FormData.Title)"/>
                 </div>
                 <FluentTextArea Name="description"
                                 Rows="5"
                                 @bind-Value="FormData.Description"
                                 Label="Description"
+                                ReadOnly="ReadOnly"
                                 style="width: 100%;"/>
                 <FluentAutocomplete TOption="global::Recipes.Public.Tag"
                                     AutoComplete="off"
@@ -26,6 +30,7 @@
                                     OnOptionsSearch="OnTagsSearchAsync"
                                     OptionText="@(tag => tag.Name)"
                                     @bind-SelectedOptions="@FormData.Tags"
+                                    Disabled="ReadOnly"
                                     Width="100%"/>
                 <div style="width: 100%;">
                     <FluentNumberField Name="cookingTime"
@@ -33,6 +38,7 @@
                                        ParsingErrorMessage="Cooking time must be an integer"
                                        Label="Cooking time (min.)"
                                        Required
+                                       ReadOnly="ReadOnly"
                                        style="width: 100%;"/>
                     <FluentValidationMessage For="@(() => FormData.CookingTimeInMinutes)" />
                 </div>
@@ -41,6 +47,7 @@
                                        @bind-Value="FormData.Servings"
                                        Label="Servings"
                                        Required
+                                       ReadOnly="ReadOnly"
                                        style="width: 100%;"/>
                     <FluentValidationMessage For="@(() => FormData.Servings)"/>
                 </div>
@@ -51,16 +58,18 @@
                     {
                         <div style="width: 100%;">
                             <FluentStack Orientation="Orientation.Horizontal">
-                                <FluentTextField @bind-Value="ingredient.Value" Style="width: 100%"/>
+                                <FluentTextField @bind-Value="ingredient.Value" ReadOnly="ReadOnly" Style="width: 100%"/>
                                 <FluentButton Appearance="Appearance.Lightweight"
                                               IconEnd="@(new Icons.Regular.Size16.Delete())"
-                                              OnClick="@(() => FormData.Ingredients.Remove(ingredient))"/>
+                                              OnClick="@(() => FormData.Ingredients.Remove(ingredient))"
+                                              Disabled="ReadOnly"/>
                             </FluentStack>
                             <FluentValidationMessage For="@(() => ingredient.Value)"/>
                         </div>
                     }
                     <FluentButton Appearance="Appearance.Lightweight"
-                                  OnClick="() => FormData.Ingredients.Add(new Ingredient())">
+                                  OnClick="() => FormData.Ingredients.Add(new Ingredient())"
+                                  Disabled="ReadOnly">
                         Add new ingredient
                     </FluentButton>
                 </FluentStack>
@@ -76,16 +85,18 @@
                             }
                             <FluentStack Orientation="Orientation.Horizontal">
                                 <FluentLabel>@(index + 1).</FluentLabel>
-                                <FluentTextArea Rows="5" @bind-Value="instruction.Value" Style="width: 100%"/>
+                                <FluentTextArea Rows="5" @bind-Value="instruction.Value" Style="width: 100%" ReadOnly="ReadOnly"/>
                                 <FluentButton Appearance="Appearance.Lightweight"
                                               IconEnd="@(new Icons.Regular.Size16.Delete())"
-                                              OnClick="@(() => FormData.Instructions.Remove(instruction))"/>
+                                              OnClick="@(() => FormData.Instructions.Remove(instruction))"
+                                              Disabled="ReadOnly"/>
                             </FluentStack>
                             <FluentValidationMessage For="@(() => instruction.Value)"/>
                         </div>
                     }
                     <FluentButton Appearance="Appearance.Lightweight"
-                                  OnClick="() => FormData.Instructions.Add(new InstructionStep())">
+                                  OnClick="() => FormData.Instructions.Add(new InstructionStep())"
+                                  Disabled="ReadOnly">
                         Add new step
                     </FluentButton>
                 </FluentStack>
@@ -100,7 +111,8 @@
                         <FluentSpacer/>
                         <FluentButton Appearance="Appearance.Lightweight"
                                       IconEnd="@(new Icons.Regular.Size16.Delete())"
-                                      OnClick="@(() => FormData.Image = null)"/>
+                                      OnClick="@(() => FormData.Image = null)"
+                                      Disabled="ReadOnly"/>
                     }
                 </FluentStack>
                 @if (FormData.Image != null)
@@ -115,6 +127,7 @@
                                      Mode="InputFileMode.Stream"
                                      OnFileUploaded="OnFileUploadedAsync"
                                      Accept="image/*"
+                                     Disabled="ReadOnly"
                                      Style="height: 300px; width: 100%; border: 1px dashed var(--accent-fill-rest);">
                         <ChildContent>
                             <label for="picture">
@@ -129,19 +142,52 @@
                 }
             </FluentStack>
         </FluentGridItem>
+        }
+        else
+        {
+            <Form InitialData="_conflictedRecipe" ReadOnly="true"></Form>
+        }
         <FluentGridItem xs="12">
-            <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">@(InitialData == null ? "Create" : "Edit")</FluentButton>
+            @if (!ReadOnly)
+            {
+                @if (_conflictedRecipe != null)
+                {
+                    <FluentMessageBar Intent="@MessageIntent.Warning" AllowDismiss="false">
+                        <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Wrap="true">
+                            <FluentLabel Typo="Typography.Body" Weight="FontWeight.Bold">This recipe was edited by another user</FluentLabel>
+                            <FluentSpacer/>
+                            <FluentTabs Orientation="Orientation.Horizontal" @bind-ActiveTabId="@_activeTab" Width="150px">
+                                <FluentTab Label="Current" Id="tab-current"/>
+                                <FluentTab Label="Latest" Id="tab-latest"/>
+                            </FluentTabs>
+                            <FluentButton OnClick="() => NavigationManager.Refresh(forceReload: true)">Edit latest</FluentButton>
+                            <FluentButton Appearance="Appearance.Accent"
+                                          BackgroundColor="var(--error)"
+                                          Type="ButtonType.Submit">
+                                Force overwrite
+                            </FluentButton>
+                        </FluentStack>
+                    </FluentMessageBar>
+                }
+                else
+                {
+                    <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">@(InitialData == null ? "Create" : "Edit")</FluentButton>
+                }
+            }
         </FluentGridItem>
     </FluentGrid>
 </EditForm>
 
 @code{
     [Parameter] public global::Recipes.Public.Recipe? InitialData { get; set; }
+    [Parameter] public bool ReadOnly { get; set; } = false;
 
     [SupplyParameterFromForm] private RecipeFormData FormData { get; set; } = new();
 
     private FluentInputFile? _imageFile;
     private List<global::Recipes.Public.Tag> _availableTags = [];
+    private global::Recipes.Public.Recipe? _conflictedRecipe;
+    private string? _activeTab = "tab-current";
 
     protected override async Task OnInitializedAsync()
     {
@@ -183,7 +229,7 @@
         public List<InstructionStep> Instructions { get; set; } = [];
 
         public IEnumerable<global::Recipes.Public.Tag> Tags { get; set; } = [];
-        
+
         public string? Image { get; set; }
     }
 
@@ -215,7 +261,7 @@
                 Tags = FormData.Tags.Select(x => x.Name).ToList(),
                 Image = FormData.Image
             };
-            
+
             var result = await RecipeService.CreateAsync(requestDto);
             NavigationManager.NavigateTo($"recipes/{result.Id}");
         }
@@ -232,11 +278,18 @@
                 Instructions = FormData.Instructions.Select(x => x.Value!).ToList(),
                 Tags = FormData.Tags.Select(x => x.Name).ToList(),
                 Image = FormData.Image,
-                Version = InitialData.Version
+                Version = _conflictedRecipe?.Version ?? InitialData.Version
             };
-            
-            await RecipeService.UpdateAsync(InitialData.Id, requestDto);
-            NavigationManager.NavigateTo($"recipes/{InitialData.Id}");
+
+            try
+            {
+                await RecipeService.UpdateAsync(InitialData.Id, requestDto);
+                NavigationManager.NavigateTo($"recipes/{InitialData.Id}");
+            }
+            catch (DBConcurrencyException)
+            {
+                _conflictedRecipe = await RecipeService.GetByIdAsync(InitialData.Id);
+            }
         }
     }
 
