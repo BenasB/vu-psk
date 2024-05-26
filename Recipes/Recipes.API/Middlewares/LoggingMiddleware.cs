@@ -1,5 +1,6 @@
 ﻿namespace Recipes.API.Middlewares;
 
+using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,16 +9,31 @@ public class LoggingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<LoggingMiddleware> _logger;
+    private LoggerOptions _options;
 
     public LoggingMiddleware(RequestDelegate next,
-    ILogger<LoggingMiddleware> logger)
+    ILogger<LoggingMiddleware> logger,
+    IOptionsMonitor<LoggerOptions> options
+    )
     {
         _next = next;
         _logger = logger;
+        _options = options.CurrentValue;
+
+        options.OnChange(option =>
+        {
+            _options = option;
+        });
     }
 
-    public async Task Invoke(HttpContext context)
+    public async Task InvokeAsync(HttpContext context)
     {
+        if(!_options.IsEnabled)
+        {
+            await _next(context);
+            return;
+        }
+
         string requestLog = GetRequestLog(context);
         Log(requestLog);
 
@@ -31,7 +47,7 @@ public class LoggingMiddleware
     {
         var request = context.Request;
         var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        var userRole = context.User.FindFirstValue(ClaimTypes.Role);
+        var userRoles = context.User.FindAll(ClaimTypes.Role).Select(x => x.Type);
 
         var requestLog = new StringBuilder();
         requestLog.AppendLine("");
@@ -39,7 +55,7 @@ public class LoggingMiddleware
         requestLog.AppendLine("");
         requestLog.AppendLine($"HTTP {request.Method} {request.Path}");
         requestLog.AppendLine($"User Id: {userId}");
-        requestLog.AppendLine($"User Role: {userRole}");
+        requestLog.AppendLine($"User Roles: {string.Join(", ", userRoles)}");
         requestLog.AppendLine($"Host: {request.Host}");
         requestLog.AppendLine($"Content-Type: {request.ContentType}");
         requestLog.AppendLine($"Content-Length: {request.ContentLength}");
@@ -65,7 +81,9 @@ public class LoggingMiddleware
     private void Log(string content)
     {
         _logger.LogInformation(content);
-        File.AppendAllText("log.txt", content);
+
+        if(_options.LogToFile)
+            File.AppendAllText(_options.LogFilePath, content);
     }
 
 }
