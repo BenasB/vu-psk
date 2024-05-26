@@ -4,13 +4,13 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-public class RequestResponseLoggingMiddleware
+public class LoggingMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger<RequestResponseLoggingMiddleware> _logger;
+    private readonly ILogger<LoggingMiddleware> _logger;
 
-    public RequestResponseLoggingMiddleware(RequestDelegate next,
-    ILogger<RequestResponseLoggingMiddleware> logger)
+    public LoggingMiddleware(RequestDelegate next,
+    ILogger<LoggingMiddleware> logger)
     {
         _next = next;
         _logger = logger;
