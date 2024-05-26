@@ -23,12 +23,12 @@ public class RecipesService : IRecipesService
         _tagValidationService = tagValidationService;
     }
 
-    public IEnumerable<Recipe> GetAllRecipes(string? title, string? csvTags, long? authorId, int? skip = null, int? top = null)
+    public async Task<PaginatedResponse<Recipe>> GetAllRecipes(string? title, string? csvTags, long? authorId, int? skip = null, int? top = null)
     {
         IList<long>? tags = TryParseTags(csvTags);
 
-        var recipes = _recipesRepository.GetFiltered(top, skip, title, tags, authorId).ToList();
-        return recipes.Select(MappingService.GetRecipeFromEntity);
+        var recipes = await _recipesRepository.GetFiltered(top, skip, title, tags, authorId);
+        return MappingService.GetPaginatedResponse(recipes, MappingService.GetRecipeFromEntity);
     }
 
     public Recipe GetRecipe(int recipeId)

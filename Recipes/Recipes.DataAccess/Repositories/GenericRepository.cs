@@ -12,9 +12,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         Context = context;
     }
 
-    public virtual async Task<IEnumerable<T>> GetAllAsync(int? top = null, int? skip = null)
+    public virtual async Task<PaginatedList<T>> GetAllAsync(int? top = null, int? skip = null)
     {
-        return await Context.Set<T>().Paginate(top, skip).ToListAsync();
+        return await Context.Set<T>().Paginate(top, skip);
     }
 
     public virtual T? GetById(params object[] id)
