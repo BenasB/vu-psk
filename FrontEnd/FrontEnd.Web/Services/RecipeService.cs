@@ -10,6 +10,7 @@ public interface IRecipeService
 {
     Task<PaginatedResponse<Recipe>> GetAllAsync(string? searchTerm = null, IEnumerable<Tag>? tags = null, (int Skip, int Top)? pagination = null);
     Task<PaginatedResponse<Recipe>> GetAllByAuthorAsync(int authorId);
+    Task<IEnumerable<Recipe>> GetRelatedAsync(int id);
     Task<Recipe?> GetByIdAsync(int id);
     Task<bool> DeleteByIdAsync(int id);
     Task<Recipe> CreateAsync(RecipeCreateDTO request);
@@ -49,6 +50,11 @@ public class RecipeService : IRecipeService
     public async Task<PaginatedResponse<Recipe>> GetAllByAuthorAsync(int authorId)
     {
         return await _httpClient.GetFromJsonAsync<PaginatedResponse<Recipe>>($"recipes?authorId={authorId}") ?? throw new InvalidOperationException();
+    }
+
+    public async Task<IEnumerable<Recipe>> GetRelatedAsync(int id)
+    {
+        return await _httpClient.GetFromJsonAsync<IEnumerable<Recipe>>($"recipes/{id}/related") ?? throw new InvalidOperationException();
     }
 
     public async Task<Recipe?> GetByIdAsync(int id)

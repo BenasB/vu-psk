@@ -76,11 +76,11 @@ else
                 {
                     <FluentAnchor Href=@($"/users/{_author.Id}") Appearance="Appearance.Stealth" Style="height: 45px">
                         <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center">
-                                <FluentLabel Typo="Typography.Body">By </FluentLabel>
-                                <FluentPersona Name="@_author.Username"
-                                               Image="@_author.ImageUrl"
-                                               ImageSize="35px">
-                                </FluentPersona>
+                            <FluentLabel Typo="Typography.Body">By </FluentLabel>
+                            <FluentPersona Name="@_author.Username"
+                                           Image="@_author.ImageUrl"
+                                           ImageSize="35px">
+                            </FluentPersona>
                         </FluentStack>
                     </FluentAnchor>
                 }
@@ -101,6 +101,18 @@ else
             </ol>
         </FluentGridItem>
     </FluentGrid>
+    @if (_relatedRecipes != null)
+    {
+        <FluentLabel Typo="Typography.H3" MarginBlock="30px 10px">Related recipes</FluentLabel>
+        <FluentHorizontalScroll Speed="1200">
+            @foreach (var recipe in _relatedRecipes)
+            {
+                <div style="margin: 0 10px">
+                    <RecipeCard Data="@recipe"/>
+                </div>
+            }
+        </FluentHorizontalScroll>
+    }
     
     <FluentMenu Anchor="share-menu-button" @bind-Open="ShareMenuOpen" VerticalThreshold="170">
         <FluentStack Orientation="Orientation.Vertical" Style="align-items: unset;">
@@ -127,6 +139,7 @@ else
     private bool ShareMenuOpen { get; set; } = false;
 
     private global::Recipes.Public.Recipe? _recipe;
+    private IEnumerable<global::Recipes.Public.Recipe>? _relatedRecipes;
     private User? _author;
     private Task<global::Recipes.Public.Recipe?>? _recipeTask;
     private bool _isAuthor;
@@ -146,6 +159,7 @@ else
             return;
         
         _author = await IdentityService.GetByIdAsync(_recipe.AuthorId);
+        _relatedRecipes = await RecipeService.GetRelatedAsync(_recipe.Id);
 
         if (AuthenticationState == null)
             return;
