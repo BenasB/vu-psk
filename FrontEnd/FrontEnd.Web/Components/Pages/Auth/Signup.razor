@@ -10,7 +10,7 @@
 <PageTitle>Sign Up</PageTitle>
 
 <FluentGrid AdaptiveRendering="true" Justify="JustifyContent.Center" Style="margin-block: 20px; margin-inline: 20px;">
-    <FluentGridItem md="5">
+    <FluentGridItem md="6">
         <FluentStack Orientation="Orientation.Vertical" Style="display: flex; align-items: center; margin-top: 15vh; ">
             <FluentLabel Typo="Typography.PaneHeader">Sign Up</FluentLabel>
             <EditForm Model="@Credentials" OnValidSubmit="@SignupAsync" FormName="signup" novalidate>
@@ -43,7 +43,7 @@
             </EditForm>
         </FluentStack>
     </FluentGridItem>
-    <FluentGridItem md="7" HiddenWhen="GridItemHidden.SmAndDown" Style="overflow: hidden; height: 80vh">
+    <FluentGridItem md="6" HiddenWhen="GridItemHidden.SmAndDown" Style="overflow: hidden; height: 80vh">
         <img src="https://cdn.pixabay.com/photo/2024/02/23/22/51/ai-generated-8592930_1280.jpg" alt="Registration page image" style="transform: translate(-50%, -30%)" />
     </FluentGridItem>
 </FluentGrid>

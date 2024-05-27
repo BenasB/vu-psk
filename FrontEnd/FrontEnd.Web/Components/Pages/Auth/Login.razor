@@ -10,10 +10,10 @@
 <PageTitle>Log In</PageTitle>
 
 <FluentGrid AdaptiveRendering="true" Justify="JustifyContent.Center" Style="margin-block: 20px; margin-inline: 20px;">
-    <FluentGridItem md="7" HiddenWhen="GridItemHidden.SmAndDown" Style="overflow: hidden; height: 80vh">
+    <FluentGridItem md="6" HiddenWhen="GridItemHidden.SmAndDown" Style="overflow: hidden; height: 80vh">
         <img src="https://cdn.pixabay.com/photo/2024/02/23/22/51/ai-generated-8592930_1280.jpg" alt="Login page image" style="transform: translate(0, -30%)"/>
     </FluentGridItem>
-    <FluentGridItem md="5">
+    <FluentGridItem md="6">
         <FluentStack Orientation="Orientation.Vertical" Style="display: flex; align-items: center; margin-top: 15vh; ">
             <FluentLabel Typo="Typography.PaneHeader">Log In</FluentLabel>
             <EditForm Model="@Credentials" OnValidSubmit="@LoginAsync" FormName="login" novalidate>
@@ -23,7 +23,7 @@
                     <div>
                         <FluentTextField Placeholder="Username" @bind-Value="Credentials.Username" Required Style="width: 40ch;"/>
                         <FluentValidationMessage For="@(() => Credentials.Username)"/>
-                        </div>
+                    </div>
                     <div>
                         <FluentTextField Placeholder="Password" @bind-Value="Credentials.Password" TextFieldType="TextFieldType.Password" Required Style="width: 40ch;"/>
                         <FluentValidationMessage For="@(() => Credentials.Password)"/>
